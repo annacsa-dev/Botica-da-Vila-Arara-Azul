@@ -181,6 +181,14 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 .social a{display:inline-flex;align-items:center;gap:6px;background:var(--paper);color:var(--ink);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px;box-shadow:0 3px 0 var(--edge);font-family:'Fredoka',sans-serif;font-weight:500;font-size:.95rem;text-decoration:none}
 .social a:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
 .sheet .social{justify-content:flex-start;margin:0 0 14px}
+.lang{display:flex;gap:6px}
+.flag{cursor:pointer;padding:3px;height:36px;width:44px;border-radius:12px;background:var(--paper);border:2.5px solid var(--edge);box-shadow:0 3px 0 var(--edge);display:grid;place-items:center;opacity:.6;transition:opacity .12s,transform .06s}
+.flag svg{display:block;border-radius:4px;width:30px;height:20px}
+.flag.on{opacity:1;background:var(--honey)}
+.flag:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.iconbtn.off{opacity:.5;text-decoration:line-through}
+.legend div{align-items:flex-start}
+.ver{display:block;margin-top:6px;font-size:.78rem;opacity:.7}
 </style>
 </head>
 <body>
@@ -188,15 +196,20 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
   <header class="hud">
     <div class="brand">
       <div class="brand-badge" aria-hidden="true">🦜</div>
-      <div><h1>Botica da Arara Azul</h1><small>Manipulação farmacêutica na vila</small></div>
+      <div><h1 data-i18n>Botica da Arara Azul</h1><small data-i18n>Manipulação farmacêutica na vila</small></div>
     </div>
-    <div class="chips" aria-label="Status da botica">
-      <div class="chip" title="Moedas">🪙 <b id="h-money">150.00</b> G</div>
-      <div class="chip" title="Reputação">⭐ <b id="h-rep">100</b></div>
-      <div class="chip" title="Dia">📅 Dia <b id="h-day">1</b></div>
+    <div class="chips">
+      <div class="chip" data-i18n-title="Moedas">🪙 <b id="h-money">150.00</b> G</div>
+      <div class="chip" data-i18n-title="Reputação">⭐ <b id="h-rep">100</b></div>
+      <div class="chip">📅 <span data-i18n>Dia</span> <b id="h-day">1</b></div>
       <div class="chip" id="h-season">🌸 Primavera</div>
-      <button class="iconbtn" id="btn-sound" title="Som" aria-label="Ligar ou desligar o som">🔊</button>
-      <button class="iconbtn" id="btn-menu" title="Menu" aria-label="Abrir menu">☰</button>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button class="flag on" id="lang-pt" type="button" title="Português (Brasil)" aria-label="Português (Brasil)" aria-pressed="true"><svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true"><rect width="30" height="20" fill="#009c3b"/><path d="M15 2 L27.5 10 L15 18 L2.5 10 Z" fill="#ffdf00"/><circle cx="15" cy="10" r="4.6" fill="#002776"/><path d="M10.6 9 Q15 7.6 19.4 11" stroke="#fff" stroke-width="1.1" fill="none"/></svg></button>
+        <button class="flag" id="lang-en" type="button" title="English" aria-label="English" aria-pressed="false"><svg viewBox="0 0 60 30" width="30" height="20" preserveAspectRatio="none" aria-hidden="true"><clipPath id="fs"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="ft"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clip-path="url(#fs)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#ft)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></svg></button>
+      </div>
+      <button class="iconbtn" id="btn-music" type="button" data-i18n-title="Música lo-fi" aria-pressed="true">🎵</button>
+      <button class="iconbtn" id="btn-sound" type="button" data-i18n-title="Efeitos sonoros">🔊</button>
+      <button class="iconbtn" id="btn-menu" type="button" data-i18n-title="Menu">☰</button>
     </div>
   </header>
   <div class="outbreak" id="outbreak" role="status"></div>
@@ -204,23 +217,23 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
     <div class="viewport">
       <canvas id="world" width="800" height="520" aria-label="Botica: use as setas ou toque para andar"></canvas>
       <div class="hint-idle" id="hint-idle">Setas / WASD ou toque para andar</div>
-      <div class="hint" id="hint"><div class="pill"><kbd>E</kbd><span id="hint-text"></span></div><button class="act" id="act-btn">Abrir</button></div>
+      <div class="hint" id="hint"><div class="pill"><kbd>E</kbd><span id="hint-text"></span></div><button class="act" id="act-btn" data-i18n>Abrir</button></div>
     </div>
     <aside class="side">
       <section class="card" aria-live="polite">
-        <h2>Pedidos de hoje <small id="t-count"></small></h2>
+        <h2><span data-i18n>Pedidos de hoje</span> <small id="t-count"></small></h2>
         <div id="tickets"></div>
       </section>
       <section class="card legend">
-        <h2>Como funciona</h2>
-        <div>💬 Fale com o cliente no balcão</div>
-        <div>🧪 Prepare na bancada: pese, misture e rotule</div>
-        <div>🌱 Colha extratos na estufa</div>
-        <div>🏮 Acenda o lampião para fechar o dia</div>
+        <h2 data-i18n>Como funciona</h2>
+        <div><span>💬</span><span data-i18n>Fale com o cliente no balcão</span></div>
+        <div><span>🧪</span><span data-i18n>Prepare na bancada: pese, misture e rotule</span></div>
+        <div><span>🌱</span><span data-i18n>Colha extratos na estufa</span></div>
+        <div><span>🏮</span><span data-i18n>Acenda o lampião para fechar o dia</span></div>
       </section>
     </aside>
   </main>
-  <footer class="credits">Jogo educativo criado pela <b>Profª. Drª. Anna Carolina Schneider Alves</b> para a disciplina de <b>Farmacotécnica</b>.
+  <footer class="credits"><span id="credits-text"></span> <span class="ver" id="ver"></span>
     <div class="social"><a href="https://www.instagram.com/prof.annaalves/" target="_blank" rel="noopener noreferrer">📷 Instagram @prof.annaalves</a><a href="https://www.youtube.com/@boticadoconhecimento" target="_blank" rel="noopener noreferrer">▶️ YouTube Botica do Conhecimento</a></div>
   </footer>
 </div>
@@ -240,6 +253,17 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+/* ---------- idioma: o português é a chave, o inglês vem de i18n.js ---------- */
+const APP_VERSION = '3.2';
+let LANG = 'pt';
+try { LANG = localStorage.getItem('botica_lang') === 'en' ? 'en' : 'pt'; } catch (e) { /* sem storage */ }
+const EN = {}, MISSING = new Set();
+function tr(key) {
+  let s = key;
+  if (LANG === 'en') { const v = EN[key]; if (v === undefined) MISSING.add(key); else s = v; }
+  if (arguments.length > 1) { const a = arguments; s = s.replace(/\{(\d+)\}/g, (m, i) => a[+i + 1] !== undefined ? a[+i + 1] : m); }
+  return s;
+}
 const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ==========================================================================
@@ -717,6 +741,546 @@ function loadGame() {
     return true;
   } catch (e) { return false; }
 }
+/* Traduções para inglês: chave = texto em português, valor = inglês. Para corrigir um texto, edite o valor. */
+Object.assign(EN, {
+  [`+{0} a caminho da botica…`]: `+{0} on the way to the apothecary…`,
+  [`1. Os moradores chegam ao balcão com uma queixa (💬). Escolha a fórmula certa.`]: `1. Villagers come to the counter with a complaint (💬). Pick the right formula.`,
+  [`2 : 2 : 1`]: `2 : 2 : 1`,
+  [`2. Na bancada, pese cada insumo, faça a mistura e rotule o lote.`]: `2. At the bench, weigh each ingredient, mix, and label the batch.`,
+  [`3 : 2 : 1`]: `3 : 2 : 1`,
+  [`3. O controle de qualidade aprova só desvios de até ±{0}%. Lote aprovado (✅) é entregue no balcão.`]: `3. Quality control only approves deviations up to ±{0}%. Approved batches (✅) are delivered at the counter.`,
+  [`4 : 2 : 1`]: `4 : 2 : 1`,
+  [`4. Compre insumos no armazém, colha extratos na estufa e aprenda novas fórmulas no livro.`]: `4. Buy supplies at the storeroom, harvest extracts in the greenhouse and learn new formulas in the book.`,
+  [`5. Terminou? Acenda o lampião 🏮 para fechar o dia.`]: `5. Done? Light the lantern 🏮 to close the day.`,
+  [`A vila inteira confia na sua botica de manipulação. Atenda os moradores, prepare cada fórmula com cuidado e mantenha a reputação em alta.`]: `The whole village trusts your compounding apothecary. Serve the villagers, prepare each formula carefully and keep your reputation high.`,
+  [`APROVADO`]: `APPROVED`,
+  [`Abafar e coar`]: `Steep and strain`,
+  [`Abrir`]: `Open`,
+  [`Abrir a botica`]: `Open the apothecary`,
+  [`Abrir o armazém`]: `Open the storeroom`,
+  [`Acenda o lampião para fechar o dia`]: `Light the lantern to close the day`,
+  [`Acender o lampião e fechar o dia`]: `Light the lantern and close the day`,
+  [`Agitador mecânico de hélice`]: `Overhead propeller stirrer`,
+  [`Aguarda atendimento`]: `Waiting to be served`,
+  [`Ainda há {0} pedido(s) sem entrega. Quem não for atendido vai embora e a reputação cai (−{1} ⭐ cada). Fechar mesmo assim?`]: `There are still {0} undelivered order(s). Anyone not served will leave and your reputation drops (−{1} ⭐ each). Close anyway?`,
+  [`Ainda líquido. Continue neutralizando.`]: `Still liquid. Keep neutralizing.`,
+  [`Ainda não`]: `Not yet`,
+  [`Alerta epidêmico: {0}`]: `Outbreak alert: {0}`,
+  [`Alguns grumos ficaram, mas o lote segue.`]: `A few lumps remain, but the batch goes on.`,
+  [`Aloe Vera`]: `Aloe Vera`,
+  [`Alvo`]: `Target`,
+  [`Alvo {0} · tolerância ±{1}% ({2} a {3} g)`]: `Target {0} · tolerance ±{1}% ({2} to {3} g)`,
+  [`Amido Farmacêutico (100 g)`]: `Pharmaceutical Starch (100 g)`,
+  [`Amido de Milho`]: `Corn Starch`,
+  [`Amido de Milho (Excipiente)`]: `Corn Starch (Excipient)`,
+  [`Andar:`]: `Move:`,
+  [`Anti-pragas:`]: `Pest control:`,
+  [`Apaga o progresso atual.`]: `Erases your current progress.`,
+  [`Aperte quando o marcador estiver na faixa verde (ou dourada, para o movimento perfeito). Espaço também funciona.`]: `Press when the marker is in the green zone (or the gold one, for the perfect stroke). Space works too.`,
+  [`Aprender fórmula`]: `Learn formula`,
+  [`Aprendida`]: `Learned`,
+  [`Aprovados`]: `Approved`,
+  [`Após aberto, conservar em geladeira e agitar antes de usar`]: `Once opened, keep refrigerated and shake before use`,
+  [`Aquece e funde bases, fases de emulsão e água de infusão.`]: `Heats and melts bases, emulsion phases and infusion water.`,
+  [`Aquecendo…`]: `Heating up…`,
+  [`Aquecer a fase oleosa e a fase aquosa separadamente a ~70 °C; verter a aquosa sobre a oleosa sob agitação até esfriar; incorporar a ureia dissolvida após o resfriamento.`]: `Heat the oil phase and the water phase separately to ~70 °C; pour the water phase over the oil phase under stirring until cool; add the dissolved urea after cooling.`,
+  [`Aquecimento das fases`]: `Heating the phases`,
+  [`Armazém`]: `Storeroom`,
+  [`Assadura e suor excessivo no calor do forno.`]: `Skin chafing and heavy sweating in the heat of the oven.`,
+  [`Atenda um cliente no balcão (o balão 💬) para receber a receita e voltar aqui.`]: `Serve a customer at the counter (the 💬 bubble) to get the prescription, then come back here.`,
+  [`Atender {0}`]: `Serve {0}`,
+  [`Atendimento no balcão`]: `Counter service`,
+  [`Autoria e objetivo de aprendizagem.`]: `Authorship and learning goals.`,
+  [`Azia depois das refeições fartas da festa da vila.`]: `Heartburn after the big meals at the village party.`,
+  [`Balança analítica (0,1 mg)`]: `Analytical balance (0.1 mg)`,
+  [`Balança semianalítica (0,01 g)`]: `Semi-analytical balance (0.01 g)`,
+  [`Bancada do laboratório`]: `Laboratory bench`,
+  [`Banho-maria com controle de temperatura`]: `Temperature-controlled water bath`,
+  [`Base Anidra / Vaselina q.s.p.`]: `Anhydrous Base / Petrolatum q.s. ad`,
+  [`Base Autoemulsionante (Lanette N)`]: `Self-emulsifying Base (Lanette N)`,
+  [`Base Autoemulsionante Lanette N (250 g)`]: `Self-emulsifying Base Lanette N (250 g)`,
+  [`Base Creme Neutra (250 g)`]: `Neutral Cream Base (250 g)`,
+  [`Base técnica: Farmacopeia Brasileira, Formulário Nacional, Formulário de Fitoterápicos da Farmacopeia Brasileira e textos clássicos de farmácia magistral (Ansel, Allen). As fórmulas são didáticas: confira concentrações e monografias antes de usar fora do jogo.`]: `Technical basis: Brazilian Pharmacopoeia, National Formulary, Herbal Medicines Formulary of the Brazilian Pharmacopoeia and classic texts on magistral pharmacy (Ansel, Allen). The formulas are educational: check concentrations and monographs before using them outside the game.`,
+  [`Bem fechado, ao abrigo da luz e do calor`]: `Tightly closed, protected from light and heat`,
+  [`Bem fechado; após aberto, conservar em geladeira`]: `Tightly closed; once opened, keep refrigerated`,
+  [`Bem-vinda à Botica da Arara Azul`]: `Welcome to the Blue Macaw Apothecary`,
+  [`Boa noite, vila…`]: `Good night, village…`,
+  [`Boldo`]: `Boldo`,
+  [`Boldo (folhas secas moídas)`]: `Boldo (ground dried leaves)`,
+  [`Boldo, folhas secas (50 g)`]: `Boldo, dried leaves (50 g)`,
+  [`Bom dia! Vim buscar uma ajudinha.`]: `Good morning! I came looking for a little help.`,
+  [`Botanista Penny`]: `Botanist Penny`,
+  [`Botica da Arara Azul`]: `Blue Macaw Apothecary`,
+  [`Botica da Vila da Arara Azul`]: `Blue Macaw Village Apothecary`,
+  [`Botica: use as setas ou toque para andar`]: `Apothecary: use the arrow keys or tap to walk`,
+  [`Calosidades nos pés por causa das botas molhadas.`]: `Calluses on my feet from wet boots.`,
+  [`Calêndula`]: `Calendula`,
+  [`Camomila`]: `Chamomile`,
+  [`Camomila (droga vegetal pulverizada)`]: `Chamomile (powdered herbal drug)`,
+  [`Canteiro {0}`]: `Bed {0}`,
+  [`Carboximetilcelulose Sódica (50 g)`]: `Sodium Carboxymethylcellulose (50 g)`,
+  [`Carboximetilcelulose Sódica (suspensor)`]: `Sodium Carboxymethylcellulose (suspending agent)`,
+  [`Carbômero (Carbopol 940)`]: `Carbomer (Carbopol 940)`,
+  [`Carbômero Carbopol (20 g)`]: `Carbomer Carbopol (20 g)`,
+  [`Carteiro Dudu`]: `Mail Carrier Dudu`,
+  [`Celulose Microcristalina (250 g)`]: `Microcrystalline Cellulose (250 g)`,
+  [`Celulose Microcristalina (diluente)`]: `Microcrystalline Cellulose (diluent)`,
+  [`Ceramista Iara`]: `Potter Iara`,
+  [`Chegando…`]: `Arriving…`,
+  [`Citronela`]: `Citronella`,
+  [`Citronela (extrato)`]: `Citronella (extract)`,
+  [`Citronela seca (50 g)`]: `Dried Citronella (50 g)`,
+  [`Colha extratos na estufa`]: `Harvest extracts in the greenhouse`,
+  [`Colheita excelente de {0}! +{1} g 🌾`]: `Excellent {0} harvest! +{1} g 🌾`,
+  [`Colheita reduzida pelas pragas: +{0} g`]: `Harvest reduced by pests: +{0} g`,
+  [`Colher`]: `Harvest`,
+  [`Colutório de Malva e Hortelã (infuso)`]: `Mallow and Peppermint Mouthwash (infusion)`,
+  [`Como funciona`]: `How it works`,
+  [`Como jogar`]: `How to play`,
+  [`Comprar`]: `Buy`,
+  [`Confira o rótulo duas vezes. Paciente certo, produto certo!`]: `Check the label twice. Right patient, right product!`,
+  [`Confirmar`]: `Confirm`,
+  [`Continuar`]: `Continue`,
+  [`Controle de qualidade`]: `Quality control`,
+  [`Conversar com a arara`]: `Talk to the macaw`,
+  [`Costureira Clara`]: `Seamstress Clara`,
+  [`Creme Hidratante de Ureia 10%`]: `Urea 10% Moisturizing Cream`,
+  [`Creme de ureia, pomada salicílica, colutório`]: `Urea cream, salicylic ointment, mouthwash`,
+  [`Cuidar da estufa`]: `Tend the greenhouse`,
+  [`Custa 🪙 {0} · exige ⭐ {1}`]: `Costs 🪙 {0} · requires ⭐ {1}`,
+  [`Cápsulas de Camomila 300 mg (30 un.)`]: `Chamomile Capsules 300 mg (30 pcs)`,
+  [`Cápsulas de Melatonina 3 mg (30 un.)`]: `Melatonin Capsules 3 mg (30 pcs)`,
+  [`Cápsulas de Vitamina C + Zinco`]: `Vitamin C + Zinc Capsules`,
+  [`Cápsulas de melatonina`]: `Melatonin capsules`,
+  [`Desbloquear`]: `Unlock`,
+  [`Descartado: {0} g de {1}`]: `Discarded: {0} g of {1}`,
+  [`Descartar e repesar`]: `Discard and reweigh`,
+  [`Desvio`]: `Deviation`,
+  [`Desvio máx.`]: `Max. dev.`,
+  [`Dia`]: `Day`,
+  [`Dia {0}`]: `Day {0}`,
+  [`Dica: a arara no balcão conhece as boas práticas. Clique nela.`]: `Tip: the macaw on the counter knows good practices. Click on it.`,
+  [`Dica: procure uma forma farmacêutica do tipo {0}.`]: `Hint: look for a dosage form of type {0}.`,
+  [`Dificuldade para pegar no sono depois das provas.`]: `Trouble falling asleep after exams.`,
+  [`Digestão pesada depois do almoço de domingo.`]: `Heavy digestion after Sunday lunch.`,
+  [`Diluir a melatonina geometricamente na celulose microcristalina; adicionar o estearato de magnésio por último, com mistura breve; encapsular.`]: `Geometrically dilute the melatonin in the microcrystalline cellulose; add the magnesium stearate last, with brief mixing; encapsulate.`,
+  [`Diluição geométrica no gral`]: `Geometric dilution in the mortar`,
+  [`Diluição geométrica: comece pelo componente em menor quantidade.`]: `Geometric dilution: start with the component in the smallest amount.`,
+  [`Diluição gradual da emulsão`]: `Gradual dilution of the emulsion`,
+  [`Dispersa suspensões e emulsões. Alarga a faixa de acerto na agitação.`]: `Disperses suspensions and emulsions. Widens the sweet spot when stirring.`,
+  [`Dispersar o Carbopol na água sem formar grumos; neutralizar com trietanolamina até a formação do gel; incorporar a glicerina e o aloe.`]: `Disperse the Carbopol in the water without forming lumps; neutralize with triethanolamine until the gel forms; add the glycerin and the aloe.`,
+  [`Dispersão no veículo sob agitação`]: `Dispersion in the vehicle under stirring`,
+  [`Dissolução e homogeneização`]: `Dissolution and homogenization`,
+  [`Dona Bento`]: `Mrs. Bento`,
+  [`Dona Cida`]: `Mrs. Cida`,
+  [`Efeitos sonoros`]: `Sound effects`,
+  [`Em estoque:`]: `In stock:`,
+  [`Em local fresco, ao abrigo da luz`]: `In a cool place, protected from light`,
+  [`Em pós, começa-se pelo componente em menor quantidade e incorporam-se os demais em porções crescentes.`]: `For powders, start with the component in the smallest amount and add the others in increasing portions.`,
+  [`Emulsificação sob agitação`]: `Emulsification under stirring`,
+  [`Emulsão Oral de Óleo de Rícino`]: `Castor Oil Oral Emulsion`,
+  [`Emulsão primária`]: `Primary emulsion`,
+  [`Emulsão primária no gral (o "estalo")`]: `Primary emulsion in the mortar (the "crack")`,
+  [`Encapsuladora manual (cápsulas nº 3)`]: `Manual capsule filler (size 3 capsules)`,
+  [`Enchimento de cápsulas gelatinosas duras.`]: `Filling of hard gelatin capsules.`,
+  [`Entendi`]: `Got it`,
+  [`Entregar o pedido: {0}`]: `Deliver the order: {0}`,
+  [`Entregue`]: `Delivered`,
+  [`Envase e rotulagem`]: `Packaging and labeling`,
+  [`Enviar ao controle de qualidade`]: `Send to quality control`,
+  [`Equipamento:`]: `Equipment:`,
+  [`Equipamentos de bancada`]: `Bench equipment`,
+  [`Escolha o pedido que vai manipular.`]: `Choose the order you will compound.`,
+  [`Espessando…`]: `Thickening…`,
+  [`Estearato de Magnésio (50 g)`]: `Magnesium Stearate (50 g)`,
+  [`Estearato de Magnésio (lubrificante)`]: `Magnesium Stearate (lubricant)`,
+  [`Estufa`]: `Greenhouse`,
+  [`Estágio {0}/{1}`]: `Stage {0}/{1}`,
+  [`Extrair/dissolver no álcool 70%, filtrar, completar com a água e a glicerina e homogeneizar.`]: `Extract/dissolve in 70% alcohol, filter, make up with the water and glycerin, and homogenize.`,
+  [`Extrato Fluido de Guaco`]: `Guaco Fluid Extract`,
+  [`Extrato de Calêndula`]: `Calendula Extract`,
+  [`Extrato de Camomila`]: `Chamomile Extract`,
+  [`Fadiga e reforço imunológico para o inverno.`]: `Fatigue and immune support for the winter.`,
+  [`Fale com o cliente no balcão`]: `Talk to the customer at the counter`,
+  [`Falta equipamento. Veja a aba Equipamentos no armazém.`]: `Equipment missing. Check the Equipment tab in the storeroom.`,
+  [`Falta equipamento: {0}. Veja o armazém.`]: `Missing equipment: {0}. Check the storeroom.`,
+  [`Faltam insumos. Compre no armazém ou colha na estufa.`]: `Supplies missing. Buy them at the storeroom or harvest in the greenhouse.`,
+  [`Faltam insumos: {0}`]: `Missing supplies: {0}`,
+  [`Farmacotécnica`]: `Pharmaceutical Technology`,
+  [`Fase aquosa (água + glicerina)`]: `Water phase (water + glycerin)`,
+  [`Fase oleosa (Lanette + óleo mineral)`]: `Oil phase (Lanette + mineral oil)`,
+  [`Fazendeiro Lucas`]: `Farmer Lucas`,
+  [`Fechar`]: `Close`,
+  [`Fechar o dia`]: `Close the day`,
+  [`Frasco bem fechado, ao abrigo da luz e da umidade`]: `Tightly closed bottle, protected from light and moisture`,
+  [`Frasco bem fechado, ao abrigo da luz; agitar antes de usar`]: `Tightly closed bottle, protected from light; shake before use`,
+  [`Frasco bem fechado, em local fresco e seco`]: `Tightly closed bottle, in a cool, dry place`,
+  [`Frasco bem fechado, longe do calor e do fogo (contém álcool)`]: `Tightly closed bottle, away from heat and flame (contains alcohol)`,
+  [`Frasco bem fechado; agitar antes de usar`]: `Tightly closed bottle; shake before use`,
+  [`Frasco de boca larga, bem fechado, em local seco`]: `Wide-mouth jar, tightly closed, in a dry place`,
+  [`Frasco âmbar bem fechado, ao abrigo da luz e do calor`]: `Tightly closed amber bottle, protected from light and heat`,
+  [`Fundir a vaselina e a lanolina em banho-maria; levigar o ácido salicílico com o óleo mineral no gral e incorporar a base ainda morna, misturando até esfriar.`]: `Melt the petrolatum and lanolin in a water bath; levigate the salicylic acid with the mineral oil in the mortar and incorporate the still-warm base, mixing until cool.`,
+  [`Fusão da base`]: `Melting the base`,
+  [`Fusão da vaselina e da lanolina`]: `Melting the petrolatum and lanolin`,
+  [`Fórmula aprendida: {0} 📜`]: `Formula learned: {0} 📜`,
+  [`Fórmulas didáticas para a prática de Farmacotécnica, inspiradas na Farmacopeia Brasileira, no Formulário Nacional, no Formulário de Fitoterápicos e em textos clássicos de farmácia magistral (Ansel, Allen). Confira concentrações e monografias antes de usar fora do jogo.`]: `Educational formulas for practicing Pharmaceutical Technology, inspired by the Brazilian Pharmacopoeia, the National Formulary, the Herbal Medicines Formulary and classic texts on magistral pharmacy (Ansel, Allen). Check concentrations and monographs before using them outside the game.`,
+  [`Garganta irritada pelo pó do forno de cerâmica.`]: `Sore throat from the dust of the ceramic kiln.`,
+  [`Gel Calmante de Camomila`]: `Soothing Chamomile Gel`,
+  [`Gel cristalino formado! Pare por aqui.`]: `Clear gel formed! Stop here.`,
+  [`Gel de Aloe Vera`]: `Aloe Vera Gel`,
+  [`Gel de Aloe Vera (pronto, 50 g)`]: `Aloe Vera Gel (ready-made, 50 g)`,
+  [`Gel de Aloe Vera Pós-Sol`]: `After-Sun Aloe Vera Gel`,
+  [`Gel de camomila, gel de aloe`]: `Chamomile gel, aloe gel`,
+  [`Gire o pistilo em círculos sem sair do gral (mouse ou dedo).`]: `Swirl the pestle in circles without leaving the mortar (mouse or finger).`,
+  [`Glicerina Bi-destilada`]: `Double-distilled Glycerin`,
+  [`Glicerina Bi-destilada (200 ml)`]: `Double-distilled Glycerin (200 ml)`,
+  [`Glicerina Bi-destilada (molhante)`]: `Double-distilled Glycerin (wetting agent)`,
+  [`Goma Arábica (100 g)`]: `Gum Arabic (100 g)`,
+  [`Goma Arábica (emulsificante)`]: `Gum Arabic (emulsifier)`,
+  [`Gral e pistilo de porcelana`]: `Porcelain mortar and pestle`,
+  [`Guaco`]: `Guaco`,
+  [`Hidróxido de Alumínio`]: `Aluminum Hydroxide`,
+  [`Hidróxido de Alumínio (100 g)`]: `Aluminum Hydroxide (100 g)`,
+  [`Hidróxido de Magnésio`]: `Magnesium Hydroxide`,
+  [`Hidróxido de Magnésio (100 g)`]: `Magnesium Hydroxide (100 g)`,
+  [`Hmm, essa fórmula não combina com a queixa. O livro de fórmulas ajuda.`]: `Hmm, that formula doesn't match the complaint. The formula book can help.`,
+  [`Homogeneizar o extrato vegetal na base xaroposa sob agitação moderada.`]: `Homogenize the plant extract into the syrup base under moderate stirring.`,
+  [`Homogeneização sob agitação`]: `Homogenization under stirring`,
+  [`Honorários previstos: 🪙 {0} G`]: `Expected fee: 🪙 {0} G`,
+  [`Hortelã-pimenta`]: `Peppermint`,
+  [`Hortelã-pimenta (folhas secas)`]: `Peppermint (dried leaves)`,
+  [`Hortelã-pimenta seca (50 g)`]: `Dried Peppermint (50 g)`,
+  [`Incorporação gradual do extrato em gral até obter textura lisa.`]: `Gradually incorporate the extract in the mortar until the texture is smooth.`,
+  [`Incorporação gradual no gral`]: `Gradual incorporation in the mortar`,
+  [`Indicação:`]: `Indication:`,
+  [`Ingrediente {0} de {1}`]: `Ingredient {0} of {1}`,
+  [`Insumo`]: `Ingredient`,
+  [`Insumos`]: `Supplies`,
+  [`Interagir:`]: `Interact:`,
+  [`Intestino preso depois de dias de viagem.`]: `Constipated after days of travel.`,
+  [`Ir para a bancada`]: `Go to the bench`,
+  [`Irrigação por gotejamento`]: `Drip irrigation`,
+  [`Irrigação:`]: `Irrigation:`,
+  [`Irritação cutânea por exposição solar na lavoura.`]: `Skin irritation from sun exposure in the fields.`,
+  [`Isso! {0}`]: `That's right! {0}`,
+  [`Jardineira Rosa`]: `Gardener Rosa`,
+  [`Jogo educativo criado pela {0} para a disciplina de {1}.`]: `Educational game created by {0} for the {1} course.`,
+  [`Jogo salvo! 💾`]: `Game saved! 💾`,
+  [`Kit de frascos âmbar com tampa`]: `Amber bottle kit with caps`,
+  [`Lanolina Anidra`]: `Anhydrous Lanolin`,
+  [`Lanolina Anidra (100 g)`]: `Anhydrous Lanolin (100 g)`,
+  [`Lavanda`]: `Lavender`,
+  [`Lave as mãos e use touca e luvas antes de manipular!`]: `Wash your hands and wear a cap and gloves before compounding!`,
+  [`Lenhador Hugo`]: `Lumberjack Hugo`,
+  [`Ler o livro de fórmulas`]: `Read the formula book`,
+  [`Levigar o óxido de zinco e o talco com a glicerina antes de juntar a água.`]: `Levigate the zinc oxide and talc with the glycerin before adding the water.`,
+  [`Levigação e incorporação`]: `Levigation and incorporation`,
+  [`Levigação no gral`]: `Levigation in the mortar`,
+  [`Livro de fórmulas`]: `Formula book`,
+  [`Local seco e fresco, ao abrigo da luz`]: `Cool, dry place, protected from light`,
+  [`Local seco e fresco, ao abrigo da luz e da umidade`]: `Cool, dry place, protected from light and moisture`,
+  [`Lote`]: `Batch`,
+  [`Lote {0} APROVADO: todos os insumos dentro de ±{1}%.`]: `Batch {0} APPROVED: all ingredients within ±{1}%.`,
+  [`Lote {0} REPROVADO: {1}`]: `Batch {0} REJECTED: {1}`,
+  [`Lote {0} aprovado! Entregue no balcão ✅`]: `Batch {0} approved! Deliver it at the counter ✅`,
+  [`Lote {0} descartado. −{1} ⭐`]: `Batch {0} discarded. −{1} ⭐`,
+  [`Lote:`]: `Batch:`,
+  [`Lotes`]: `Batches`,
+  [`Líquida (Emulsão)`]: `Liquid (Emulsion)`,
+  [`Líquida (Infuso)`]: `Liquid (Infusion)`,
+  [`Líquida (Solução)`]: `Liquid (Solution)`,
+  [`Líquida (Suspensão)`]: `Liquid (Suspension)`,
+  [`Líquida (Tintura)`]: `Liquid (Tincture)`,
+  [`Líquida (Xarope)`]: `Liquid (Syrup)`,
+  [`Líquidas`]: `Liquids`,
+  [`Líquido · Emulsão O/A: método da goma seca, proporção 4:2:1 e diluição da emulsão primária.`]: `Liquid · O/W emulsion: dry gum method, 4:2:1 ratio and dilution of the primary emulsion.`,
+  [`Líquido · Infuso: extração de droga vegetal com água quente.`]: `Liquid · Infusion: extracting a herbal drug with hot water.`,
+  [`Líquido · Solução hidroalcoólica: escolha do solvente e dissolução dos componentes.`]: `Liquid · Hydroalcoholic solution: choosing the solvent and dissolving the components.`,
+  [`Líquido · Suspensão: molhagem do pó, agente suspensor e redispersibilidade.`]: `Liquid · Suspension: wetting the powder, suspending agent and redispersibility.`,
+  [`Líquido · Tintura: extração hidroalcoólica por maceração e relação droga:solvente.`]: `Liquid · Tincture: hydroalcoholic extraction by maceration and drug-to-solvent ratio.`,
+  [`Líquido · Xarope: incorporação de extrato vegetal em veículo viscoso.`]: `Liquid · Syrup: incorporating a plant extract into a viscous vehicle.`,
+  [`Macerar a droga vegetal moída no álcool 70% em frasco âmbar, com agitação periódica; filtrar e completar o volume (relação 1:5).`]: `Macerate the ground herbal drug in 70% alcohol in an amber bottle, with periodic shaking; filter and make up to volume (1:5 ratio).`,
+  [`Maceração com agitação periódica`]: `Maceration with periodic shaking`,
+  [`Maceração e guarda de tinturas e soluções sensíveis à luz.`]: `Maceration and storage of tinctures and light-sensitive solutions.`,
+  [`Malva`]: `Mallow`,
+  [`Malva (folhas secas)`]: `Mallow (dried leaves)`,
+  [`Malva seca (50 g)`]: `Dried Mallow (50 g)`,
+  [`Manipulação farmacêutica na vila`]: `Pharmaceutical compounding in the village`,
+  [`Marinheiro Beto`]: `Sailor Beto`,
+  [`Mede o pH durante a neutralização de géis com Carbopol.`]: `Measures the pH while neutralizing Carbopol gels.`,
+  [`Medida de volumes e preparo de líquidos.`]: `Measuring volumes and preparing liquids.`,
+  [`Melatonina`]: `Melatonin`,
+  [`Melatonina (5 g)`]: `Melatonin (5 g)`,
+  [`Melhorias no armazém, aba Estufa.`]: `Upgrades at the storeroom, Greenhouse tab.`,
+  [`Menu`]: `Menu`,
+  [`Mexer!`]: `Stir!`,
+  [`Mistura`]: `Mixing`,
+  [`Mistura da droga vegetal pulverizada`]: `Mixing the powdered herbal drug`,
+  [`Mistura homogênea e sem grumos.`]: `Homogeneous mixture, no lumps.`,
+  [`Mistura homogênea. Textura lisa e uniforme!`]: `Homogeneous mixture. Smooth, even texture!`,
+  [`Mistura um pouco irregular, mas dá para seguir.`]: `A slightly uneven mixture, but good enough to continue.`,
+  [`Misturar por toques (mais lento)`]: `Mix by tapping (slower)`,
+  [`Moedas`]: `Coins`,
+  [`Molhagem e levigação dos pós`]: `Wetting and levigation of the powders`,
+  [`Molhar os pós com a glicerina (levigação) e dispersar no veículo já espessado com o agente suspensor, sob agitação. Rotular com "agite antes de usar".`]: `Wet the powders with the glycerin (levigation) and disperse them in the vehicle already thickened with the suspending agent, under stirring. Label "shake before use".`,
+  [`Mudança de estação! Bem-vinda, {0}!`]: `Season change! Welcome, {0}!`,
+  [`Mãos ressecadas e rachadas pelo frio.`]: `Dry, cracked hands from the cold.`,
+  [`Método continental (goma seca), proporção 4:2:1: triturar a goma com o óleo, adicionar a água da emulsão primária de uma só vez, triturar até o "estalo" e diluir aos poucos com o restante do veículo.`]: `Continental (dry gum) method, 4:2:1 ratio: triturate the gum with the oil, add the water for the primary emulsion all at once, triturate until it "cracks", and gradually dilute with the rest of the vehicle.`,
+  [`Música lo-fi`]: `Lo-fi music`,
+  [`Música: lo-fi gerado pelo próprio jogo (original, sem direitos autorais).`]: `Music: lo-fi generated by the game itself (original, copyright-free).`,
+  [`Na faixa! Retire do banho.`]: `In the zone! Take it off the bath.`,
+  [`Nenhum lote registrado ainda. Cada preparo passa pelo controle de qualidade e entra aqui.`]: `No batches recorded yet. Every preparation goes through quality control and is logged here.`,
+  [`Nenhum pedido em preparo agora.`]: `No orders in preparation right now.`,
+  [`Nervosismo leve e desconforto gástrico com o prazo das encomendas.`]: `Mild nervousness and stomach discomfort from order deadlines.`,
+  [`Neutralizar o Carbopol com Trietanolamina para a formação do gel cristalino.`]: `Neutralize the Carbopol with Triethanolamine to form the clear gel.`,
+  [`Neutralização do Carbopol`]: `Neutralizing the Carbopol`,
+  [`Novo canteiro desbloqueado! 🌱`]: `New bed unlocked! 🌱`,
+  [`O Carbopol só forma gel depois de neutralizado por uma base, como a trietanolamina.`]: `Carbopol only forms a gel after it is neutralized by a base, such as triethanolamine.`,
+  [`O agitador mecânico alargou a faixa.`]: `The overhead stirrer widened the zone.`,
+  [`O componente em menor quantidade (e mais potente) entra primeiro; o restante entra aos poucos, sempre dobrando o volume.`]: `The component in the smallest amount (and the most potent) goes first; the rest is added little by little, always doubling the volume.`,
+  [`O fármaco de baixa dose entra primeiro e é diluído aos poucos. O lubrificante entra por último, com mistura breve.`]: `The low-dose drug goes first and is diluted gradually. The lubricant goes in last, with brief mixing.`,
+  [`O jogo também salva sozinho a cada passo.`]: `The game also saves by itself at every step.`,
+  [`O lote será descartado (−{0} ⭐). O cliente continua esperando, e você pode refazer se tiver insumos.`]: `The batch will be discarded (−{0} ⭐). The customer is still waiting, and you can redo it if you have supplies.`,
+  [`O objetivo é praticar, de forma lúdica, o preparo de formas farmacêuticas {0}, {1} e {2}: pesagem, mistura, rotulagem e controle de qualidade, com equipamentos e insumos como na bancada real.`]: `The goal is to practice, in a playful way, preparing {0}, {1} and {2} dosage forms: weighing, mixing, labeling and quality control, with equipment and supplies like on a real compounding bench.`,
+  [`Obrigatória para doses muito pequenas. Deixa o despejo mais suave e as pitadas mais finas.`]: `Required for very small doses. Makes pouring gentler and pinches finer.`,
+  [`Oi! Me indicaram a botica da Arara Azul.`]: `Hi! I was told about the Blue Macaw apothecary.`,
+  [`Olá, tudo bem? Preciso de uma receita sua.`]: `Hello, how are you? I need one of your prescriptions.`,
+  [`Opção errada. Leia com atenção e tente de novo.`]: `Wrong option. Read carefully and try again.`,
+  [`Os primeiros moradores já estão chegando…`]: `The first villagers are already arriving…`,
+  [`POP:`]: `SOP:`,
+  [`Paciente`]: `Patient`,
+  [`Padeiro Mateo`]: `Baker Mateo`,
+  [`Padroniza a granulometria dos pós antes da mistura.`]: `Standardizes the particle size of powders before mixing.`,
+  [`Para {0}`]: `For {0}`,
+  [`Para óleos fixos usa-se 4:2:1. Óleos voláteis pedem proporções como 2:2:1 ou 3:2:1, e alguns textos indicam 3:2:1 também para óleo mineral.`]: `For fixed oils use 4:2:1. Volatile oils call for ratios such as 2:2:1 or 3:2:1, and some texts give 3:2:1 for mineral oil as well.`,
+  [`Parar aqui e confirmar`]: `Stop here and confirm`,
+  [`Passo {0} de {1}`]: `Step {0} of {1}`,
+  [`Passou do ponto: pH alto demais.`]: `Overshot: pH is too high.`,
+  [`Passou do ponto: pode degradar os componentes.`]: `Overshot: it may degrade the components.`,
+  [`Pasta d'Água Clássica`]: `Classic Zinc Paste (Pasta d'Água)`,
+  [`Pasta d’água: levigue os pós com a glicerina antes de juntar a água.`]: `Pasta d’água: levigate the powders with glycerin before adding the water.`,
+  [`Pedidos de hoje`]: `Today's orders`,
+  [`Pele vermelha e ardida depois de um dia de sol na horta.`]: `Red, stinging skin after a day in the sun in the garden.`,
+  [`Pequenos arranhões das videiras.`]: `Small scratches from the grapevines.`,
+  [`Perfeito! Receita anotada. Agora é com a bancada.`]: `Perfect! Prescription noted. Now it is up to the bench.`,
+  [`Pernilongos durante as entregas ao fim da tarde.`]: `Mosquitoes during late-afternoon deliveries.`,
+  [`Pesado`]: `Weighed`,
+  [`Pesagem`]: `Weighing`,
+  [`Pesagens de rotina.`]: `Routine weighing.`,
+  [`Pescador Tiago`]: `Fisherman Tiago`,
+  [`Pese o insumo antes de confirmar.`]: `Weigh the ingredient before confirming.`,
+  [`Pesou demais? Não devolva ao frasco: contaminação cruzada é coisa séria.`]: `Weighed too much? Do not pour it back into the container: cross-contamination is serious.`,
+  [`Pitada`]: `Pinch`,
+  [`Plantar`]: `Plant`,
+  [`Pomada Cicatrizante de Calêndula`]: `Calendula Healing Ointment`,
+  [`Pomada de Ácido Salicílico 5%`]: `Salicylic Acid 5% Ointment`,
+  [`Pote bem fechado, em local fresco`]: `Tightly closed jar, in a cool place`,
+  [`Pote bem fechado, em local fresco e ao abrigo da luz`]: `Tightly closed jar, in a cool place, protected from light`,
+  [`Praga eliminada! 🛡️`]: `Pest eliminated! 🛡️`,
+  [`Pragas na estufa? O extrato biológico salva a colheita.`]: `Pests in the greenhouse? The biological extract saves the harvest.`,
+  [`Preparar`]: `Prepare`,
+  [`Preparar na bancada`]: `Prepare at the bench`,
+  [`Preparar na hora; se guardar, em frasco limpo na geladeira`]: `Prepare fresh; if stored, keep in a clean bottle in the refrigerator`,
+  [`Preparar por infusão: verter a água quente sobre a droga vegetal, tampar e abafar por 10 a 15 minutos; coar e adicionar a glicerina. Uso externo, sem engolir.`]: `Prepare by infusion: pour the hot water over the herbal drug, cover and steep for 10 to 15 minutes; strain and add the glycerin. For external use only, do not swallow.`,
+  [`Prepare na bancada: pese, misture e rotule`]: `Prepare at the bench: weigh, mix and label`,
+  [`Produto`]: `Product`,
+  [`Professor Teo`]: `Professor Teo`,
+  [`Professora Lúcia`]: `Professor Lúcia`,
+  [`Profª. Drª. Anna Carolina Schneider Alves`]: `Prof. Dr. Anna Carolina Schneider Alves`,
+  [`Pronto: entregar`]: `Ready: deliver`,
+  [`Provetas e béqueres graduados`]: `Graduated cylinders and beakers`,
+  [`Pulverizar a droga vegetal, misturar com o diluente e encapsular, ajustando o volume ao tamanho da cápsula.`]: `Pulverize the herbal drug, mix it with the diluent and encapsulate, adjusting the volume to the capsule size.`,
+  [`Pó Dermatológico de Óxido de Zinco`]: `Zinc Oxide Dermatological Powder`,
+  [`Pó dermatológico`]: `Dermatological powder`,
+  [`Qual a proporção óleo : água : goma da emulsão primária para óleos fixos, como o de rícino?`]: `What is the oil : water : gum ratio of the primary emulsion for fixed oils, such as castor oil?`,
+  [`Qual fórmula combina com a queixa?`]: `Which formula matches the complaint?`,
+  [`Qualidade`]: `Quality`,
+  [`Quase lá.`]: `Almost there.`,
+  [`Quase. {0}`]: `Close. {0}`,
+  [`Que cheirinho bom de ervas aqui!`]: `What a lovely herbal smell in here!`,
+  [`Queixa: {0}`]: `Complaint: {0}`,
+  [`Quer ser atendido`]: `Wants to be served`,
+  [`REPROVADO`]: `REJECTED`,
+  [`Recomeçar`]: `Restart`,
+  [`Recomeçar a Botica? Todo o progresso será apagado.`]: `Restart the apothecary? All progress will be erased.`,
+  [`Recomeçar a botica`]: `Restart the apothecary`,
+  [`Reduz a chance diária de pragas de 25% para 10%.`]: `Lowers the daily pest chance from 25% to 10%.`,
+  [`Rega automaticamente todos os canteiros plantados ao fechar o dia.`]: `Automatically waters every planted bed when you close the day.`,
+  [`Regar`]: `Water`,
+  [`Relatórios de Boas Práticas de Manipulação`]: `Good Compounding Practices (GCP) Reports`,
+  [`Reprovados`]: `Rejected`,
+  [`Reputação`]: `Reputation`,
+  [`Retirar do banho-maria`]: `Take out of the water bath`,
+  [`Rótulo`]: `Label`,
+  [`Rótulo errado é risco para o paciente. Confira cada campo antes de colar.`]: `A wrong label puts the patient at risk. Check each field before sticking it on.`,
+  [`Sair agora? O que já foi pesado será perdido.`]: `Leave now? What has already been weighed will be lost.`,
+  [`Sair e descartar`]: `Leave and discard`,
+  [`Saldo insuficiente para as sementes.`]: `Not enough balance for the seeds.`,
+  [`Saldo insuficiente.`]: `Insufficient balance.`,
+  [`Saldo:`]: `Balance:`,
+  [`Salvar agora`]: `Save now`,
+  [`Segure o botão (ou a barra de espaço): quanto mais tempo, mais rápido cai o pó. Solte antes de passar do alvo e ajuste com pitadas.`]: `Hold the button (or the space bar): the longer you hold, the faster the powder falls. Release before passing the target and fine-tune with pinches.`,
+  [`Segure para aquecer`]: `Hold to heat`,
+  [`Segure para despejar`]: `Hold to pour`,
+  [`Segure para pingar trietanolamina`]: `Hold to drip triethanolamine`,
+  [`Sem extrato anti-pragas. Compre no armazém.`]: `No pest-control extract. Buy some at the storeroom.`,
+  [`Semente`]: `Seed`,
+  [`Semi-sólida (Creme)`]: `Semisolid (Cream)`,
+  [`Semi-sólida (Gel)`]: `Semisolid (Gel)`,
+  [`Semi-sólida (Pasta)`]: `Semisolid (Paste)`,
+  [`Semi-sólida (Pomada)`]: `Semisolid (Ointment)`,
+  [`Semissólidas`]: `Semisolids`,
+  [`Semissólido · Creme O/A: aquecimento controlado das fases e emulsificação.`]: `Semisolid · O/W cream: controlled heating of the phases and emulsification.`,
+  [`Semissólido · Gel hidrofílico com ativo vegetal: dispersão do polímero e controle do pH.`]: `Semisolid · Hydrophilic gel with a plant active: polymer dispersion and pH control.`,
+  [`Semissólido · Gel: neutralização de polímero (Carbopol) e controle do pH.`]: `Semisolid · Gel: polymer (Carbopol) neutralization and pH control.`,
+  [`Semissólido · Pasta: levigação de pós insolúveis com um líquido intermediário.`]: `Semisolid · Paste: levigation of insoluble powders with an intermediate liquid.`,
+  [`Semissólido · Pomada: fusão de bases, levigação do fármaco e incorporação.`]: `Semisolid · Ointment: melting bases, levigating the drug and incorporating.`,
+  [`Semissólido · Pomada: incorporação gradual de extrato em base anidra.`]: `Semisolid · Ointment: gradual incorporation of an extract into an anhydrous base.`,
+  [`Sensibilidade cutânea pós-colheita.`]: `Skin sensitivity after the harvest.`,
+  [`Setas / WASD ou toque para andar`]: `Arrow keys / WASD or tap to walk`,
+  [`Setas ou toque para andar · {0} para interagir`]: `Arrow keys or tap to walk · {0} to interact`,
+  [`Seu Zé do Pomar`]: `Mr. Zé of the Orchard`,
+  [`Sobre o jogo`]: `About the game`,
+  [`Sobrou pouco insumo para atingir o alvo. Compre mais no armazém.`]: `Not enough supply left to reach the target. Buy more at the storeroom.`,
+  [`Solução Hidroalcoólica de Citronela`]: `Citronella Hydroalcoholic Solution`,
+  [`Squawk! Um lote com desvio acima de 5% não passa no controle de qualidade.`]: `Squawk! A batch with a deviation above 5% does not pass quality control.`,
+  [`Sr. Anselmo`]: `Mr. Anselmo`,
+  [`Sulfato de Zinco`]: `Zinc Sulfate`,
+  [`Sulfato de Zinco (20 g)`]: `Zinc Sulfate (20 g)`,
+  [`Surto de Dermatite Solar`]: `Solar Dermatitis Outbreak`,
+  [`Surto de Gripe de Inverno`]: `Winter Flu Outbreak`,
+  [`Suspensão Antiácida (Al(OH)₃ + Mg(OH)₂)`]: `Antacid Suspension (Al(OH)₃ + Mg(OH)₂)`,
+  [`Suspensão antiácida`]: `Antacid suspension`,
+  [`Sólida (Cápsulas de droga vegetal)`]: `Solid (Herbal drug capsules)`,
+  [`Sólida (Cápsulas)`]: `Solid (Capsules)`,
+  [`Sólida (Pó composto)`]: `Solid (Compound powder)`,
+  [`Sólidas`]: `Solids`,
+  [`Sólido · Cápsulas de derivados vegetais: densidade aparente e fluidez do pó.`]: `Solid · Herbal derivative capsules: bulk density and powder flow.`,
+  [`Sólido · Cápsulas de dose pequena: pesagem em balança analítica e diluição geométrica.`]: `Solid · Small-dose capsules: analytical-balance weighing and geometric dilution.`,
+  [`Sólido · Cápsulas: diluição geométrica do componente em menor quantidade.`]: `Solid · Capsules: geometric dilution of the component in the smallest amount.`,
+  [`Sólido · Pós compostos: tamisação para padronizar a granulometria e homogeneização.`]: `Solid · Compound powders: sieving to standardize particle size, and homogenization.`,
+  [`Talco Farmacêutico`]: `Pharmaceutical Talc`,
+  [`Talco Farmacêutico (200 g)`]: `Pharmaceutical Talc (200 g)`,
+  [`Tamis de 80 mesh`]: `80-mesh sieve`,
+  [`Tamisar os pós e misturar por diluição geométrica, começando pelo componente em menor quantidade.`]: `Sieve the powders and mix by geometric dilution, starting with the component in the smallest amount.`,
+  [`Tamisação e mistura de pós`]: `Sieving and mixing powders`,
+  [`Telas anti-insetos`]: `Insect screens`,
+  [`Telas:`]: `Screens:`,
+  [`Tia Nena`]: `Aunt Nena`,
+  [`Tintura de Boldo 20%`]: `Boldo Tincture 20%`,
+  [`Tintura de boldo, solução de citronela`]: `Boldo tincture, citronella solution`,
+  [`Todas`]: `All`,
+  [`Todo lote precisa de rótulo e número de lote. Rastreabilidade!`]: `Every batch needs a label and a batch number. Traceability!`,
+  [`Todos os pedidos de hoje foram entregues. Acenda o lampião para fechar o dia 🏮`]: `All of today's orders have been delivered. Light the lantern to close the day 🏮`,
+  [`Todos os pedidos foram entregues. Fechar a botica e passar para o próximo dia?`]: `All orders have been delivered. Close the apothecary and move on to the next day?`,
+  [`Tosse persistente e respiração pesada.`]: `Persistent cough and heavy breathing.`,
+  [`Tratar praga`]: `Treat pest`,
+  [`Trietanolamina (50 ml)`]: `Triethanolamine (50 ml)`,
+  [`Trietanolamina (Ajuste pH)`]: `Triethanolamine (pH adjustment)`,
+  [`Trietanolamina (ajuste do pH)`]: `Triethanolamine (pH adjustment)`,
+  [`Trituração, levigação e emulsão primária.`]: `Trituration, levigation and primary emulsion.`,
+  [`Uma nova botica abriu na Vila da Arara Azul 🦜`]: `A new apothecary has opened in Blue Macaw Village 🦜`,
+  [`Ureia`]: `Urea`,
+  [`Ureia (100 g)`]: `Urea (100 g)`,
+  [`Usado em: {0}`]: `Used in: {0}`,
+  [`Usar diluição geométrica de pós antes do encapsulamento.`]: `Use geometric dilution of the powders before encapsulation.`,
+  [`Vamos manipular`]: `Let's compound`,
+  [`Vaselina Sólida (500 g)`]: `Solid Petrolatum (500 g)`,
+  [`Vaselina Sólida q.s.p.`]: `Solid Petrolatum q.s. ad`,
+  [`Ver os relatórios BPM`]: `View the GCP reports`,
+  [`Virose de Primavera`]: `Spring Virus`,
+  [`Vitamina C (Ácido Ascórbico)`]: `Vitamin C (Ascorbic Acid)`,
+  [`Vitamina C Pura (50 g)`]: `Pure Vitamin C (50 g)`,
+  [`Voltar`]: `Back`,
+  [`Voltar ao jogo`]: `Back to the game`,
+  [`Vovó Abigail`]: `Grandma Abigail`,
+  [`Xarope Base Simples (500 ml)`]: `Simple Syrup Base (500 ml)`,
+  [`Xarope Expectorante de Guaco`]: `Guaco Expectorant Syrup`,
+  [`Xarope Simples Base`]: `Simple Syrup Base`,
+  [`balança analítica`]: `analytical balance`,
+  [`com sede`]: `thirsty`,
+  [`faixa ideal: {0} a {1}`]: `ideal range: {0} to {1}`,
+  [`faixa verde = aprovado`]: `green zone = approved`,
+  [`fase {0} de {1}`]: `phase {0} of {1}`,
+  [`honorários 🪙 {0}`]: `fee 🪙 {0}`,
+  [`há insumo fora da tolerância de ±{0}%.`]: `an ingredient is outside the ±{0}% tolerance.`,
+  [`instalada ✓`]: `installed ✓`,
+  [`instaladas ✓`]: `installed ✓`,
+  [`líquidas`]: `liquid`,
+  [`mistura heterogênea.`]: `the mixture is not homogeneous.`,
+  [`não`]: `no`,
+  [`pH {0}: fora da faixa ideal, viscosidade comprometida.`]: `pH {0}: outside the ideal range, viscosity compromised.`,
+  [`pH {0}: gel perfeito e transparente!`]: `pH {0}: perfect, clear gel!`,
+  [`pHmetro de bancada`]: `Benchtop pH meter`,
+  [`prateleira superior`]: `upper shelf`,
+  [`rega automática`]: `automatic watering`,
+  [`semissólidas`]: `semisolid`,
+  [`setas ou WASD, ou toque/clique no lugar para onde quer ir.`]: `arrow keys or WASD, or tap/click where you want to go.`,
+  [`sólidas`]: `solid`,
+  [`tecla {0}, espaço ou o botão que aparece na tela.`]: `the {0} key, space bar or the button that appears on screen.`,
+  [`vazio`]: `empty`,
+  [`{0} agradeceu! +{1} G e +{2} ⭐`]: `{0} says thanks! +{1} G and +{2} ⭐`,
+  [`{0} aguarda o preparo`]: `{0} is waiting for the preparation`,
+  [`{0} aguarda o preparo. Vá até a bancada 🧪`]: `{0} is waiting for the preparation. Head to the bench 🧪`,
+  [`{0} de 3 estrelas`]: `{0} of 3 stars`,
+  [`{0} de {1} entregues`]: `{0} of {1} delivered`,
+  [`{0} fora da faixa ({1}%). O lote pode ser reprovado.`]: `{0} out of range ({1}%). The batch may be rejected.`,
+  [`{0} instalado! 🔧`]: `{0} installed! 🔧`,
+  [`{0} pedido(s) ficaram sem atendimento: −{1} ⭐`]: `{0} order(s) went unserved: −{1} ⭐`,
+  [`{0} é um jogo educativo criado pela {1} para a disciplina de {2}.`]: `{0} is an educational game created by {1} for the {2} course.`,
+  [`{0}: qual é o correto?`]: `{0}: which one is correct?`,
+  [`{0}: {1} g (desvio {2}%)`]: `{0}: {1} g (deviation {2}%)`,
+  [`{0}: {1} °C, dentro da faixa.`]: `{0}: {1} °C, within range.`,
+  [`{0}: {1} °C, fora da faixa ideal.`]: `{0}: {1} °C, outside the ideal range.`,
+  [`Ácido Salicílico`]: `Salicylic Acid`,
+  [`Ácido Salicílico (50 g)`]: `Salicylic Acid (50 g)`,
+  [`Água Purificada`]: `Purified Water`,
+  [`Água Purificada (20 na primária, o resto na diluição)`]: `Purified Water (20 for the primary emulsion, the rest for dilution)`,
+  [`Água Purificada (500 ml)`]: `Purified Water (500 ml)`,
+  [`Água Purificada q.s.p.`]: `Purified Water q.s. ad`,
+  [`Água para a infusão`]: `Water for the infusion`,
+  [`Água quente para a infusão`]: `Hot water for the infusion`,
+  [`Álcool Etílico 70%`]: `Ethyl Alcohol 70%`,
+  [`Álcool Etílico 70% (1 L)`]: `Ethyl Alcohol 70% (1 L)`,
+  [`Óleo Mineral`]: `Mineral Oil`,
+  [`Óleo Mineral (200 ml)`]: `Mineral Oil (200 ml)`,
+  [`Óleo Mineral (levigante)`]: `Mineral Oil (levigating agent)`,
+  [`Óleo de Rícino`]: `Castor Oil`,
+  [`Óleo de Rícino (200 ml)`]: `Castor Oil (200 ml)`,
+  [`Óxido de Zinco`]: `Zinc Oxide`,
+  [`Óxido de Zinco (100 g)`]: `Zinc Oxide (100 g)`,
+  [`☀️ Surto de alergias de pele! Pastas, géis e pomadas valem +50%.`]: `☀️ Skin allergy outbreak! Pastes, gels and ointments pay +50%.`,
+  [`☀️ Verão`]: `☀️ Summer`,
+  [`❄️ Inverno`]: `❄️ Winter`,
+  [`❄️ Surto de gripe! Xaropes valem +60%.`]: `❄️ Flu outbreak! Syrups pay +60%.`,
+  [`🌸 Primavera`]: `🌸 Spring`,
+  [`🌸 Virose sazonal! Cápsulas de reforço imunológico valem +50%.`]: `🌸 Seasonal virus! Immune-support capsules pay +50%.`,
+  [`🍁 Outono`]: `🍁 Autumn`,
+  [`🐛 Pragas atacaram o canteiro de {0}!`]: `🐛 Pests attacked the {0} bed!`,
+  [`🐛 com pragas`]: `🐛 with pests`,
+  [`💧 regada`]: `💧 watered`,
+  [`🔥 procura alta`]: `🔥 high demand`,
+  [`🛡️ Extrato Biológico Anti-Pragas (2 doses)`]: `🛡️ Biological Pest-Control Extract (2 doses)`,
+  [`Qual componente entra primeiro no gral?`]: `Which component goes into the mortar first?`,
+  [`Comece pelo componente em menor quantidade e vá dobrando o volume.`]: `Start with the component in the smallest amount and keep doubling the volume.`,
+  [`Já na bancada`]: `Already on the bench`,
+  [`Adquirido`]: `Acquired`,
+  [`Guardar para entrega`]: `Store for delivery`,
+  [`Descartar lote`]: `Discard batch`,
+  [`Aquecimento`]: `Heating`,
+  [`Conservação`]: `Storage`,
+  [`Versão {0}`]: `Version {0}`,
+  [`Estado da música: {0}`]: `Music status: {0}`,
+  [`desligada`]: `off`,
+  [`preparando…`]: `preparing…`,
+  [`tocando ✅`]: `playing ✅`,
+  [`bloqueada pelo navegador ({0})`]: `blocked by the browser ({0})`,
+  [`aguardando um toque na tela`]: `waiting for a tap on the screen`,
+  [`Preparando a música… 🎵`]: `Preparing the music… 🎵`,
+  [`Música ligada 🎵`]: `Music on 🎵`,
+  [`Música desligada`]: `Music off`,
+  [`Não consegui tocar a música. Verifique o volume e o modo silencioso do aparelho.`]: `Couldn't play the music. Check the device volume and silent mode.`,
+});
 /* ==========================================================================
    MUNDO: CANVAS, CENÁRIO, PERSONAGENS
    ========================================================================== */
@@ -1171,11 +1735,15 @@ function tone(freq, start, dur, type, vol) {
   g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + start + dur);
   o.connect(g); g.connect(a.destination); o.start(a.currentTime + start); o.stop(a.currentTime + start + dur + .05);
 }
+function getAudio() {
+  if (!audioCtx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; audioCtx = new AC(); }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
 function sfx(kind) {
   if (muted) return;
   try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!getAudio()) return;
     const S = {
       bell: [[1046, 0, .35], [1568, .08, .4]], coin: [[988, 0, .1], [1319, .09, .22]], good: [[523, 0, .14], [659, .1, .14], [784, .2, .3]],
       bad: [[262, 0, .18, 'triangle'], [196, .14, .3, 'triangle']], tap: [[440, 0, .05, 'triangle', .05]], tick: [[880, 0, .03, 'square', .02]],
@@ -1231,11 +1799,11 @@ function addFloater(x, y, text, color) { floaters.push({ x, y, t: 0, text, color
    INTERAÇÃO
    ========================================================================== */
 function interactables() {
-  const list = STATIONS.map(s => Object.assign({ kind: 'station' }, s));
+  const list = STATIONS.map(s => Object.assign({ kind: 'station' }, s, { label: tr(s.label) }));
   customers.forEach(cu => {
     if (!cu.arrived || cu.leaving) return;
     const st = cu.order.state, nm = cu.order.who;
-    const label = st === 'ready' ? 'Entregar o pedido: ' + nm : st === 'taken' ? nm + ' aguarda o preparo' : 'Atender ' + nm;
+    const label = st === 'ready' ? tr('Entregar o pedido: {0}', tr(nm)) : st === 'taken' ? tr('{0} aguarda o preparo', tr(nm)) : tr('Atender {0}', tr(nm));
     list.push({ id: 'customer', kind: 'customer', cust: cu, label, x: cu.x, y: 262, r: 58, hit: [cu.x - 26, cu.y - 66, 52, 74] });
   });
   return list;
@@ -1254,7 +1822,7 @@ function doInteract(it) {
     case 'lab': openBench(); break;
     case 'bpm': openBPM(); break;
     case 'garden': openGarden(); break;
-    case 'macaw': macaw.squawk = 1.1; sfx('squawk'); toast('🦜 ' + pick(MACAW_TIPS), 'gold'); for (let i = 0; i < 3; i++) addFloater(46 + rand(-14, 14), 205 - i * 8, '💜'); break;
+    case 'macaw': macaw.squawk = 1.1; sfx('squawk'); toast('🦜 ' + tr(pick(MACAW_TIPS)), 'gold'); for (let i = 0; i < 3; i++) addFloater(46 + rand(-14, 14), 205 - i * 8, '💜'); break;
     case 'lamp': askEndDay(); break;
     case 'customer': serveCustomer(it.cust); break;
   }
@@ -1369,16 +1937,22 @@ function frame(now) {
 }
 /* ==========================================================================
    INTERFACE: MODAIS, HUD, PEDIDOS, ARMAZÉM, LIVRO, BPM, ESTUFA
+   (todos os textos passam por tr(): português é a chave, o inglês vem de i18n.js)
    ========================================================================== */
 const modalRoot = $('#modal-root'), confirmRoot = $('#confirm-root');
 let modalClosable = true, modalGuard = null;
 const fmt3 = n => n.toFixed(3);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const L = s => esc(tr(s));
+const AUTHOR = 'Profª. Drª. Anna Carolina Schneider Alves';
+const IG_URL = 'https://www.instagram.com/prof.annaalves/', YT_URL = 'https://www.youtube.com/@boticadoconhecimento';
+const socialHTML = () => '<div class="social"><a href="' + IG_URL + '" target="_blank" rel="noopener noreferrer">📷 Instagram @prof.annaalves</a><a href="' + YT_URL + '" target="_blank" rel="noopener noreferrer">▶️ YouTube Botica do Conhecimento</a></div>';
+const creditHTML = () => tr('Jogo educativo criado pela {0} para a disciplina de {1}.', '<b>' + esc(tr(AUTHOR)) + '</b>', '<b>' + esc(tr('Farmacotécnica')) + '</b>');
 
 function modalIsOpen() { return modalRoot.childElementCount > 0 || confirmRoot.childElementCount > 0 || $('#veil').classList.contains('on'); }
 function openModal(title, html, opts) {
   opts = opts || {}; modalClosable = opts.closable !== false; modalGuard = opts.guard || null;
-  modalRoot.innerHTML = '<div class="scrim"><div class="sheet' + (opts.wide ? ' wide' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><div class="sheet-head"><h2>' + esc(title) + '</h2>' + (modalClosable ? '<button class="x" aria-label="Fechar">✕</button>' : '') + '</div><div class="sheet-body"></div></div></div>';
+  modalRoot.innerHTML = '<div class="scrim"><div class="sheet' + (opts.wide ? ' wide' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><div class="sheet-head"><h2>' + esc(title) + '</h2>' + (modalClosable ? '<button class="x" aria-label="' + esc(tr('Fechar')) + '">✕</button>' : '') + '</div><div class="sheet-body"></div></div></div>';
   const body = $('.sheet-body', modalRoot); body.innerHTML = html || '';
   const x = $('.x', modalRoot); if (x) x.onclick = requestClose;
   $('.scrim', modalRoot).addEventListener('pointerdown', e => { if (e.target.classList.contains('scrim')) requestClose(); });
@@ -1389,7 +1963,7 @@ function requestClose() { if (!modalClosable) return; if (modalGuard) { modalGua
 function closeModal() { modalRoot.innerHTML = ''; modalGuard = null; }
 function askConfirm(msg, yes, onYes, opts) {
   opts = opts || {};
-  confirmRoot.innerHTML = '<div class="scrim top"><div class="sheet" role="alertdialog"><div class="sheet-body"><p style="margin-top:0">' + msg + '</p><div class="row"><button class="btn ghost" data-n>' + (opts.no || 'Voltar') + '</button><button class="btn" data-y>' + yes + '</button></div></div></div></div>';
+  confirmRoot.innerHTML = '<div class="scrim top"><div class="sheet" role="alertdialog"><div class="sheet-body"><p style="margin-top:0">' + msg + '</p><div class="row"><button class="btn ghost" data-n>' + (opts.no || tr('Voltar')) + '</button><button class="btn" data-y>' + yes + '</button></div></div></div></div>';
   $('[data-n]', confirmRoot).onclick = () => { confirmRoot.innerHTML = ''; };
   $('[data-y]', confirmRoot).onclick = () => { confirmRoot.innerHTML = ''; onYes(); };
   $('[data-y]', confirmRoot).focus();
@@ -1404,23 +1978,42 @@ function toast(msg, type) {
   setTimeout(() => t.remove(), 4200);
 }
 
+/* ---------- idioma ---------- */
+function applyStaticLang() {
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'pt-BR';
+  document.title = tr('Botica da Vila da Arara Azul');
+  document.querySelectorAll('[data-i18n]').forEach(el => { if (el._pt === undefined) el._pt = el.textContent; el.textContent = tr(el._pt); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { if (el._ptt === undefined) el._ptt = el.getAttribute('data-i18n-title'); const v = tr(el._ptt); el.title = v; el.setAttribute('aria-label', v); });
+  $('#credits-text').innerHTML = creditHTML(); $('#ver').textContent = tr('Versão {0}', APP_VERSION);
+  const hi = $('#hint-idle'); if (hi) hi.textContent = tr('Setas / WASD ou toque para andar');
+  $('#lang-pt').setAttribute('aria-pressed', LANG === 'pt'); $('#lang-en').setAttribute('aria-pressed', LANG === 'en');
+  $('#lang-pt').classList.toggle('on', LANG === 'pt'); $('#lang-en').classList.toggle('on', LANG === 'en');
+  const sn = $('#btn-sound'); sn.textContent = muted ? '🔇' : '🔊';
+  updateHUD(); renderTickets(); lastHintKey = '#';
+}
+function setLang(l) {
+  if (modalIsOpen()) return;
+  LANG = l; try { localStorage.setItem('botica_lang', l); } catch (e) { /* ok */ }
+  applyStaticLang();
+}
+
 /* ---------- HUD e pedidos ---------- */
 function updateHUD() {
-  $('#h-money').textContent = G.money.toFixed(2); $('#h-rep').textContent = G.reputation; $('#h-day').textContent = G.day; $('#h-season').textContent = SEASONS[G.seasonIndex];
+  $('#h-money').textContent = G.money.toFixed(2); $('#h-rep').textContent = G.reputation; $('#h-day').textContent = G.day; $('#h-season').textContent = tr(SEASONS[G.seasonIndex]);
   const ob = $('#outbreak');
-  if (G.activeOutbreak) { ob.classList.add('on'); ob.textContent = '📢 Alerta epidêmico: ' + G.activeOutbreak.msg; } else ob.classList.remove('on');
+  if (G.activeOutbreak) { ob.classList.add('on'); ob.textContent = '📢 ' + tr('Alerta epidêmico: {0}', tr(G.activeOutbreak.msg)); } else ob.classList.remove('on');
 }
 const STATE_PILL = { incoming: ['i', 'Chegando…'], waiting: ['w', 'Aguarda atendimento'], taken: ['t', 'Preparar na bancada'], ready: ['r', 'Pronto: entregar'], done: ['d', 'Entregue'] };
 function renderTickets() {
   const arrived = G.orders.filter(o => o.state !== 'incoming'), incoming = G.orders.length - arrived.length;
-  $('#t-count').textContent = G.orders.filter(o => o.state === 'done').length + ' de ' + G.orders.length + ' entregues';
+  $('#t-count').textContent = tr('{0} de {1} entregues', G.orders.filter(o => o.state === 'done').length, G.orders.length);
   let html = arrived.map(o => {
     const f = FORMULATIONS[o.formulaId], pill = STATE_PILL[o.state];
-    const detail = o.state === 'waiting' ? 'Quer ser atendido' : esc(f.name) + (o.state === 'done' && o.stars ? ' · ' + '★'.repeat(o.stars) : '') + (matchesOutbreak(f) && o.state !== 'done' ? ' · 🔥 procura alta' : '');
-    return '<div class="ticket"><div class="av">' + generateSVGAvatar(o.who) + '</div><div class="tx"><div class="nm">' + esc(o.who) + '</div><div class="st">' + detail + '</div><span class="pill-s ' + pill[0] + '">' + pill[1] + '</span></div></div>';
+    const detail = o.state === 'waiting' ? L('Quer ser atendido') : L(f.name) + (o.state === 'done' && o.stars ? ' · ' + '★'.repeat(o.stars) : '') + (matchesOutbreak(f) && o.state !== 'done' ? ' · ' + L('🔥 procura alta') : '');
+    return '<div class="ticket"><div class="av">' + generateSVGAvatar(o.who) + '</div><div class="tx"><div class="nm">' + L(o.who) + '</div><div class="st">' + detail + '</div><span class="pill-s ' + pill[0] + '">' + L(pill[1]) + '</span></div></div>';
   }).join('');
-  if (incoming) html += '<div class="empty">+' + incoming + ' a caminho da botica…</div>';
-  if (!html) html = '<div class="empty">Os primeiros moradores já estão chegando…</div>';
+  if (incoming) html += '<div class="empty">' + esc(tr('+{0} a caminho da botica…', incoming)) + '</div>';
+  if (!html) html = '<div class="empty">' + L('Os primeiros moradores já estão chegando…') + '</div>';
   $('#tickets').innerHTML = html;
 }
 
@@ -1429,28 +2022,28 @@ const GREETINGS = ['Bom dia! Vim buscar uma ajudinha.', 'Olá, tudo bem? Preciso
 function serveCustomer(cu) {
   const o = cu.order;
   if (o.state === 'waiting') return openConsult(cu);
-  if (o.state === 'taken') { toast(o.who + ' aguarda o preparo. Vá até a bancada 🧪'); return; }
+  if (o.state === 'taken') { toast(tr('{0} aguarda o preparo. Vá até a bancada 🧪', tr(o.who))); return; }
   if (o.state === 'ready') return deliverOrder(cu);
 }
 function openConsult(cu) {
   const o = cu.order, form = FORMULATIONS[o.formulaId];
   const others = shuffle(G.unlockedFormulas.filter(id => id !== o.formulaId)).slice(0, 2), opts = shuffle([o.formulaId].concat(others));
   let wrong = 0;
-  const body = openModal('Atendimento no balcão',
-    '<div class="talk"><div class="portrait">' + generateSVGAvatar(o.who) + '</div><div class="bubble-t"><b>' + esc(o.who) + '</b><p style="margin:.3rem 0 0">' + pick(GREETINGS) + '<br><i>Queixa: ' + esc(form.symptom) + '</i></p></div></div>' +
-    '<p class="muted" style="margin:16px 0 0">Qual fórmula combina com a queixa?</p><div class="opts">' +
-    opts.map(id => { const f = FORMULATIONS[id], r = f.reward * (matchesOutbreak(f) ? G.activeOutbreak.bonus : 1); return '<button class="opt" data-id="' + id + '"><b>' + esc(f.name) + '</b><small>' + esc(f.type) + ' · honorários 🪙 ' + r.toFixed(2) + '</small></button>'; }).join('') +
+  const body = openModal(tr('Atendimento no balcão'),
+    '<div class="talk"><div class="portrait">' + generateSVGAvatar(o.who) + '</div><div class="bubble-t"><b>' + L(o.who) + '</b><p style="margin:.3rem 0 0">' + L(pick(GREETINGS)) + '<br><i>' + esc(tr('Queixa: {0}', tr(form.symptom))) + '</i></p></div></div>' +
+    '<p class="muted" style="margin:16px 0 0">' + L('Qual fórmula combina com a queixa?') + '</p><div class="opts">' +
+    opts.map(id => { const f = FORMULATIONS[id], r = f.reward * (matchesOutbreak(f) ? G.activeOutbreak.bonus : 1); return '<button class="opt" data-id="' + id + '"><b>' + L(f.name) + '</b><small>' + L(f.type) + ' · ' + esc(tr('honorários 🪙 {0}', r.toFixed(2))) + '</small></button>'; }).join('') +
     '</div><div class="feedback" id="fb"></div>');
   const fb = $('#fb', body);
   body.querySelectorAll('.opt').forEach(btn => btn.onclick = () => {
     const id = btn.dataset.id;
     if (id === o.formulaId) {
       btn.classList.add('right'); o.firstTry = wrong === 0; o.state = 'taken'; sfx('good');
-      fb.style.color = '#2f7d59'; fb.textContent = 'Perfeito! Receita anotada. Agora é com a bancada.';
+      fb.style.color = '#2f7d59'; fb.textContent = tr('Perfeito! Receita anotada. Agora é com a bancada.');
       renderTickets(); saveGame(); body.querySelectorAll('.opt').forEach(b => b.disabled = true); const sheet = $('.sheet', modalRoot); setTimeout(() => { if ($('.sheet', modalRoot) === sheet) closeModal(); }, 900);
     } else {
       wrong++; o.firstTry = false; btn.disabled = true; btn.classList.add('shake'); sfx('bad'); setTimeout(() => btn.classList.remove('shake'), 400);
-      fb.textContent = wrong === 1 ? 'Hmm, essa fórmula não combina com a queixa. O livro de fórmulas ajuda.' : 'Dica: procure uma forma farmacêutica do tipo ' + form.type + '.';
+      fb.textContent = wrong === 1 ? tr('Hmm, essa fórmula não combina com a queixa. O livro de fórmulas ajuda.') : tr('Dica: procure uma forma farmacêutica do tipo {0}.', tr(form.type));
     }
   });
 }
@@ -1458,9 +2051,9 @@ function deliverOrder(cu) {
   const o = cu.order, rep = CONFIG.repApproved + (o.firstTry ? CONFIG.repPerfectService : 0);
   G.money += o.reward; G.reputation += rep; o.state = 'done';
   addFloater(cu.x, cu.y - 92, '+' + o.reward.toFixed(2) + ' G', '#ffd772'); addFloater(cu.x - 14, cu.y - 70, '💜'); addFloater(cu.x + 16, cu.y - 78, '💜');
-  sfx('coin'); toast(o.who + ' agradeceu! +' + o.reward.toFixed(2) + ' G e +' + rep + ' ⭐', 'success');
+  sfx('coin'); toast(tr('{0} agradeceu! +{1} G e +{2} ⭐', tr(o.who), o.reward.toFixed(2), rep), 'success');
   sendAway(cu); updateHUD(); renderTickets(); saveGame();
-  if (allDone()) setTimeout(() => toast('Todos os pedidos de hoje foram entregues. Acenda o lampião para fechar o dia 🏮', 'gold'), 900);
+  if (allDone()) setTimeout(() => toast(tr('Todos os pedidos de hoje foram entregues. Acenda o lampião para fechar o dia 🏮'), 'gold'), 900);
 }
 
 /* ---------- bancada ---------- */
@@ -1468,16 +2061,16 @@ const missingIngredients = form => form.ingredients.filter(i => (G.inventory[i.i
 const missingEquipment = form => (form.requires || []).filter(id => !hasEq(id));
 function openBench() {
   const taken = G.orders.filter(o => o.state === 'taken');
-  if (!taken.length) { openModal('Bancada do laboratório', '<p>Nenhum pedido em preparo agora.</p><p class="muted">Atenda um cliente no balcão (o balão 💬) para receber a receita e voltar aqui.</p><button class="btn" id="ok">Entendi</button>').querySelector('#ok').onclick = closeModal; return; }
-  const body = openModal('Bancada do laboratório', '<p class="muted">Escolha o pedido que vai manipular.</p><div id="bench-list" style="display:grid;gap:10px;margin-top:10px"></div>');
+  if (!taken.length) { openModal(tr('Bancada do laboratório'), '<p>' + L('Nenhum pedido em preparo agora.') + '</p><p class="muted">' + L('Atenda um cliente no balcão (o balão 💬) para receber a receita e voltar aqui.') + '</p><button class="btn" id="ok">' + L('Entendi') + '</button>').querySelector('#ok').onclick = closeModal; return; }
+  const body = openModal(tr('Bancada do laboratório'), '<p class="muted">' + L('Escolha o pedido que vai manipular.') + '</p><div id="bench-list" style="display:grid;gap:10px;margin-top:10px"></div>');
   const list = $('#bench-list', body);
   taken.forEach(o => {
     const f = FORMULATIONS[o.formulaId], miss = missingIngredients(f), meq = missingEquipment(f), card = document.createElement('div'); card.className = 'tile';
     const blocked = miss.length || meq.length;
-    card.innerHTML = '<div class="row" style="align-items:center"><div class="ticket" style="border:0;padding:0;flex:1"><div class="av">' + generateSVGAvatar(o.who) + '</div><div class="tx"><div class="nm">' + esc(f.name) + '</div><div class="st">Para ' + esc(o.who) + ' · ' + esc(f.type) + '</div></div></div><button class="btn sage" ' + (blocked ? 'disabled' : '') + '>Preparar</button></div>' +
-      '<div class="muted">' + f.ingredients.map(i => { const ok = (G.inventory[i.id] || 0) >= i.targetAmount * 1.1; return (ok ? '✓ ' : '✗ ') + esc(i.name); }).join(' · ') + '</div>' +
-      ((f.requires || []).length ? '<div class="muted">Equipamento: ' + f.requires.map(id => (hasEq(id) ? '✓ ' : '✗ ') + esc(EQUIPMENT[id].name)).join(' · ') + '</div>' : '') +
-      (meq.length ? '<div class="bad">Falta equipamento. Veja a aba Equipamentos no armazém.</div>' : '') + (miss.length ? '<div class="bad">Faltam insumos. Compre no armazém ou colha na estufa.</div>' : '');
+    card.innerHTML = '<div class="row" style="align-items:center"><div class="ticket" style="border:0;padding:0;flex:1"><div class="av">' + generateSVGAvatar(o.who) + '</div><div class="tx"><div class="nm">' + L(f.name) + '</div><div class="st">' + esc(tr('Para {0}', tr(o.who))) + ' · ' + L(f.type) + '</div></div></div><button class="btn sage" ' + (blocked ? 'disabled' : '') + '>' + L('Preparar') + '</button></div>' +
+      '<div class="muted">' + f.ingredients.map(i => { const ok = (G.inventory[i.id] || 0) >= i.targetAmount * 1.1; return (ok ? '✓ ' : '✗ ') + L(i.name); }).join(' · ') + '</div>' +
+      ((f.requires || []).length ? '<div class="muted">' + L('Equipamento:') + ' ' + f.requires.map(id => (hasEq(id) ? '✓ ' : '✗ ') + L(EQUIPMENT[id].name)).join(' · ') + '</div>' : '') +
+      (meq.length ? '<div class="bad">' + L('Falta equipamento. Veja a aba Equipamentos no armazém.') + '</div>' : '') + (miss.length ? '<div class="bad">' + L('Faltam insumos. Compre no armazém ou colha na estufa.') + '</div>' : '');
     $('button', card).onclick = () => startLab(o); list.appendChild(card);
   });
 }
@@ -1485,30 +2078,30 @@ function openBench() {
 /* ---------- armazém ---------- */
 function openShop(tab) {
   let cur = tab || 'insumos';
-  const body = openModal('Armazém', '<div class="steps" id="shop-tabs" role="tablist"></div><p class="muted">Saldo: <b id="shop-money"></b></p><div class="grid" id="shop-grid" style="margin-top:10px"></div>', { wide: true });
+  const body = openModal(tr('Armazém'), '<div class="steps" id="shop-tabs" role="tablist"></div><p class="muted">' + L('Saldo:') + ' <b id="shop-money"></b></p><div class="grid" id="shop-grid" style="margin-top:10px"></div>', { wide: true });
   const draw = () => {
     $('#shop-money', body).textContent = '🪙 ' + G.money.toFixed(2) + ' G';
-    $('#shop-tabs', body).innerHTML = [['insumos', 'Insumos'], ['bancada', 'Equipamentos de bancada'], ['estufa', 'Estufa']].map(t => '<button class="step ' + (cur === t[0] ? 'on' : '') + '" data-t="' + t[0] + '" role="tab" style="cursor:pointer">' + t[1] + '</button>').join('');
+    $('#shop-tabs', body).innerHTML = [['insumos', 'Insumos'], ['bancada', 'Equipamentos de bancada'], ['estufa', 'Estufa']].map(t => '<button class="step ' + (cur === t[0] ? 'on' : '') + '" data-t="' + t[0] + '" role="tab" style="cursor:pointer">' + L(t[1]) + '</button>').join('');
     body.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { cur = b.dataset.t; draw(); });
     const grid = $('#shop-grid', body);
     if (cur === 'insumos') {
-      grid.innerHTML = SHOP_ITEMS.map(it => { const st = G.inventory[it.id] || 0; return '<div class="tile"><h3>' + esc(it.name) + '</h3><div class="muted">Em estoque: <b>' + (Number.isInteger(st) ? st : st.toFixed(3)) + '</b></div><div class="row"><span>🪙 ' + it.cost.toFixed(2) + ' G <small class="muted">(+' + it.qty + ')</small></span><button class="btn sm" data-id="' + it.id + '">Comprar</button></div></div>'; }).join('');
+      grid.innerHTML = SHOP_ITEMS.map(it => { const st = G.inventory[it.id] || 0; return '<div class="tile"><h3>' + L(it.name) + '</h3><div class="muted">' + L('Em estoque:') + ' <b>' + (Number.isInteger(st) ? st : st.toFixed(3)) + '</b></div><div class="row"><span>🪙 ' + it.cost.toFixed(2) + ' G <small class="muted">(+' + it.qty + ')</small></span><button class="btn sm" data-id="' + it.id + '">' + L('Comprar') + '</button></div></div>'; }).join('');
       body.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => {
         const it = SHOP_ITEMS.find(x => x.id === b.dataset.id);
-        if (G.money < it.cost) { toast('Saldo insuficiente.', 'warning'); sfx('bad'); return; }
+        if (G.money < it.cost) { toast(tr('Saldo insuficiente.'), 'warning'); sfx('bad'); return; }
         G.money -= it.cost; G.inventory[it.id] = (G.inventory[it.id] || 0) + it.qty; sfx('coin'); updateHUD(); saveGame(); draw();
       });
     } else {
       const items = Object.entries(EQUIPMENT).filter(([id, e]) => cur === 'bancada' ? (e.cat === 'bancada' || e.starter) : e.cat === 'estufa');
       grid.innerHTML = items.map(([id, e]) => {
         const own = hasEq(id);
-        return '<div class="tile"><h3>' + esc(e.name) + '</h3><div class="muted">' + esc(e.desc) + '</div>' + (e.uses ? '<div><span class="tag g">Usado em: ' + esc(e.uses) + '</span></div>' : '') +
-          '<div class="row">' + (own ? '<span class="ok">✓ ' + (e.starter ? 'Já na bancada' : 'Adquirido') + '</span>' : '<span>🪙 ' + e.cost.toFixed(2) + ' G</span><button class="btn sm" data-eq="' + id + '">Comprar</button>') + '</div></div>';
+        return '<div class="tile"><h3>' + L(e.name) + '</h3><div class="muted">' + L(e.desc) + '</div>' + (e.uses ? '<div><span class="tag g">' + esc(tr('Usado em: {0}', tr(e.uses))) + '</span></div>' : '') +
+          '<div class="row">' + (own ? '<span class="ok">✓ ' + L(e.starter ? 'Já na bancada' : 'Adquirido') + '</span>' : '<span>🪙 ' + e.cost.toFixed(2) + ' G</span><button class="btn sm" data-eq="' + id + '">' + L('Comprar') + '</button>') + '</div></div>';
       }).join('');
       body.querySelectorAll('button[data-eq]').forEach(b => b.onclick = () => {
         const id = b.dataset.eq, e = EQUIPMENT[id];
-        if (G.money < e.cost) { toast('Saldo insuficiente.', 'warning'); sfx('bad'); return; }
-        G.money -= e.cost; G.equipment.push(id); sfx('good'); toast(e.name + ' instalado! 🔧', 'gold'); updateHUD(); saveGame(); draw();
+        if (G.money < e.cost) { toast(tr('Saldo insuficiente.'), 'warning'); sfx('bad'); return; }
+        G.money -= e.cost; G.equipment.push(id); sfx('good'); toast(tr('{0} instalado! 🔧', tr(e.name)), 'gold'); updateHUD(); saveGame(); draw();
       });
     }
   };
@@ -1519,23 +2112,23 @@ function openShop(tab) {
 function openBook() {
   let filt = 'todas';
   const FILTERS = [['todas', 'Todas'], ['Sólida', 'Sólidas'], ['Semi-sólida', 'Semissólidas'], ['Líquida', 'Líquidas']];
-  const body = openModal('Livro de fórmulas', '<div class="steps" id="book-tabs"></div><div class="grid" id="book-grid"></div><p class="muted" style="margin-top:14px">Fórmulas didáticas para a prática de Farmacotécnica, inspiradas na Farmacopeia Brasileira, no Formulário Nacional, no Formulário de Fitoterápicos e em textos clássicos de farmácia magistral (Ansel, Allen). Confira concentrações e monografias antes de usar fora do jogo.</p>', { wide: true });
+  const body = openModal(tr('Livro de fórmulas'), '<div class="steps" id="book-tabs"></div><div class="grid" id="book-grid"></div><p class="muted" style="margin-top:14px">' + L('Fórmulas didáticas para a prática de Farmacotécnica, inspiradas na Farmacopeia Brasileira, no Formulário Nacional, no Formulário de Fitoterápicos e em textos clássicos de farmácia magistral (Ansel, Allen). Confira concentrações e monografias antes de usar fora do jogo.') + '</p>', { wide: true });
   const draw = () => {
-    $('#book-tabs', body).innerHTML = FILTERS.map(f => '<button class="step ' + (filt === f[0] ? 'on' : '') + '" data-f="' + f[0] + '" style="cursor:pointer">' + f[1] + '</button>').join('');
+    $('#book-tabs', body).innerHTML = FILTERS.map(f => '<button class="step ' + (filt === f[0] ? 'on' : '') + '" data-f="' + f[0] + '" style="cursor:pointer">' + L(f[1]) + '</button>').join('');
     body.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filt = b.dataset.f; draw(); });
     $('#book-grid', body).innerHTML = Object.values(FORMULATIONS).filter(f => filt === 'todas' || f.type.indexOf(filt) === 0).map(f => {
       const known = G.unlockedFormulas.includes(f.id), can = G.money >= f.unlockCost && G.reputation >= f.reqRep, req = f.requires || [];
-      return '<div class="tile"><h3>' + esc(f.name) + '</h3><div class="row"><span class="tag">' + esc(f.type) + '</span><span class="tag h">🪙 ' + f.reward.toFixed(2) + '</span></div>' +
-        (f.teach ? '<div><span class="tag g">' + esc(f.teach) + '</span></div>' : '') +
-        '<div class="muted"><b>Indicação:</b> ' + esc(f.symptom) + '</div>' +
-        '<div class="muted">' + f.ingredients.map(i => esc(i.name) + ' <b>' + i.targetAmount + ' g</b>').join('<br>') + '</div>' +
-        '<div class="muted"><b>POP:</b> ' + esc(f.pop) + '</div>' +
-        (req.length ? '<div class="muted"><b>Equipamento:</b> ' + req.map(id => (hasEq(id) ? '✓ ' : '✗ ') + esc(EQUIPMENT[id].name)).join(' · ') + '</div>' : '') +
-        (known ? '<span class="ok">✓ Aprendida</span>' : '<div class="muted">Custa 🪙 ' + f.unlockCost.toFixed(2) + ' · exige ⭐ ' + f.reqRep + '</div><button class="btn sm" data-id="' + f.id + '" ' + (can ? '' : 'disabled') + '>Aprender fórmula</button>') + '</div>';
+      return '<div class="tile"><h3>' + L(f.name) + '</h3><div class="row"><span class="tag">' + L(f.type) + '</span><span class="tag h">🪙 ' + f.reward.toFixed(2) + '</span></div>' +
+        (f.teach ? '<div><span class="tag g">' + L(f.teach) + '</span></div>' : '') +
+        '<div class="muted"><b>' + L('Indicação:') + '</b> ' + L(f.symptom) + '</div>' +
+        '<div class="muted">' + f.ingredients.map(i => L(i.name) + ' <b>' + i.targetAmount + ' g</b>').join('<br>') + '</div>' +
+        '<div class="muted"><b>' + L('POP:') + '</b> ' + L(f.pop) + '</div>' +
+        (req.length ? '<div class="muted"><b>' + L('Equipamento:') + '</b> ' + req.map(id => (hasEq(id) ? '✓ ' : '✗ ') + L(EQUIPMENT[id].name)).join(' · ') + '</div>' : '') +
+        (known ? '<span class="ok">✓ ' + L('Aprendida') + '</span>' : '<div class="muted">' + esc(tr('Custa 🪙 {0} · exige ⭐ {1}', f.unlockCost.toFixed(2), f.reqRep)) + '</div><button class="btn sm" data-id="' + f.id + '" ' + (can ? '' : 'disabled') + '>' + L('Aprender fórmula') + '</button>') + '</div>';
     }).join('');
     body.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => {
       const f = FORMULATIONS[b.dataset.id]; G.money -= f.unlockCost; G.unlockedFormulas.push(f.id);
-      sfx('good'); toast('Fórmula aprendida: ' + f.name + ' 📜', 'gold'); updateHUD(); saveGame(); draw();
+      sfx('good'); toast(tr('Fórmula aprendida: {0} 📜', tr(f.name)), 'gold'); updateHUD(); saveGame(); draw();
     });
   };
   draw();
@@ -1544,39 +2137,39 @@ function openBook() {
 /* ---------- BPM ---------- */
 function openBPM() {
   const logs = G.batchLogs, ap = logs.filter(l => l.status === 'APROVADO').length, rep = logs.length - ap;
-  openModal('Relatórios de Boas Práticas de Manipulação',
-    '<div class="row" style="margin-bottom:12px"><div class="tile"><h3>Lotes</h3><b>' + logs.length + '</b></div><div class="tile"><h3>Aprovados</h3><b class="ok">' + ap + '</b></div><div class="tile"><h3>Reprovados</h3><b class="bad">' + rep + '</b></div></div>' +
-    (logs.length ? '<table><thead><tr><th>Lote</th><th>Dia</th><th>Produto</th><th>Paciente</th><th>Desvio máx.</th><th>Status</th></tr></thead><tbody>' +
-      logs.slice(0, 14).map(l => '<tr><td>' + esc(l.id) + '</td><td>' + l.day + '</td><td>' + esc(l.formName) + '</td><td>' + esc(l.patient) + '</td><td>' + l.maxDev + '%</td><td class="' + (l.status === 'APROVADO' ? 'ok' : 'bad') + '">' + l.status + (l.stars ? ' ' + '★'.repeat(l.stars) : '') + '</td></tr>').join('') + '</tbody></table>'
-      : '<p class="muted">Nenhum lote registrado ainda. Cada preparo passa pelo controle de qualidade e entra aqui.</p>'), { wide: true });
+  openModal(tr('Relatórios de Boas Práticas de Manipulação'),
+    '<div class="row" style="margin-bottom:12px"><div class="tile"><h3>' + L('Lotes') + '</h3><b>' + logs.length + '</b></div><div class="tile"><h3>' + L('Aprovados') + '</h3><b class="ok">' + ap + '</b></div><div class="tile"><h3>' + L('Reprovados') + '</h3><b class="bad">' + rep + '</b></div></div>' +
+    (logs.length ? '<table><thead><tr><th>' + L('Lote') + '</th><th>' + L('Dia') + '</th><th>' + L('Produto') + '</th><th>' + L('Paciente') + '</th><th>' + L('Desvio máx.') + '</th><th>Status</th></tr></thead><tbody>' +
+      logs.slice(0, 14).map(l => '<tr><td>' + esc(l.id) + '</td><td>' + l.day + '</td><td>' + L(l.formName) + '</td><td>' + L(l.patient) + '</td><td>' + l.maxDev + '%</td><td class="' + (l.status === 'APROVADO' ? 'ok' : 'bad') + '">' + L(l.status) + (l.stars ? ' ' + '★'.repeat(l.stars) : '') + '</td></tr>').join('') + '</tbody></table>'
+      : '<p class="muted">' + L('Nenhum lote registrado ainda. Cada preparo passa pelo controle de qualidade e entra aqui.') + '</p>'), { wide: true });
 }
 
 /* ---------- estufa ---------- */
 function openGarden() {
-  const body = openModal('Estufa', '<p class="muted">Anti-pragas: <b id="g-spray"></b> · Irrigação: <b id="g-drip"></b> · Telas: <b id="g-net"></b>. Melhorias no armazém, aba Estufa.</p><div class="grid" id="g-grid" style="margin-top:10px"></div>', { wide: true });
+  const body = openModal(tr('Estufa'), '<p class="muted">' + L('Anti-pragas:') + ' <b id="g-spray"></b> · ' + L('Irrigação:') + ' <b id="g-drip"></b> · ' + L('Telas:') + ' <b id="g-net"></b>. ' + L('Melhorias no armazém, aba Estufa.') + '</p><div class="grid" id="g-grid" style="margin-top:10px"></div>', { wide: true });
   const draw = () => {
     $('#g-spray', body).textContent = G.inventory.calda_fumo || 0;
-    $('#g-drip', body).textContent = hasEq('irrigacao') ? 'instalada ✓' : 'não';
-    $('#g-net', body).textContent = hasEq('telas') ? 'instaladas ✓' : 'não';
+    $('#g-drip', body).textContent = hasEq('irrigacao') ? tr('instalada ✓') : tr('não');
+    $('#g-net', body).textContent = hasEq('telas') ? tr('instaladas ✓') : tr('não');
     const grid = $('#g-grid', body); grid.innerHTML = '';
     G.garden.forEach(bed => {
       const t = document.createElement('div'); t.className = 'tile';
       if (!bed.unlocked) {
         const can = G.money >= bed.cost && G.reputation >= bed.reqRep;
-        t.innerHTML = '<h3>🔒 Canteiro ' + (bed.id + 1) + (bed.id >= 4 ? ' · prateleira superior' : '') + '</h3><div class="muted">Custa 🪙 ' + bed.cost.toFixed(2) + ' · exige ⭐ ' + bed.reqRep + '</div><button class="btn sm" ' + (can ? '' : 'disabled') + '>Desbloquear</button>';
-        $('button', t).onclick = () => { G.money -= bed.cost; bed.unlocked = true; sfx('good'); toast('Novo canteiro desbloqueado! 🌱', 'gold'); updateHUD(); saveGame(); draw(); };
+        t.innerHTML = '<h3>🔒 ' + esc(tr('Canteiro {0}', bed.id + 1)) + (bed.id >= 4 ? ' · ' + L('prateleira superior') : '') + '</h3><div class="muted">' + esc(tr('Custa 🪙 {0} · exige ⭐ {1}', bed.cost.toFixed(2), bed.reqRep)) + '</div><button class="btn sm" ' + (can ? '' : 'disabled') + '>' + L('Desbloquear') + '</button>';
+        $('button', t).onclick = () => { G.money -= bed.cost; bed.unlocked = true; sfx('good'); toast(tr('Novo canteiro desbloqueado! 🌱'), 'gold'); updateHUD(); saveGame(); draw(); };
       } else if (!bed.seedKey) {
-        t.innerHTML = '<h3>Canteiro ' + (bed.id + 1) + ' · vazio</h3><select aria-label="Semente">' + Object.values(SEED_CATALOG).map(s => '<option value="' + s.id + '">' + s.name + ' (🪙 ' + s.cost + ')</option>').join('') + '</select><button class="btn sm sage">Plantar</button>';
-        $('button', t).onclick = () => { const s = SEED_CATALOG[$('select', t).value]; if (G.money < s.cost) { toast('Saldo insuficiente para as sementes.', 'warning'); return; } G.money -= s.cost; Object.assign(bed, { seedKey: s.id, stage: 0, watered: false, hasPest: false }); sfx('tap'); updateHUD(); saveGame(); draw(); };
+        t.innerHTML = '<h3>' + esc(tr('Canteiro {0}', bed.id + 1)) + ' · ' + L('vazio') + '</h3><select aria-label="' + esc(tr('Semente')) + '">' + Object.values(SEED_CATALOG).map(s => '<option value="' + s.id + '">' + esc(tr(s.name)) + ' (🪙 ' + s.cost + ')</option>').join('') + '</select><button class="btn sm sage">' + L('Plantar') + '</button>';
+        $('button', t).onclick = () => { const s = SEED_CATALOG[$('select', t).value]; if (G.money < s.cost) { toast(tr('Saldo insuficiente para as sementes.'), 'warning'); return; } G.money -= s.cost; Object.assign(bed, { seedKey: s.id, stage: 0, watered: false, hasPest: false }); sfx('tap'); updateHUD(); saveGame(); draw(); };
       } else {
         const s = SEED_CATALOG[bed.seedKey], ready = bed.stage >= s.stages;
-        t.innerHTML = '<div class="row" style="align-items:center"><div style="flex:none;width:84px">' + generatePlantSVG(bed.stage, s.stages, bed.hasPest) + '</div><div><h3>' + s.name + '</h3><div class="muted">Estágio ' + bed.stage + '/' + s.stages + (bed.watered ? ' · 💧 regada' : (hasEq('irrigacao') ? ' · rega automática' : ' · com sede')) + (bed.hasPest ? ' · 🐛 com pragas' : '') + '</div></div></div>' +
-          '<div class="row"><button class="btn sm sky" data-a="w" ' + (bed.watered || ready ? 'disabled' : '') + '>Regar</button>' + (bed.hasPest ? '<button class="btn sm blush" data-a="p">Tratar praga</button>' : '') + '<button class="btn sm sage" data-a="h" ' + (ready ? '' : 'disabled') + '>Colher</button></div>';
+        t.innerHTML = '<div class="row" style="align-items:center"><div style="flex:none;width:84px">' + generatePlantSVG(bed.stage, s.stages, bed.hasPest) + '</div><div><h3>' + L(s.name) + '</h3><div class="muted">' + esc(tr('Estágio {0}/{1}', bed.stage, s.stages)) + (bed.watered ? ' · ' + L('💧 regada') : (hasEq('irrigacao') ? ' · ' + L('rega automática') : ' · ' + L('com sede'))) + (bed.hasPest ? ' · ' + L('🐛 com pragas') : '') + '</div></div></div>' +
+          '<div class="row"><button class="btn sm sky" data-a="w" ' + (bed.watered || ready ? 'disabled' : '') + '>' + L('Regar') + '</button>' + (bed.hasPest ? '<button class="btn sm blush" data-a="p">' + L('Tratar praga') + '</button>' : '') + '<button class="btn sm sage" data-a="h" ' + (ready ? '' : 'disabled') + '>' + L('Colher') + '</button></div>';
         t.querySelectorAll('button').forEach(b => b.onclick = () => {
           const a = b.dataset.a;
           if (a === 'w') { bed.watered = true; sfx('water'); }
-          if (a === 'p') { if ((G.inventory.calda_fumo || 0) > 0) { G.inventory.calda_fumo--; bed.hasPest = false; toast('Praga eliminada! 🛡️', 'success'); } else { toast('Sem extrato anti-pragas. Compre no armazém.', 'warning'); return; } }
-          if (a === 'h') { const y = bed.hasPest ? Math.floor(s.yieldQty * .5) : s.yieldQty; G.inventory[bed.seedKey] = (G.inventory[bed.seedKey] || 0) + y; toast(bed.hasPest ? 'Colheita reduzida pelas pragas: +' + y + ' g' : 'Colheita excelente de ' + s.name + '! +' + y + ' g 🌾', bed.hasPest ? 'warning' : 'success'); sfx('good'); Object.assign(bed, { seedKey: null, stage: 0, watered: false, hasPest: false }); }
+          if (a === 'p') { if ((G.inventory.calda_fumo || 0) > 0) { G.inventory.calda_fumo--; bed.hasPest = false; toast(tr('Praga eliminada! 🛡️'), 'success'); } else { toast(tr('Sem extrato anti-pragas. Compre no armazém.'), 'warning'); return; } }
+          if (a === 'h') { const y = bed.hasPest ? Math.floor(s.yieldQty * .5) : s.yieldQty; G.inventory[bed.seedKey] = (G.inventory[bed.seedKey] || 0) + y; toast(bed.hasPest ? tr('Colheita reduzida pelas pragas: +{0} g', y) : tr('Colheita excelente de {0}! +{1} g 🌾', tr(s.name), y), bed.hasPest ? 'warning' : 'success'); sfx('good'); Object.assign(bed, { seedKey: null, stage: 0, watered: false, hasPest: false }); }
           saveGame(); draw();
         });
       }
@@ -1588,60 +2181,61 @@ function openGarden() {
 
 /* ---------- menu, ajuda, novo jogo ---------- */
 function openHelp() {
-  openModal('Como jogar',
-    '<p><b>Andar:</b> setas ou WASD, ou toque/clique no lugar para onde quer ir.<br><b>Interagir:</b> tecla <kbd>E</kbd>, espaço ou o botão que aparece na tela.</p>' +
-    '<p>1. Os moradores chegam ao balcão com uma queixa (💬). Escolha a fórmula certa.<br>2. Na bancada, pese cada insumo, faça a mistura e rotule o lote.<br>3. O controle de qualidade aprova só desvios de até ±' + CONFIG.tolerancePct + '%. Lote aprovado (✅) é entregue no balcão.<br>4. Compre insumos no armazém, colha extratos na estufa e aprenda novas fórmulas no livro.<br>5. Terminou? Acenda o lampião 🏮 para fechar o dia.</p>' +
-    '<p class="muted">Dica: a arara no balcão conhece as boas práticas. Clique nela.</p><button class="btn big" id="ok">Vamos manipular</button>').querySelector('#ok').onclick = closeModal;
+  openModal(tr('Como jogar'),
+    '<p><b>' + L('Andar:') + '</b> ' + L('setas ou WASD, ou toque/clique no lugar para onde quer ir.') + '<br><b>' + L('Interagir:') + '</b> ' + tr('tecla {0}, espaço ou o botão que aparece na tela.', '<kbd>E</kbd>') + '</p>' +
+    '<p>' + L('1. Os moradores chegam ao balcão com uma queixa (💬). Escolha a fórmula certa.') + '<br>' + L('2. Na bancada, pese cada insumo, faça a mistura e rotule o lote.') + '<br>' + esc(tr('3. O controle de qualidade aprova só desvios de até ±{0}%. Lote aprovado (✅) é entregue no balcão.', CONFIG.tolerancePct)) + '<br>' + L('4. Compre insumos no armazém, colha extratos na estufa e aprenda novas fórmulas no livro.') + '<br>' + L('5. Terminou? Acenda o lampião 🏮 para fechar o dia.') + '</p>' +
+    '<p class="muted">' + L('Dica: a arara no balcão conhece as boas práticas. Clique nela.') + '</p><button class="btn big" id="ok">' + L('Vamos manipular') + '</button>').querySelector('#ok').onclick = closeModal;
 }
 function openMenu() {
-  const body = openModal('Menu', '<div class="opts"><button class="opt" id="m-save"><b>💾 Salvar agora</b><small>O jogo também salva sozinho a cada passo.</small></button><button class="opt" id="m-help"><b>❓ Como jogar</b></button><button class="opt" id="m-about"><b>ℹ️ Sobre o jogo</b><small>Autoria e objetivo de aprendizagem.</small></button><button class="opt" id="m-reset"><b>🔄 Recomeçar a botica</b><small>Apaga o progresso atual.</small></button></div>');
-  $('#m-save', body).onclick = () => { saveGame(); toast('Jogo salvo! 💾', 'success'); closeModal(); };
+  const body = openModal(tr('Menu'), '<div class="opts"><button class="opt" id="m-save"><b>💾 ' + L('Salvar agora') + '</b><small>' + L('O jogo também salva sozinho a cada passo.') + '</small></button><button class="opt" id="m-help"><b>❓ ' + L('Como jogar') + '</b></button><button class="opt" id="m-about"><b>ℹ️ ' + L('Sobre o jogo') + '</b><small>' + L('Autoria e objetivo de aprendizagem.') + '</small></button><button class="opt" id="m-reset"><b>🔄 ' + L('Recomeçar a botica') + '</b><small>' + L('Apaga o progresso atual.') + '</small></button></div>');
+  $('#m-save', body).onclick = () => { saveGame(); toast(tr('Jogo salvo! 💾'), 'success'); closeModal(); };
   $('#m-help', body).onclick = openHelp;
   $('#m-about', body).onclick = openAbout;
-  $('#m-reset', body).onclick = () => askConfirm('Recomeçar a Botica? Todo o progresso será apagado.', 'Recomeçar', () => { G = defaultState(); G.tutorialSeen = true; customers = []; floaters = []; run = null; labStop(); worldTime = 0; vis.clock = 0; newDayOrders(); saveGame(); updateHUD(); renderTickets(); closeModal(); toast('Uma nova botica abriu na Vila da Arara Azul 🦜', 'gold'); });
+  $('#m-reset', body).onclick = () => askConfirm(tr('Recomeçar a Botica? Todo o progresso será apagado.'), tr('Recomeçar'), () => { G = defaultState(); G.tutorialSeen = true; customers = []; floaters = []; run = null; labStop(); worldTime = 0; vis.clock = 0; newDayOrders(); saveGame(); updateHUD(); renderTickets(); closeModal(); toast(tr('Uma nova botica abriu na Vila da Arara Azul 🦜'), 'gold'); });
 }
 function openAbout() {
-  openModal('Sobre o jogo',
-    '<p><b>Botica da Vila da Arara Azul</b> é um jogo educativo criado pela <b>Profª. Drª. Anna Carolina Schneider Alves</b> para a disciplina de <b>Farmacotécnica</b>.</p>' +
-    '<p>O objetivo é praticar, de forma lúdica, o preparo de formas farmacêuticas <b>sólidas</b>, <b>semissólidas</b> e <b>líquidas</b>: pesagem, mistura, rotulagem e controle de qualidade, com equipamentos e insumos como na bancada real.</p>' +
-    '<div class="social"><a href="https://www.instagram.com/prof.annaalves/" target="_blank" rel="noopener noreferrer">📷 Instagram @prof.annaalves</a><a href="https://www.youtube.com/@boticadoconhecimento" target="_blank" rel="noopener noreferrer">▶️ YouTube Botica do Conhecimento</a></div>' +
-    '<p class="muted">Base técnica: Farmacopeia Brasileira, Formulário Nacional, Formulário de Fitoterápicos da Farmacopeia Brasileira e textos clássicos de farmácia magistral (Ansel, Allen). As fórmulas são didáticas: confira concentrações e monografias antes de usar fora do jogo.</p><button class="btn big" id="ok">Voltar ao jogo</button>').querySelector('#ok').onclick = closeModal;
+  openModal(tr('Sobre o jogo'),
+    '<p>' + tr('{0} é um jogo educativo criado pela {1} para a disciplina de {2}.', '<b>' + L('Botica da Vila da Arara Azul') + '</b>', '<b>' + L(AUTHOR) + '</b>', '<b>' + L('Farmacotécnica') + '</b>') + '</p>' +
+    '<p>' + tr('O objetivo é praticar, de forma lúdica, o preparo de formas farmacêuticas {0}, {1} e {2}: pesagem, mistura, rotulagem e controle de qualidade, com equipamentos e insumos como na bancada real.', '<b>' + L('sólidas') + '</b>', '<b>' + L('semissólidas') + '</b>', '<b>' + L('líquidas') + '</b>') + '</p>' +
+    socialHTML() +
+    '<p class="muted">' + L('Base técnica: Farmacopeia Brasileira, Formulário Nacional, Formulário de Fitoterápicos da Farmacopeia Brasileira e textos clássicos de farmácia magistral (Ansel, Allen). As fórmulas são didáticas: confira concentrações e monografias antes de usar fora do jogo.') + '</p>' +
+    '<p class="muted">' + L('Música: lo-fi gerado pelo próprio jogo (original, sem direitos autorais).') + '<br>' + esc(tr('Estado da música: {0}', musicStatus())) + ' · ' + esc(tr('Versão {0}', APP_VERSION)) + '</p><button class="btn big" id="ok">' + L('Voltar ao jogo') + '</button>').querySelector('#ok').onclick = closeModal;
 }
 function showWelcome() {
-  openModal('Bem-vinda à Botica da Arara Azul',
-    '<p>A vila inteira confia na sua botica de manipulação. Atenda os moradores, prepare cada fórmula com cuidado e mantenha a reputação em alta.</p><p class="muted">Setas ou toque para andar · <kbd>E</kbd> para interagir</p><p class="muted">Jogo educativo criado pela Profª. Drª. Anna Carolina Schneider Alves para a disciplina de Farmacotécnica.</p><button class="btn big" id="ok">Abrir a botica</button>').querySelector('#ok').onclick = () => { G.tutorialSeen = true; saveGame(); closeModal(); };
+  openModal(tr('Bem-vinda à Botica da Arara Azul'),
+    '<p>' + L('A vila inteira confia na sua botica de manipulação. Atenda os moradores, prepare cada fórmula com cuidado e mantenha a reputação em alta.') + '</p><p class="muted">' + tr('Setas ou toque para andar · {0} para interagir', '<kbd>E</kbd>') + '</p><p class="muted">' + creditHTML() + '</p><button class="btn big" id="ok">' + L('Abrir a botica') + '</button>').querySelector('#ok').onclick = () => { G.tutorialSeen = true; saveGame(); closeModal(); };
 }
 
 /* ---------- fim do dia ---------- */
 function askEndDay() {
   const pending = G.orders.filter(o => o.state !== 'done').length;
-  askConfirm(pending ? 'Ainda há ' + pending + ' pedido(s) sem entrega. Quem não for atendido vai embora e a reputação cai (−' + CONFIG.repMissedOrder + ' ⭐ cada). Fechar mesmo assim?' : 'Todos os pedidos foram entregues. Fechar a botica e passar para o próximo dia?', 'Fechar o dia', endDay, { no: 'Ainda não' });
+  askConfirm(pending ? tr('Ainda há {0} pedido(s) sem entrega. Quem não for atendido vai embora e a reputação cai (−{1} ⭐ cada). Fechar mesmo assim?', pending, CONFIG.repMissedOrder) : tr('Todos os pedidos foram entregues. Fechar a botica e passar para o próximo dia?'), tr('Fechar o dia'), endDay, { no: tr('Ainda não') });
 }
 function advanceDay() {
   const msgs = []; G.day++;
-  if (G.day % CONFIG.seasonEveryDays === 1) { G.seasonIndex = (G.seasonIndex + 1) % SEASONS.length; msgs.push(['Mudança de estação! Bem-vinda, ' + SEASONS[G.seasonIndex] + '!', 'gold']); }
+  if (G.day % CONFIG.seasonEveryDays === 1) { G.seasonIndex = (G.seasonIndex + 1) % SEASONS.length; msgs.push([tr('Mudança de estação! Bem-vinda, {0}!', tr(SEASONS[G.seasonIndex])), 'gold']); }
   G.garden.forEach(bed => {
     if (bed.unlocked && bed.seedKey) {
       const s = SEED_CATALOG[bed.seedKey];
       if (hasEq('irrigacao')) bed.watered = true;
       if (bed.watered && bed.stage < s.stages && !bed.hasPest) bed.stage++;
       bed.watered = false;
-      if (!bed.hasPest && Math.random() < (hasEq('telas') ? CONFIG.pestChanceScreens : CONFIG.pestChance)) { bed.hasPest = true; msgs.push(['🐛 Pragas atacaram o canteiro de ' + s.name + '!', 'warning']); }
+      if (!bed.hasPest && Math.random() < (hasEq('telas') ? CONFIG.pestChanceScreens : CONFIG.pestChance)) { bed.hasPest = true; msgs.push([tr('🐛 Pragas atacaram o canteiro de {0}!', tr(s.name)), 'warning']); }
     }
   });
-  if (Math.random() < CONFIG.outbreakChance) { G.activeOutbreak = pick(EPIDEMICS); msgs.push([G.activeOutbreak.msg, 'warning']); } else G.activeOutbreak = null;
+  if (Math.random() < CONFIG.outbreakChance) { G.activeOutbreak = pick(EPIDEMICS); msgs.push([tr(G.activeOutbreak.msg), 'warning']); } else G.activeOutbreak = null;
   newDayOrders(); saveGame(); updateHUD(); renderTickets();
   return msgs;
 }
 function endDay() {
-  closing = true; const veil = $('#veil'); $('#veil-t').textContent = 'Boa noite, vila…'; $('#veil-s').textContent = ''; veil.classList.add('on');
+  closing = true; const veil = $('#veil'); $('#veil-t').textContent = tr('Boa noite, vila…'); $('#veil-s').textContent = ''; veil.classList.add('on');
   setTimeout(() => {
     const missed = G.orders.filter(o => o.state !== 'done').length;
     if (missed) G.reputation = Math.max(0, G.reputation - missed * CONFIG.repMissedOrder);
     customers = []; floaters = []; vis.clock = 0;
     const msgs = advanceDay();
-    if (missed) msgs.unshift([missed + ' pedido(s) ficaram sem atendimento: −' + (missed * CONFIG.repMissedOrder) + ' ⭐', 'warning']);
-    $('#veil-t').textContent = 'Dia ' + G.day; $('#veil-s').textContent = SEASONS[G.seasonIndex] + (G.activeOutbreak ? ' · ' + G.activeOutbreak.name : '');
+    if (missed) msgs.unshift([tr('{0} pedido(s) ficaram sem atendimento: −{1} ⭐', missed, missed * CONFIG.repMissedOrder), 'warning']);
+    $('#veil-t').textContent = tr('Dia {0}', G.day); $('#veil-s').textContent = tr(SEASONS[G.seasonIndex]) + (G.activeOutbreak ? ' · ' + tr(G.activeOutbreak.name) : '');
     setTimeout(() => { closing = false; veil.classList.remove('on'); msgs.forEach((m, i) => setTimeout(() => toast(m[0], m[1]), 700 + i * 500)); }, 1500);
   }, 900);
 }
@@ -1651,14 +2245,14 @@ function endDay() {
 let run = null, labCleanup = null;
 function labStop() { if (labCleanup) { const f = labCleanup; labCleanup = null; f(); } }
 function stepsBar(active) {
-  return '<div class="steps">' + ['Pesagem', 'Mistura', 'Rótulo', 'Qualidade'].map((n, i) => '<span class="step ' + (i < active ? 'done' : i === active ? 'on' : '') + '">' + n + '</span>').join('') + '</div>';
+  return '<div class="steps">' + ['Pesagem', 'Mistura', 'Rótulo', 'Qualidade'].map((n, i) => '<span class="step ' + (i < active ? 'done' : i === active ? 'on' : '') + '">' + L(n) + '</span>').join('') + '</div>';
 }
 function startLab(order) {
   const form = FORMULATIONS[order.formulaId], miss = missingIngredients(form), meq = missingEquipment(form);
-  if (meq.length) { toast('Falta equipamento: ' + meq.map(id => EQUIPMENT[id].name).join(', ') + '. Veja o armazém.', 'warning'); return; }
-  if (miss.length) { toast('Faltam insumos: ' + miss.map(i => i.name).join(', '), 'warning'); return; }
+  if (meq.length) { toast(tr('Falta equipamento: {0}. Veja o armazém.', meq.map(id => tr(EQUIPMENT[id].name)).join(', ')), 'warning'); return; }
+  if (miss.length) { toast(tr('Faltam insumos: {0}', miss.map(i => tr(i.name)).join(', ')), 'warning'); return; }
   run = { order, form, idx: 0, weighed: form.ingredients.map(() => 0), mix: 1, label: 1, labelErrors: 0, lot: 'LOT-' + String(G.batchLogs.length + 1).padStart(3, '0') };
-  run.body = openModal(form.name, '', { guard: () => askConfirm('Sair agora? O que já foi pesado será perdido.', 'Sair e descartar', () => { labStop(); run = null; closeModal(); }, { no: 'Continuar' }) });
+  run.body = openModal(tr(form.name), '', { guard: () => askConfirm(tr('Sair agora? O que já foi pesado será perdido.'), tr('Sair e descartar'), () => { labStop(); run = null; closeModal(); }, { no: tr('Continuar') }) });
   labWeigh();
 }
 function loopWhile(fn) {
@@ -1682,13 +2276,13 @@ function labWeigh() {
   const { form, idx, body } = run, ing = form.ingredients[idx], target = ing.targetAmount, tol = CONFIG.tolerancePct / 100, range = target * 1.4;
   const fine = hasEq('balanca_analitica'), dp = fine ? 4 : 3, fm = n => n.toFixed(dp);
   let stock = G.inventory[ing.id] || 0, mass = 0, hold = 0, pouring = false, tick = 0;
-  body.innerHTML = '<div class="lab">' + stepsBar(0) + '<div class="muted">Ingrediente ' + (idx + 1) + ' de ' + form.ingredients.length + (fine ? ' · balança analítica' : '') + '</div><h3>' + esc(ing.name) + '</h3>' +
-    '<div class="muted">Alvo <b>' + fm(target) + ' g</b> · tolerância ±' + CONFIG.tolerancePct + '% (' + fm(target * (1 - tol)) + ' a ' + fm(target * (1 + tol)) + ' g)</div>' +
+  body.innerHTML = '<div class="lab">' + stepsBar(0) + '<div class="muted">' + esc(tr('Ingrediente {0} de {1}', idx + 1, form.ingredients.length)) + (fine ? ' · ' + L('balança analítica') : '') + '</div><h3>' + L(ing.name) + '</h3>' +
+    '<div class="muted">' + tr('Alvo {0} · tolerância ±{1}% ({2} a {3} g)', '<b>' + fm(target) + ' g</b>', CONFIG.tolerancePct, fm(target * (1 - tol)), fm(target * (1 + tol))) + '</div>' +
     '<div class="balance"><svg viewBox="0 0 150 120" aria-hidden="true"><rect x="14" y="98" width="122" height="14" rx="6" fill="#dcd8e2" stroke="#1f1528" stroke-width="3"/><rect x="66" y="80" width="18" height="20" fill="#c9c4d2" stroke="#1f1528" stroke-width="3"/><ellipse cx="75" cy="78" rx="52" ry="9" fill="#f4f1f7" stroke="#1f1528" stroke-width="3"/><g id="heap" transform="translate(75 74) scale(0.1)"><path d="M -34 0 Q -20 -6 -12 -26 Q 0 -44 12 -26 Q 20 -6 34 0 Z" fill="#fffdf6" stroke="#1f1528" stroke-width="3"/></g></svg>' +
-    '<div><div class="readout" id="rd">' + fm(0) + ' g</div><div class="gauge"><div class="zone" style="left:' + ((1 - tol) / 1.4 * 100) + '%;width:' + (2 * tol / 1.4 * 100) + '%"></div><div class="fill" id="gf"></div></div><div class="gauge-l"><span>0</span><span>faixa verde = aprovado</span></div></div></div>' +
-    '<button class="btn big pourbtn" id="pour">Segure para despejar</button>' +
-    '<div class="row" style="margin-top:8px"><button class="btn ghost" id="pinch">Pitada</button><button class="btn ghost" id="redo">Descartar e repesar</button><button class="btn sage" id="ok">Confirmar</button></div>' +
-    '<p class="muted">Segure o botão (ou a barra de espaço): quanto mais tempo, mais rápido cai o pó. Solte antes de passar do alvo e ajuste com pitadas.</p></div>';
+    '<div><div class="readout" id="rd">' + fm(0) + ' g</div><div class="gauge"><div class="zone" style="left:' + ((1 - tol) / 1.4 * 100) + '%;width:' + (2 * tol / 1.4 * 100) + '%"></div><div class="fill" id="gf"></div></div><div class="gauge-l"><span>0</span><span>' + L('faixa verde = aprovado') + '</span></div></div></div>' +
+    '<button class="btn big pourbtn" id="pour">' + L('Segure para despejar') + '</button>' +
+    '<div class="row" style="margin-top:8px"><button class="btn ghost" id="pinch">' + L('Pitada') + '</button><button class="btn ghost" id="redo">' + L('Descartar e repesar') + '</button><button class="btn sage" id="ok">' + L('Confirmar') + '</button></div>' +
+    '<p class="muted">' + L('Segure o botão (ou a barra de espaço): quanto mais tempo, mais rápido cai o pó. Solte antes de passar do alvo e ajuste com pitadas.') + '</p></div>';
   const rd = $('#rd', body), gf = $('#gf', body), heap = $('#heap', body);
   const upd = () => {
     rd.textContent = fm(mass) + ' g'; gf.style.width = clamp(mass / range * 100, 0, 100) + '%'; gf.classList.toggle('over', mass > target * (1 + tol));
@@ -1702,22 +2296,22 @@ function labWeigh() {
   labCleanup = () => { stopLoop(); stopKey(); };
   $('#pinch', body).onclick = () => { mass = Math.min(stock, mass + target * rand(.006, .014) * (fine ? .5 : 1)); sfx('tick'); upd(); };
   $('#redo', body).onclick = () => {
-    if (mass > 0) { G.inventory[ing.id] = Math.max(0, stock - mass); stock = G.inventory[ing.id]; toast('Descartado: ' + fm(mass) + ' g de ' + ing.name, 'warning'); mass = 0; saveGame(); }
-    if (stock < target * (1 - tol)) toast('Sobrou pouco insumo para atingir o alvo. Compre mais no armazém.', 'warning');
+    if (mass > 0) { G.inventory[ing.id] = Math.max(0, stock - mass); stock = G.inventory[ing.id]; toast(tr('Descartado: {0} g de {1}', fm(mass), tr(ing.name)), 'warning'); mass = 0; saveGame(); }
+    if (stock < target * (1 - tol)) toast(tr('Sobrou pouco insumo para atingir o alvo. Compre mais no armazém.'), 'warning');
   };
   $('#ok', body).onclick = () => {
-    if (mass <= 0) { toast('Pese o insumo antes de confirmar.', 'warning'); return; }
+    if (mass <= 0) { toast(tr('Pese o insumo antes de confirmar.'), 'warning'); return; }
     const dev = Math.abs((mass - target) / target) * 100;
     G.inventory[ing.id] = Math.max(0, stock - mass); run.weighed[idx] = mass; saveGame();
-    if (dev <= CONFIG.tolerancePct) { sfx('good'); toast(ing.name + ': ' + fm(mass) + ' g (desvio ' + dev.toFixed(1) + '%)', 'success'); }
-    else { sfx('bad'); toast(ing.name + ' fora da faixa (' + dev.toFixed(1) + '%). O lote pode ser reprovado.', 'warning'); }
+    if (dev <= CONFIG.tolerancePct) { sfx('good'); toast(tr('{0}: {1} g (desvio {2}%)', tr(ing.name), fm(mass), dev.toFixed(1)), 'success'); }
+    else { sfx('bad'); toast(tr('{0} fora da faixa ({1}%). O lote pode ser reprovado.', tr(ing.name), dev.toFixed(1)), 'warning'); }
     labStop(); run.idx++;
     if (run.idx < form.ingredients.length) labWeigh(); else labMix();
   };
 }
 
 /* ---------- 2. mistura (etapas encadeadas) ---------- */
-const stepTitle = k => (run.form.mixTitles && run.form.mixTitles[k]) || run.form.mixTitle || 'Mistura';
+const stepTitle = k => tr((run.form.mixTitles && run.form.mixTitles[k]) || run.form.mixTitle || 'Mistura');
 function getQuiz(f) {
   if (f.quiz) return f.quiz;
   const first = f.ingredients.find(i => i.id === f.geoFirst) || f.ingredients.slice().sort((a, b) => a.targetAmount - b.targetAmount)[0];
@@ -1735,36 +2329,36 @@ function nextMix() {
   ({ quiz: mixQuiz, grind: mixGrind, stir: mixStir, gel: mixGel, heat: mixHeat })[k]();
 }
 function mixHead(k) {
-  return '<div class="lab">' + stepsBar(1) + (run.total > 1 ? '<div class="muted">Passo ' + run.pos + ' de ' + run.total + '</div>' : '') + '<h3>' + esc(stepTitle(k)) + '</h3><p>' + esc(run.form.pop) + '</p>';
+  return '<div class="lab">' + stepsBar(1) + (run.total > 1 ? '<div class="muted">' + esc(tr('Passo {0} de {1}', run.pos, run.total)) + '</div>' : '') + '<h3>' + esc(stepTitle(k)) + '</h3><p>' + L(run.form.pop) + '</p>';
 }
 function mixDone(score, msg) {
   run.mix = clamp(run.mix - .6 * (1 - score) * run.wt, 0, 1); sfx(score > .6 ? 'good' : 'bad');
-  run.body.querySelector('.lab').insertAdjacentHTML('beforeend', '<p class="' + (score > .6 ? 'ok' : 'bad') + '" style="margin-top:10px">' + msg + '</p>');
+  run.body.querySelector('.lab').insertAdjacentHTML('beforeend', '<p class="' + (score > .6 ? 'ok' : 'bad') + '" style="margin-top:10px">' + esc(msg) + '</p>');
   setTimeout(() => { if (run) nextMix(); }, 1100);
 }
 function mixQuiz() {
   const { form, body } = run, q = getQuiz(form);
-  body.innerHTML = '<div class="lab">' + stepsBar(1) + '<h3>' + esc(stepTitle('quiz')) + '</h3><p>' + esc(form.pop) + '</p><p><b>' + esc(q.q) + '</b></p><div class="opts">' +
-    shuffle(q.options).map(o => '<button class="opt"><b>' + esc(o) + '</b></button>').join('') + '</div><div class="feedback" id="fb"></div></div>';
+  body.innerHTML = '<div class="lab">' + stepsBar(1) + '<h3>' + esc(stepTitle('quiz')) + '</h3><p>' + L(form.pop) + '</p><p><b>' + L(q.q) + '</b></p><div class="opts">' +
+    shuffle(q.options).map(o => '<button class="opt" data-v="' + esc(o) + '"><b>' + L(o) + '</b></button>').join('') + '</div><div class="feedback" id="fb"></div></div>';
   body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
-    body.querySelectorAll('.opt').forEach(x => { x.disabled = true; if (x.textContent === q.correct) x.classList.add('right'); });
+    body.querySelectorAll('.opt').forEach(x => { x.disabled = true; if (x.dataset.v === q.correct) x.classList.add('right'); });
     const fb = $('#fb', body);
-    if (b.textContent === q.correct) { sfx('good'); fb.style.color = '#2f7d59'; fb.textContent = 'Isso! ' + q.explain; }
-    else { sfx('bad'); run.mix = clamp(run.mix - .35, 0, 1); fb.textContent = 'Quase. ' + q.explain; }
-    fb.insertAdjacentHTML('afterend', '<button class="btn big" id="go" style="margin-top:10px">Continuar</button>'); $('#go', body).onclick = nextMix;
+    if (b.dataset.v === q.correct) { sfx('good'); fb.style.color = '#2f7d59'; fb.textContent = tr('Isso! {0}', tr(q.explain)); }
+    else { sfx('bad'); run.mix = clamp(run.mix - .35, 0, 1); fb.textContent = tr('Quase. {0}', tr(q.explain)); }
+    fb.insertAdjacentHTML('afterend', '<button class="btn big" id="go" style="margin-top:10px">' + L('Continuar') + '</button>'); $('#go', body).onclick = nextMix;
   });
 }
 function mixGrind() {
   const { form, body } = run;
   body.innerHTML = mixHead('grind') + '<div class="mixwrap"><canvas id="gral" width="320" height="320"></canvas></div><div class="bar"><div id="gp"></div></div>' +
-    '<p class="muted">Gire o pistilo em círculos sem sair do gral (mouse ou dedo).</p><button class="btn ghost" id="auto">Misturar por toques (mais lento)</button></div>';
+    '<p class="muted">' + L('Gire o pistilo em círculos sem sair do gral (mouse ou dedo).') + '</p><button class="btn ghost" id="auto">' + L('Misturar por toques (mais lento)') + '</button></div>';
   const cvs = $('#gral', body), c = cvs.getContext('2d'), gp = $('#gp', body), cols = ['#fbfbf8', '#f0d9a0', '#dcc0ea', '#b8dccb', '#f2b5cb'], final = '#efe3f2';
   const ps = Array.from({ length: 170 }, () => ({ a: Math.random() * 6.283, r: Math.sqrt(Math.random()) * 100, s0: rand(3.4, 7.4), col: pick(cols) }));
   let prog = 0, prevA = null, good = 0, bad = 0, swirl = 0, px = 190, py = 130, dragging = false, used = false, over = false;
   const finish = () => {
     if (over) return; over = true; labStop();
     let score = clamp((good / (good + bad + 1e-6) - .35) / .55, 0, 1); if (used) score = Math.min(score, .6);
-    mixDone(score, score > .6 ? 'Mistura homogênea. Textura lisa e uniforme!' : 'Mistura um pouco irregular, mas dá para seguir.');
+    mixDone(score, score > .6 ? tr('Mistura homogênea. Textura lisa e uniforme!') : tr('Mistura um pouco irregular, mas dá para seguir.'));
   };
   const pos = e => { const r = cvs.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 320, (e.clientY - r.top) / r.height * 320]; };
   const move = e => {
@@ -1798,8 +2392,8 @@ function mixMeter(cfg) {
   body.innerHTML = cfg.head + '<div class="ph"><svg viewBox="0 0 150 170" aria-hidden="true"><path d="M 34 44 L 34 138 Q 34 154 50 154 L 100 154 Q 116 154 116 138 L 116 44" fill="rgba(210,232,245,.5)" stroke="#1f1528" stroke-width="4" stroke-linecap="round"/>' +
     '<g id="liqg"><rect id="liq" x="38" y="72" width="74" height="78" rx="12" fill="#cfe6f5" opacity=".55"/></g><rect x="26" y="40" width="98" height="8" rx="4" fill="#dcd8e2" stroke="#1f1528" stroke-width="3"/>' +
     (heat ? '<g id="steam" opacity="0"><ellipse cx="60" cy="30" rx="4" ry="7" fill="#fff"/><ellipse cx="78" cy="22" rx="4" ry="8" fill="#fff"/><ellipse cx="96" cy="30" rx="4" ry="7" fill="#fff"/></g>' : '<circle id="drop" cx="75" cy="10" r="5" fill="#79b295" opacity="0" stroke="#1f1528" stroke-width="2"/>') + '</svg>' +
-    '<div><div class="readout" id="phv"></div><div class="phbar' + (heat ? ' temp' : '') + '"><div class="win" style="left:' + ((cfg.lo - cfg.min) / span * 100) + '%;width:' + ((cfg.hi - cfg.lo) / span * 100) + '%"></div><div class="pt" id="ppt"></div></div><div class="phlab"><span>' + cfg.min + '</span><span>faixa ideal: ' + cfg.lo + ' a ' + cfg.hi + '</span><span>' + cfg.max + '</span></div><div class="muted" id="phs" style="margin-top:6px"></div></div></div>' +
-    '<button class="btn big pourbtn" id="drip" style="margin-top:12px">' + cfg.holdText + '</button><button class="btn sage big" id="stop" style="margin-top:8px">' + cfg.stopText + '</button></div>';
+    '<div><div class="readout" id="phv"></div><div class="phbar' + (heat ? ' temp' : '') + '"><div class="win" style="left:' + ((cfg.lo - cfg.min) / span * 100) + '%;width:' + ((cfg.hi - cfg.lo) / span * 100) + '%"></div><div class="pt" id="ppt"></div></div><div class="phlab"><span>' + cfg.min + '</span><span>' + esc(tr('faixa ideal: {0} a {1}', cfg.lo, cfg.hi)) + '</span><span>' + cfg.max + '</span></div><div class="muted" id="phs" style="margin-top:6px"></div></div></div>' +
+    '<button class="btn big pourbtn" id="drip" style="margin-top:12px">' + esc(cfg.holdText) + '</button><button class="btn sage big" id="stop" style="margin-top:8px">' + esc(cfg.stopText) + '</button></div>';
   let v = cfg.start, hold = 0, pouring = false, t = 0, over = false;
   const liq = $('#liq', body), liqg = $('#liqg', body), drop = $('#drop', body), steam = $('#steam', body), phv = $('#phv', body), ppt = $('#ppt', body), phs = $('#phs', body);
   const stopLoop = loopWhile(dt => {
@@ -1827,21 +2421,21 @@ function mixMeter(cfg) {
 function mixGel() {
   const LO = 6, HI = 7;
   mixMeter({ kind: 'gel', head: mixHead('gel'), start: 3.1, min: 3, max: 9, lo: LO, hi: HI, tolSpan: 1.4,
-    rate: h => .3 + Math.min(h, 2) * .42, fmt: v => 'pH ' + v.toFixed(1), holdText: 'Segure para pingar trietanolamina', stopText: 'Parar aqui e confirmar',
-    status: v => v < 5.5 ? 'Ainda líquido. Continue neutralizando.' : v < LO ? 'Espessando…' : v <= HI ? 'Gel cristalino formado! Pare por aqui.' : 'Passou do ponto: pH alto demais.',
-    done: (score, ok, v) => mixDone(score, ok ? 'pH ' + v.toFixed(1) + ': gel perfeito e transparente!' : 'pH ' + v.toFixed(1) + ': fora da faixa ideal, viscosidade comprometida.') });
+    rate: h => .3 + Math.min(h, 2) * .42, fmt: v => 'pH ' + v.toFixed(1), holdText: tr('Segure para pingar trietanolamina'), stopText: tr('Parar aqui e confirmar'),
+    status: v => v < 5.5 ? tr('Ainda líquido. Continue neutralizando.') : v < LO ? tr('Espessando…') : v <= HI ? tr('Gel cristalino formado! Pare por aqui.') : tr('Passou do ponto: pH alto demais.'),
+    done: (score, ok, v) => mixDone(score, ok ? tr('pH {0}: gel perfeito e transparente!', v.toFixed(1)) : tr('pH {0}: fora da faixa ideal, viscosidade comprometida.', v.toFixed(1))) });
 }
 function mixHeat() {
   const phases = run.form.heatPhases || [{ name: 'Aquecimento', lo: 65, hi: 75 }]; let i = 0, sum = 0;
   const go = () => {
     const ph = phases[i];
-    mixMeter({ kind: 'heat', head: mixHead('heat') + '<p><b>' + esc(ph.name) + '</b>' + (phases.length > 1 ? ' <span class="muted">(fase ' + (i + 1) + ' de ' + phases.length + ')</span>' : '') + '</p>', start: 25, min: 20, max: 100, lo: ph.lo, hi: ph.hi, tolSpan: 12,
-      rate: h => 6 + Math.min(h, 2.5) * 9, fmt: v => v.toFixed(0) + ' °C', holdText: 'Segure para aquecer', stopText: 'Retirar do banho-maria',
-      status: v => v < ph.lo - 12 ? 'Aquecendo…' : v < ph.lo ? 'Quase lá.' : v <= ph.hi ? 'Na faixa! Retire do banho.' : 'Passou do ponto: pode degradar os componentes.',
+    mixMeter({ kind: 'heat', head: mixHead('heat') + '<p><b>' + L(ph.name) + '</b>' + (phases.length > 1 ? ' <span class="muted">(' + esc(tr('fase {0} de {1}', i + 1, phases.length)) + ')</span>' : '') + '</p>', start: 25, min: 20, max: 100, lo: ph.lo, hi: ph.hi, tolSpan: 12,
+      rate: h => 6 + Math.min(h, 2.5) * 9, fmt: v => v.toFixed(0) + ' °C', holdText: tr('Segure para aquecer'), stopText: tr('Retirar do banho-maria'),
+      status: v => v < ph.lo - 12 ? tr('Aquecendo…') : v < ph.lo ? tr('Quase lá.') : v <= ph.hi ? tr('Na faixa! Retire do banho.') : tr('Passou do ponto: pode degradar os componentes.'),
       done: (score, ok, v) => {
         sum += score; i++;
-        const m = ok ? ph.name + ': ' + v.toFixed(0) + ' °C, dentro da faixa.' : ph.name + ': ' + v.toFixed(0) + ' °C, fora da faixa ideal.';
-        if (i < phases.length) { sfx(ok ? 'good' : 'bad'); run.body.querySelector('.lab').insertAdjacentHTML('beforeend', '<p class="' + (ok ? 'ok' : 'bad') + '" style="margin-top:10px">' + m + '</p>'); setTimeout(() => { if (run) go(); }, 1000); }
+        const m = ok ? tr('{0}: {1} °C, dentro da faixa.', tr(ph.name), v.toFixed(0)) : tr('{0}: {1} °C, fora da faixa ideal.', tr(ph.name), v.toFixed(0));
+        if (i < phases.length) { sfx(ok ? 'good' : 'bad'); run.body.querySelector('.lab').insertAdjacentHTML('beforeend', '<p class="' + (ok ? 'ok' : 'bad') + '" style="margin-top:10px">' + esc(m) + '</p>'); setTimeout(() => { if (run) go(); }, 1000); }
         else mixDone(sum / phases.length, m);
       } });
   };
@@ -1852,7 +2446,7 @@ function mixStir() {
   body.innerHTML = mixHead('stir') + '<div style="display:grid;place-items:center"><svg viewBox="0 0 160 150" width="180" aria-hidden="true"><path d="M 30 30 L 34 118 Q 36 132 52 132 L 108 132 Q 124 132 126 118 L 130 30" fill="rgba(210,232,245,.5)" stroke="#1f1528" stroke-width="4" stroke-linecap="round"/>' +
     '<path d="M 36 62 L 38 116 Q 40 128 54 128 L 106 128 Q 120 128 122 116 L 124 62 Z" fill="#d99a4e" opacity=".85"/><g id="spoon"><line x1="80" y1="20" x2="80" y2="112" stroke="#f3efe8" stroke-width="7" stroke-linecap="round"/><line x1="80" y1="20" x2="80" y2="112" stroke="#1f1528" stroke-width="1.6" opacity=".4"/><ellipse cx="80" cy="112" rx="10" ry="6" fill="#f3efe8" stroke="#1f1528" stroke-width="2.5"/></g></svg></div>' +
     '<div class="timing"><div class="zone" style="left:' + zl[0] + '%;width:' + zl[1] + '%"></div><div class="zone in" style="left:' + zl[2] + '%;width:' + zl[3] + '%"></div><div class="mk" id="mk"></div></div><div class="dots" id="dots">' + '<i></i>'.repeat(N) + '</div>' +
-    '<button class="btn big pourbtn" id="stirb">Mexer!</button><p class="muted">Aperte quando o marcador estiver na faixa verde (ou dourada, para o movimento perfeito). Espaço também funciona.' + (wide ? ' O agitador mecânico alargou a faixa.' : '') + '</p></div>';
+    '<button class="btn big pourbtn" id="stirb">' + L('Mexer!') + '</button><p class="muted">' + L('Aperte quando o marcador estiver na faixa verde (ou dourada, para o movimento perfeito). Espaço também funciona.') + (wide ? ' ' + L('O agitador mecânico alargou a faixa.') : '') + '</p></div>';
   let phase = 0, n = 0, total = 0, over = false, spin = 0, spinV = 0;
   const mk = $('#mk', body), spoon = $('#spoon', body), dots = body.querySelectorAll('#dots i');
   const stopLoop = loopWhile(dt => {
@@ -1863,7 +2457,7 @@ function mixStir() {
     if (over) return; const d = Math.abs(.5 + .5 * Math.sin(phase) - .5);
     let cls = 'm', v = 0; if (d <= th[0]) { cls = 'g'; v = 1; } else if (d <= th[1]) { cls = 'o'; v = .6; }
     dots[n].className = cls; total += v; n++; spinV = 14; sfx(v ? 'tap' : 'bad');
-    if (n >= N) { over = true; labStop(); const score = total / N; mixDone(score, score > .6 ? 'Mistura homogênea e sem grumos.' : 'Alguns grumos ficaram, mas o lote segue.'); }
+    if (n >= N) { over = true; labStop(); const score = total / N; mixDone(score, score > .6 ? tr('Mistura homogênea e sem grumos.') : tr('Alguns grumos ficaram, mas o lote segue.')); }
   };
   $('#stirb', body).addEventListener('pointerdown', e => { e.preventDefault(); press(); });
   const kd = e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); press(); } };
@@ -1883,13 +2477,13 @@ function labLabel() {
   ];
   let fi = 0; run.labelErrors = 0;
   const draw = () => {
-    const filled = fields.slice(0, fi).map(f => '<div><span>' + f.k + ':</span> <b>' + esc(f.val) + '</b></div>').join('');
-    body.innerHTML = '<div class="lab">' + stepsBar(2) + '<h3>Envase e rotulagem</h3><p class="muted">Rótulo errado é risco para o paciente. Confira cada campo antes de colar.</p><div class="label-card"><div><span>Lote:</span> <b>' + run.lot + '</b></div>' + filled + '</div>' +
-      (fi < fields.length ? '<p><b>' + fields[fi].k + ': qual é o correto?</b></p><div class="opts">' + fields[fi].opts.map(o => '<button class="opt">' + esc(o) + '</button>').join('') + '</div><div class="feedback" id="fb"></div>' : '<button class="btn big sage" id="qc">Enviar ao controle de qualidade</button>') + '</div>';
+    const filled = fields.slice(0, fi).map(f => '<div><span>' + L(f.k) + ':</span> <b>' + L(f.val) + '</b></div>').join('');
+    body.innerHTML = '<div class="lab">' + stepsBar(2) + '<h3>' + L('Envase e rotulagem') + '</h3><p class="muted">' + L('Rótulo errado é risco para o paciente. Confira cada campo antes de colar.') + '</p><div class="label-card"><div><span>' + L('Lote:') + '</span> <b>' + run.lot + '</b></div>' + filled + '</div>' +
+      (fi < fields.length ? '<p><b>' + esc(tr('{0}: qual é o correto?', tr(fields[fi].k))) + '</b></p><div class="opts">' + fields[fi].opts.map(o => '<button class="opt" data-v="' + esc(o) + '">' + L(o) + '</button>').join('') + '</div><div class="feedback" id="fb"></div>' : '<button class="btn big sage" id="qc">' + L('Enviar ao controle de qualidade') + '</button>') + '</div>';
     if (fi >= fields.length) { $('#qc', body).onclick = labQC; return; }
     body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
-      if (b.textContent === fields[fi].val) { sfx('tap'); fi++; draw(); }
-      else { run.labelErrors++; run.label = clamp(1 - run.labelErrors * .34, 0, 1); sfx('bad'); b.disabled = true; b.classList.add('shake'); $('#fb', body).textContent = 'Opção errada. Leia com atenção e tente de novo.'; }
+      if (b.dataset.v === fields[fi].val) { sfx('tap'); fi++; draw(); }
+      else { run.labelErrors++; run.label = clamp(1 - run.labelErrors * .34, 0, 1); sfx('bad'); b.disabled = true; b.classList.add('shake'); $('#fb', body).textContent = tr('Opção errada. Leia com atenção e tente de novo.'); }
     });
   };
   draw();
@@ -1904,20 +2498,171 @@ function labQC() {
   const weighQ = clamp(1 - (rows.reduce((a, r) => a + r.dev, 0) / rows.length) / tol, 0, 1), q = .5 * weighQ + .3 * run.mix + .2 * run.label;
   const stars = approved ? (q >= .8 ? 3 : q >= .55 ? 2 : 1) : 0;
   const reward = form.reward * (matchesOutbreak(form) ? G.activeOutbreak.bonus : 1) * (stars ? CONFIG.starBonus[stars - 1] : 1);
-  body.innerHTML = '<div class="lab">' + stepsBar(4) + '<h3>Controle de qualidade</h3><table><thead><tr><th>Insumo</th><th>Alvo</th><th>Pesado</th><th>Desvio</th></tr></thead><tbody>' +
-    rows.map(r => '<tr><td>' + esc(r.ing.name) + '</td><td>' + r.ing.targetAmount + ' g</td><td>' + r.w.toFixed(3) + ' g</td><td class="' + (r.ok ? 'ok' : 'bad') + '">' + r.dev.toFixed(1) + '% ' + (r.ok ? '✓' : '✗') + '</td></tr>').join('') + '</tbody></table>' +
-    '<div class="verdict ' + (approved ? 'pass' : 'fail') + '">' + (approved ? 'Lote ' + run.lot + ' APROVADO: todos os insumos dentro de ±' + tol + '%.' : 'Lote ' + run.lot + ' REPROVADO: ' + (!okWeigh ? 'há insumo fora da tolerância de ±' + tol + '%.' : 'mistura heterogênea.')) + '</div>' +
-    (approved ? '<div style="text-align:center"><div class="stars" aria-label="' + stars + ' de 3 estrelas">' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</div><div class="muted">Honorários previstos: 🪙 ' + reward.toFixed(2) + ' G</div></div>' : '<p class="muted">O lote será descartado (−' + CONFIG.repRejected + ' ⭐). O cliente continua esperando, e você pode refazer se tiver insumos.</p>') +
-    '<button class="btn big ' + (approved ? 'sage' : 'blush') + '" id="fin" style="margin-top:12px">' + (approved ? 'Guardar para entrega' : 'Descartar lote') + '</button></div>';
+  body.innerHTML = '<div class="lab">' + stepsBar(4) + '<h3>' + L('Controle de qualidade') + '</h3><table><thead><tr><th>' + L('Insumo') + '</th><th>' + L('Alvo') + '</th><th>' + L('Pesado') + '</th><th>' + L('Desvio') + '</th></tr></thead><tbody>' +
+    rows.map(r => '<tr><td>' + L(r.ing.name) + '</td><td>' + r.ing.targetAmount + ' g</td><td>' + r.w.toFixed(3) + ' g</td><td class="' + (r.ok ? 'ok' : 'bad') + '">' + r.dev.toFixed(1) + '% ' + (r.ok ? '✓' : '✗') + '</td></tr>').join('') + '</tbody></table>' +
+    '<div class="verdict ' + (approved ? 'pass' : 'fail') + '">' + esc(approved ? tr('Lote {0} APROVADO: todos os insumos dentro de ±{1}%.', run.lot, tol) : tr('Lote {0} REPROVADO: {1}', run.lot, !okWeigh ? tr('há insumo fora da tolerância de ±{0}%.', tol) : tr('mistura heterogênea.'))) + '</div>' +
+    (approved ? '<div style="text-align:center"><div class="stars" aria-label="' + esc(tr('{0} de 3 estrelas', stars)) + '">' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</div><div class="muted">' + esc(tr('Honorários previstos: 🪙 {0} G', reward.toFixed(2))) + '</div></div>' : '<p class="muted">' + esc(tr('O lote será descartado (−{0} ⭐). O cliente continua esperando, e você pode refazer se tiver insumos.', CONFIG.repRejected)) + '</p>') +
+    '<button class="btn big ' + (approved ? 'sage' : 'blush') + '" id="fin" style="margin-top:12px">' + L(approved ? 'Guardar para entrega' : 'Descartar lote') + '</button></div>';
   sfx(approved ? 'good' : 'bad');
   $('#fin', body).onclick = () => finishLab(approved, maxDev, stars, reward);
 }
 function finishLab(approved, maxDev, stars, reward) {
   const { form, order } = run;
   G.batchLogs.unshift({ id: run.lot, day: G.day, formName: form.name, patient: order.who, status: approved ? 'APROVADO' : 'REPROVADO', maxDev: +maxDev.toFixed(1), stars });
-  if (approved) { order.state = 'ready'; order.reward = reward; order.stars = stars; toast('Lote ' + run.lot + ' aprovado! Entregue no balcão ✅', 'success'); }
-  else { G.reputation = Math.max(0, G.reputation - CONFIG.repRejected); toast('Lote ' + run.lot + ' descartado. −' + CONFIG.repRejected + ' ⭐', 'warning'); }
+  if (approved) { order.state = 'ready'; order.reward = reward; order.stars = stars; toast(tr('Lote {0} aprovado! Entregue no balcão ✅', run.lot), 'success'); }
+  else { G.reputation = Math.max(0, G.reputation - CONFIG.repRejected); toast(tr('Lote {0} descartado. −{1} ⭐', run.lot, CONFIG.repRejected), 'warning'); }
   run = null; closeModal(); updateHUD(); renderTickets(); saveGame();
+}
+/* ==========================================================================
+   MÚSICA LO-FI GERADA NO PRÓPRIO NAVEGADOR (original, sem direitos autorais)
+   O jogo "grava" um loop de ~50 s ao abrir a música e o toca como áudio comum
+   (funciona no iPhone mesmo com a chave de silêncio ligada).
+   Quer usar uma faixa sua? Suba o mp3 para o mesmo repositório e escreva o nome abaixo:
+   const MUSIC_FILE = 'lofi.mp3';   (deixe vazio para usar o lo-fi gerado)
+   ========================================================================== */
+const MUSIC_FILE = '';
+let musicOn = true, musicUnlocked = false, musicPlaying = false, musicRendering = false, musicEl = null, musicURL = null;
+let musicErr = '', musicNodes = null, musicTimer = null, musicNext = 0, musicStep = 0, melIdx = 2;
+try { musicOn = localStorage.getItem('botica_music') !== 'off'; } catch (e) { /* sem storage */ }
+const M_BPM = 74, M_STEP = 60 / 74 / 4, mtof = n => 440 * Math.pow(2, (n - 69) / 12);
+// Cmaj9 · Am9 · Dm9 · G13 · Fmaj9 · Em7 · Dm9 · G13
+const M_CHORDS = [
+  { bass: 36, notes: [52, 55, 59, 62] }, { bass: 33, notes: [48, 52, 55, 59] }, { bass: 38, notes: [53, 57, 60, 64] }, { bass: 43, notes: [53, 59, 62, 64] },
+  { bass: 41, notes: [57, 60, 64, 67] }, { bass: 40, notes: [55, 59, 62, 64] }, { bass: 38, notes: [53, 57, 60, 64] }, { bass: 43, notes: [53, 59, 62, 64] }
+];
+const M_PENTA = [72, 74, 76, 79, 81, 84];
+
+/* ---------- síntese (serve tanto ao contexto real quanto ao offline) ---------- */
+function buildMusic(ac, level) {
+  const out = ac.createGain(); out.gain.value = level;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600; lp.Q.value = .4;
+  const comp = ac.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3;
+  out.connect(lp); lp.connect(comp); comp.connect(ac.destination);
+  const dl = ac.createDelay(1); dl.delayTime.value = 60 / M_BPM * .75;
+  const fb = ac.createGain(); fb.gain.value = .32; const dlp = ac.createBiquadFilter(); dlp.type = 'lowpass'; dlp.frequency.value = 1600;
+  const wet = ac.createGain(); wet.gain.value = .5; dl.connect(dlp); dlp.connect(fb); fb.connect(dl); dlp.connect(wet); wet.connect(out);
+  const nb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate), d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const src = ac.createBufferSource(); src.buffer = nb; src.loop = true;
+  const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 4500; const cg = ac.createGain(); cg.gain.value = .010;
+  src.connect(hp); hp.connect(cg); cg.connect(out); src.start();
+  return { out, dl, nb, src };
+}
+function mNote(ac, m, t, freq, dur, vel, send) {
+  const g = ac.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vel, t + .012); g.gain.exponentialRampToValueAtTime(vel * .35, t + .28); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  const o1 = ac.createOscillator(); o1.type = 'sine'; o1.frequency.value = freq;
+  const o2 = ac.createOscillator(); o2.type = 'triangle'; o2.frequency.value = freq * 2.004; const g2 = ac.createGain(); g2.gain.value = .16;
+  o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(m.out);
+  if (send) { const s = ac.createGain(); s.gain.value = send; g.connect(s); s.connect(m.dl); }
+  o1.start(t); o2.start(t); o1.stop(t + dur + .05); o2.stop(t + dur + .05);
+}
+function mBass(ac, m, t, midi, dur, vel) {
+  const g = ac.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vel, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = mtof(midi);
+  const o2 = ac.createOscillator(); o2.type = 'triangle'; o2.frequency.value = mtof(midi + 12); const g2 = ac.createGain(); g2.gain.value = .25;
+  o.connect(g); o2.connect(g2); g2.connect(g); g.connect(m.out); o.start(t); o2.start(t); o.stop(t + dur + .05); o2.stop(t + dur + .05);
+}
+function mKick(ac, m, t, v) {
+  const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(48, t + .14);
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + .3); o.connect(g); g.connect(m.out); o.start(t); o.stop(t + .32);
+}
+function mNoise(ac, m, t, dur, freq, q, type, v) {
+  const s = ac.createBufferSource(); s.buffer = m.nb; const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  const g = ac.createGain(); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); s.connect(f); f.connect(g); g.connect(m.out); s.start(t, Math.random() * 1.5); s.stop(t + dur + .02);
+}
+function musicPlayStep(ac, m, s, t) {
+  const bar = Math.floor(s / 16) % 8, p = s % 16, ch = M_CHORDS[bar], hum = () => Math.random() * .014;
+  const swing = p % 4 === 2 ? M_STEP * .35 : 0;
+  if (p === 0 || p === 10) ch.notes.forEach((n, i) => mNote(ac, m, t + hum() + i * .006, mtof(n), p === 0 ? 2.6 : 1.1, p === 0 ? .05 : .03, .18));
+  if (p === 0) mBass(ac, m, t, ch.bass, M_STEP * 7, .2);
+  if (p === 8 && bar % 2 === 0) mBass(ac, m, t, ch.bass + 7, M_STEP * 5, .12);
+  if (p === 0) mKick(ac, m, t, .5); if (p === 10) mKick(ac, m, t + swing, .34); if (p === 7 && bar % 2) mKick(ac, m, t, .22);
+  if (p === 4 || p === 12) { mNoise(ac, m, t + .012, .17, 1900, .8, 'bandpass', .09); mNoise(ac, m, t + .012, .09, 300, .7, 'lowpass', .05); }
+  if (p % 2 === 0) mNoise(ac, m, t + swing, .04, 7000, .7, 'highpass', (p % 4 === 0 ? .03 : .02) * (.7 + Math.random() * .5));
+  if (p % 2 === 0 && Math.random() < (bar % 2 ? .34 : .12)) { melIdx = clamp(melIdx + Math.floor(Math.random() * 5) - 2, 0, M_PENTA.length - 1); mNote(ac, m, t + swing, mtof(M_PENTA[melIdx]), 1.5, .042, .55); }
+  if (Math.random() < .06) mNoise(ac, m, t + Math.random() * M_STEP, .006, 2500, 1, 'highpass', .05);
+}
+
+/* ---------- gravação do loop (OfflineAudioContext → WAV) ---------- */
+function wavBuffer(samples, sr) {
+  const n = samples.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) v.setInt16(44 + 2 * i, Math.max(-1, Math.min(1, samples[i])) * 32767, true);
+  return buf;
+}
+function dataURI(buf) { let s = ''; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 8192) s += String.fromCharCode.apply(null, b.subarray(i, i + 8192)); return 'data:audio/wav;base64,' + btoa(s); }
+function audioURL(buf) { try { return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })); } catch (e) { return dataURI(buf); } }
+const SILENT_URI = (() => { try { return dataURI(wavBuffer(new Float32Array(1600), 8000)); } catch (e) { return ''; } })();
+async function renderLoop() {
+  const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!OAC) return null;
+  const sr = 22050, steps = 16 * 16, loopLen = Math.round(steps * M_STEP * sr), tail = 2 * sr;
+  const oc = new OAC(1, loopLen + tail, sr), m = buildMusic(oc, .55); melIdx = 2;
+  for (let s = 0; s < steps; s++) musicPlayStep(oc, m, s, s * M_STEP + .02);
+  const buf = await oc.startRendering(), data = buf.getChannelData(0), out = new Float32Array(loopLen);
+  for (let i = 0; i < loopLen; i++) out[i] = data[i];
+  for (let i = loopLen; i < data.length; i++) out[i - loopLen] += data[i];      // a cauda volta ao início: loop sem corte
+  let peak = 0; for (let i = 0; i < loopLen; i++) peak = Math.max(peak, Math.abs(out[i]));
+  const g = peak > 0 ? .5 / peak : 1; for (let i = 0; i < loopLen; i++) out[i] *= g;  // o volume do iPhone não é controlável por código: fica embutido
+  return audioURL(wavBuffer(out, sr));
+}
+
+/* ---------- reprodução ---------- */
+function unlockAudio() {                       // precisa rodar dentro de um toque/clique/tecla
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* ok */ }
+  try { getAudio(); } catch (e) { /* ok */ }
+  if (!musicEl) { musicEl = new Audio(); musicEl.loop = true; musicEl.preload = 'auto'; musicEl.setAttribute('playsinline', ''); if (SILENT_URI) musicEl.src = SILENT_URI; }
+  const p = musicEl.play(); if (p && p.then) p.then(() => { musicUnlocked = true; }).catch(e => { musicErr = (e && e.name) || 'erro'; }); else musicUnlocked = true;
+}
+function liveStart() {                         // plano B: sintetiza ao vivo (pode ficar mudo com a chave de silêncio do iPhone)
+  const ac = getAudio(); if (!ac) return;
+  if (!musicNodes) musicNodes = buildMusic(ac, 0);
+  musicNodes.out.gain.cancelScheduledValues(ac.currentTime); musicNodes.out.gain.setTargetAtTime(.55, ac.currentTime, .6);
+  musicNext = ac.currentTime + .1;
+  musicTimer = setInterval(() => { if (musicNext < ac.currentTime - .2) musicNext = ac.currentTime + .05; while (musicNext < ac.currentTime + .3) { musicPlayStep(ac, musicNodes, musicStep, musicNext); musicNext += M_STEP; musicStep++; } }, 50);
+}
+async function musicStart() {
+  if (musicPlaying || !musicOn) return; musicPlaying = true;
+  if (MUSIC_FILE) { musicEl.src = MUSIC_FILE; musicEl.volume = .35; musicEl.play().catch(e => { musicErr = (e && e.name) || 'erro'; toast(tr('Não consegui tocar a música. Verifique o volume e o modo silencioso do aparelho.'), 'warning'); }); return; }
+  if (!musicURL) {
+    if (!musicRendering) { musicRendering = true; toast(tr('Preparando a música… 🎵')); try { musicURL = await renderLoop(); } catch (e) { musicURL = null; } musicRendering = false; }
+    else return;
+  }
+  if (!musicPlaying || !musicOn) return;
+  if (musicURL) {
+    musicEl.src = musicURL; musicEl.loop = true;
+    try { await musicEl.play(); musicErr = ''; return; } catch (e) { musicErr = (e && e.name) || 'erro'; /* cai no plano B */ }
+  }
+  liveStart();
+}
+function musicStop() {
+  if (!musicPlaying) return; musicPlaying = false;
+  if (musicEl) musicEl.pause();
+  if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+  if (musicNodes && audioCtx) { musicNodes.out.gain.cancelScheduledValues(audioCtx.currentTime); musicNodes.out.gain.setTargetAtTime(0, audioCtx.currentTime, .25); }
+}
+function paintMusicBtn() { const b = $('#btn-music'); b.classList.toggle('off', !musicOn); b.setAttribute('aria-pressed', musicOn); }
+function setMusic(on, quiet) {
+  musicOn = on; try { localStorage.setItem('botica_music', on ? 'on' : 'off'); } catch (e) { /* ok */ }
+  paintMusicBtn();
+  if (on) { unlockAudio(); musicStart(); if (!quiet && musicURL) toast(tr('Música ligada 🎵')); } else { musicStop(); if (!quiet) toast(tr('Música desligada')); }
+}
+function toggleMusic() { if (musicOn && musicPlaying) setMusic(false); else setMusic(true); }
+function armMusic() {
+  paintMusicBtn();
+  const first = e => {
+    if (!musicUnlocked) unlockAudio();
+    if (e.target && e.target.closest && e.target.closest('#btn-music')) return;   // o próprio botão trata o toque
+    if (musicOn && !musicPlaying) musicStart();
+  };
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => addEventListener(ev, first, true));
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { if (musicEl) musicEl.pause(); if (musicTimer) { clearInterval(musicTimer); musicTimer = null; } } else if (musicOn && musicPlaying) { if (musicURL || MUSIC_FILE) { musicEl.play().catch(() => {}); } else liveStart(); } });
+}
+function musicStatus() {
+  if (!musicOn) return tr('desligada');
+  if (musicRendering) return tr('preparando…');
+  if (musicPlaying && ((musicEl && !musicEl.paused) || musicTimer)) return tr('tocando ✅');
+  if (musicErr) return tr('bloqueada pelo navegador ({0})', musicErr);
+  return tr('aguardando um toque na tela');
 }
 /* ==========================================================================
    INICIALIZAÇÃO
@@ -1936,7 +2681,9 @@ function bootGame() {
     });
     customers.forEach(cu => { cu.arrived = true; });
   }
-  updateHUD(); renderTickets();
+  applyStaticLang(); armMusic();
+  $('#lang-pt').onclick = () => setLang('pt'); $('#lang-en').onclick = () => setLang('en');
+  $('#btn-music').onclick = toggleMusic;
   $('#btn-menu').onclick = openMenu;
   $('#btn-sound').onclick = e => { muted = !muted; e.currentTarget.textContent = muted ? '🔇' : '🔊'; if (!muted) sfx('tap'); };
   $('#act-btn').onclick = tryInteract;
