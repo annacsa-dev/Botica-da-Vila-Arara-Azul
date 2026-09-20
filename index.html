@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="author" content="Profª. Drª. Anna Carolina Schneider Alves">
+<meta name="description" content="Jogo educativo de manipulação farmacêutica criado para a disciplina de Farmacotécnica.">
+<title>Botica da Vila da Arara Azul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --edge:#1f1528; --plum:#3a2b45; --plum-2:#4c3a5a; --lilac:#8b6b93; --lilac-soft:#dccbe3;
+  --paper:#f9f3fb; --ink:#2c2035; --blush:#e79ab8; --sage:#79b295; --sage-d:#4f8a6f;
+  --honey:#eab85f; --honey-d:#b98530; --sky:#8ab6d3; --led-bg:#1f3d32; --led-fg:#d2e8dd;
+}
+html,body{margin:0;min-height:100%}
+body{
+  font:16px/1.45 'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--paper);
+  background:radial-gradient(1100px 620px at 50% -8%,#62496f 0%,#3a2b45 52%,#271c30 100%) fixed;
+}
+h1,h2,h3,.fr{font-family:'Fredoka','Nunito',system-ui,sans-serif;font-weight:600;letter-spacing:.01em}
+button{font-family:inherit}
+#app{max-width:1180px;margin:0 auto;padding:10px 12px 22px}
+
+/* HUD */
+.hud{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:44px;height:44px;border-radius:14px;background:var(--sky);border:3px solid var(--edge);box-shadow:0 3px 0 var(--edge);display:grid;place-items:center;font-size:24px}
+.brand h1{margin:0;font-size:1.25rem;color:#fff;line-height:1.1}
+.brand small{display:block;color:var(--lilac-soft);font-size:.8rem}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:var(--paper);color:var(--ink);border:2.5px solid var(--edge);border-radius:999px;padding:3px 12px;box-shadow:0 3px 0 var(--edge);font-family:'Fredoka',sans-serif;font-weight:500;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.chip b{font-weight:600}
+.iconbtn{width:40px;height:40px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:18px;cursor:pointer;background:var(--paper);border:2.5px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.outbreak{margin:0 0 10px;padding:8px 14px;border-radius:14px;border:2.5px solid var(--edge);box-shadow:0 3px 0 var(--edge);background:var(--honey);color:var(--ink);font-weight:700;display:none}
+.outbreak.on{display:block}
+
+/* Stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px;align-items:start}
+@media (max-width:980px){.stage{grid-template-columns:1fr}}
+.viewport{position:relative;border:3px solid var(--edge);border-radius:20px;box-shadow:0 6px 0 var(--edge);overflow:hidden;background:#2a1f33;line-height:0}
+canvas#world{width:100%;height:auto;display:block;touch-action:manipulation;cursor:pointer}
+.hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;line-height:1.2;pointer-events:none;transition:opacity .15s;opacity:0}
+.hint.on{opacity:1;pointer-events:auto}
+.hint .pill{background:var(--paper);color:var(--ink);border:2.5px solid var(--edge);border-radius:999px;padding:6px 14px;box-shadow:0 3px 0 var(--edge);font-weight:700;display:flex;gap:8px;align-items:center;white-space:nowrap}
+kbd{font-family:'Fredoka',sans-serif;background:var(--honey);border:2px solid var(--edge);border-radius:7px;padding:0 7px;font-size:.85rem}
+.act{cursor:pointer;background:var(--honey);color:var(--ink);border:2.5px solid var(--edge);box-shadow:0 3px 0 var(--edge);border-radius:999px;padding:8px 16px;font-family:'Fredoka',sans-serif;font-size:1rem;font-weight:600}
+.act:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.hint-idle{position:absolute;left:12px;top:10px;line-height:1.2;background:rgba(249,243,251,.9);color:var(--ink);border:2px solid var(--edge);border-radius:12px;padding:4px 10px;font-size:.8rem;font-weight:700}
+
+/* Tickets */
+.side{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--paper);color:var(--ink);border:3px solid var(--edge);border-radius:18px;box-shadow:0 5px 0 var(--edge);padding:12px 14px}
+.card h2{margin:0 0 8px;font-size:1.05rem;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 small{font-family:'Nunito',sans-serif;font-weight:700;color:#7b6a85;font-size:.8rem}
+.ticket{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:2px dashed #d8c7df}
+.ticket:first-of-type{border-top:0}
+.ticket .av{width:46px;height:46px;flex:none;border-radius:50%;background:#efe3f2;border:2.5px solid var(--lilac);overflow:hidden;display:grid;place-items:center}
+.ticket .av svg{width:42px;height:42px}
+.ticket .tx{min-width:0;flex:1}
+.ticket .nm{font-weight:800;font-size:.92rem;line-height:1.15}
+.ticket .st{font-size:.8rem;color:#6b5a76;line-height:1.2}
+.pill-s{display:inline-block;margin-top:3px;padding:1px 9px;border-radius:999px;font-size:.72rem;font-weight:800;border:2px solid var(--edge)}
+.pill-s.w{background:#ffe6a8}.pill-s.t{background:#cfe6f5}.pill-s.r{background:#c4e8d6}.pill-s.i{background:#e6dcea}.pill-s.d{background:#eee}
+.empty{color:#7b6a85;font-size:.9rem;padding:6px 0}
+.legend{font-size:.82rem;color:#5f4f6b;line-height:1.5}
+.legend div{display:flex;gap:8px;align-items:center}
+
+/* Buttons */
+.btn{cursor:pointer;background:var(--honey);color:var(--ink);border:2.5px solid var(--edge);border-radius:12px;padding:8px 14px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.98rem;box-shadow:0 3px 0 var(--edge);transition:transform .06s,box-shadow .06s}
+.btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sage{background:var(--sage);color:#123024}.btn.blush{background:var(--blush)}.btn.ghost{background:#fff}.btn.sky{background:var(--sky)}
+.btn.big{padding:14px 18px;font-size:1.1rem;width:100%;border-radius:16px}
+.btn.sm{padding:4px 10px;font-size:.85rem;border-radius:10px}
+:where(button,select,input,[tabindex]):focus-visible{outline:3px solid #2f7fb8;outline-offset:2px}
+
+/* Modal */
+.scrim{position:fixed;inset:0;background:rgba(24,15,32,.7);display:grid;place-items:center;padding:12px;z-index:50;animation:fadein .15s ease-out}
+.scrim.top{z-index:60}
+.sheet{background:var(--paper);color:var(--ink);border:3px solid var(--edge);border-radius:22px;box-shadow:0 7px 0 var(--edge);width:min(560px,100%);max-height:calc(100vh - 24px);overflow:auto}
+.sheet.wide{width:min(900px,100%)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:3px solid var(--edge);background:var(--lilac-soft);position:sticky;top:0;z-index:2}
+.sheet-head h2{margin:0;font-size:1.15rem}
+.x{cursor:pointer;width:34px;height:34px;border-radius:50%;background:#fff;border:2.5px solid var(--edge);font-size:15px;box-shadow:0 2px 0 var(--edge)}
+.sheet-body{padding:16px}
+.muted{color:#6b5a76;font-size:.9rem}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.tile{border:2.5px solid #cfbad8;border-radius:16px;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px}
+.tile h3{margin:0;font-size:1rem;color:#5b3f66}
+.tile .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.tag{display:inline-block;font-size:.72rem;font-weight:800;background:#efe3f2;border:2px solid #cfbad8;border-radius:999px;padding:0 8px}
+.tag.g{background:#d5efe1;border-color:#a9d7bf}.tag.h{background:#ffe6a8;border-color:#e9c56f}.tag.p{background:#fbd5e3;border-color:#eba6c1}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:6px 8px;text-align:left;border-bottom:2px solid #e6d8eb}
+th{background:#efe3f2;font-family:'Fredoka',sans-serif;font-weight:500}
+.ok{color:#2f7d59;font-weight:800}.bad{color:#b2456f;font-weight:800}
+
+/* Dialog */
+.talk{display:flex;gap:14px;align-items:flex-start}
+.talk .portrait{flex:none;width:96px;height:96px;border-radius:50%;background:#efe3f2;border:3px solid var(--lilac);overflow:hidden;display:grid;place-items:center}
+.talk .portrait svg{width:92px;height:92px}
+.bubble-t{position:relative;background:#fff;border:2.5px solid var(--edge);border-radius:16px;padding:10px 14px;flex:1}
+.bubble-t:before{content:"";position:absolute;left:-10px;top:26px;border:8px solid transparent;border-right-color:var(--edge);border-left:0}
+.bubble-t:after{content:"";position:absolute;left:-6px;top:28px;border:6px solid transparent;border-right-color:#fff;border-left:0}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{cursor:pointer;text-align:left;background:#fff;border:2.5px solid var(--edge);border-radius:14px;padding:10px 12px;box-shadow:0 3px 0 var(--edge);color:var(--ink);font-size:.95rem}
+.opt:hover{background:#fff6dc}
+.opt b{font-family:'Fredoka',sans-serif;font-weight:600;display:block}
+.opt small{color:#6b5a76}
+.opt.shake{animation:shake .35s}
+.opt.right{background:#c4e8d6}
+.feedback{margin-top:10px;min-height:1.4em;font-weight:700;color:#8a3a5c}
+
+/* Lab */
+.steps{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.step{font-size:.78rem;font-weight:800;padding:2px 10px;border-radius:999px;border:2px solid #cfbad8;background:#f3eaf6;color:#7b6a85}
+.step.on{background:var(--honey);border-color:var(--edge);color:var(--ink)}
+.step.done{background:#c4e8d6;border-color:#8cc5a8;color:#2f6b4d}
+.lab h3{margin:2px 0 4px;font-size:1.3rem;color:#5b3f66}
+.readout{background:var(--led-bg);color:var(--led-fg);font-family:'Fredoka',monospace;font-size:2.4rem;text-align:center;border-radius:14px;border:3px solid var(--edge);padding:6px 10px;letter-spacing:.06em;text-shadow:0 0 8px rgba(210,232,221,.5)}
+.balance{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center;margin:12px 0}
+@media (max-width:480px){.balance{grid-template-columns:1fr}}
+.gauge{position:relative;height:26px;background:#eadff0;border:2.5px solid var(--edge);border-radius:999px;overflow:hidden;margin:8px 0 4px}
+.gauge .zone{position:absolute;top:0;bottom:0;background:rgba(121,178,149,.65);border-left:2px dashed #2f7d59;border-right:2px dashed #2f7d59}
+.gauge .fill{position:absolute;left:0;top:0;bottom:0;background:var(--sky);width:0;border-right:3px solid var(--edge)}
+.gauge .fill.over{background:var(--blush)}
+.gauge-l{display:flex;justify-content:space-between;font-size:.75rem;color:#6b5a76}
+.pourbtn{touch-action:none;user-select:none;-webkit-user-select:none}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+.mixwrap{display:grid;place-items:center;margin:10px 0}
+canvas#gral{width:min(320px,100%);height:auto;border-radius:50%;touch-action:none;cursor:grab;background:transparent}
+.bar{height:16px;background:#eadff0;border:2.5px solid var(--edge);border-radius:999px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--sage);transition:width .08s}
+.timing{position:relative;height:34px;background:#eadff0;border:2.5px solid var(--edge);border-radius:999px;overflow:hidden;margin:12px 0}
+.timing .zone{position:absolute;top:0;bottom:0;left:39%;width:22%;background:rgba(121,178,149,.7)}
+.timing .zone.in{left:44%;width:12%;background:rgba(230,180,80,.85)}
+.timing .mk{position:absolute;top:2px;bottom:2px;width:10px;margin-left:-5px;background:var(--plum);border-radius:6px}
+.dots{display:flex;gap:6px;justify-content:center;margin:6px 0}
+.dots i{width:16px;height:16px;border-radius:50%;background:#eadff0;border:2px solid var(--edge)}
+.dots i.g{background:var(--honey)}.dots i.o{background:var(--sage)}.dots i.m{background:var(--blush)}
+.ph{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center}
+@media (max-width:480px){.ph{grid-template-columns:1fr}}
+.phbar{position:relative;height:22px;border-radius:999px;border:2.5px solid var(--edge);overflow:hidden;background:linear-gradient(90deg,#e0605a 0%,#e9a04b 22%,#e9d94b 38%,#6fc08a 55%,#4aa6d6 75%,#6a54c6 100%)}
+.phbar .win{position:absolute;top:0;bottom:0;border:3px solid var(--edge);border-top:0;border-bottom:0;background:rgba(255,255,255,.28)}
+.phbar .pt{position:absolute;top:-2px;bottom:-2px;width:8px;margin-left:-4px;background:var(--edge);border-radius:4px}
+.phlab{display:flex;justify-content:space-between;font-size:.75rem;color:#6b5a76;margin-top:3px}
+.label-card{background:#fff;border:2.5px dashed #b8a1c2;border-radius:14px;padding:12px 14px;font-size:.95rem;margin:8px 0 12px}
+.label-card div{padding:3px 0;border-bottom:1.5px solid #eee3f1}
+.label-card div:last-child{border-bottom:0}
+.label-card span{color:#8a7a95}
+.stars{font-size:1.6rem;letter-spacing:.1em}
+.verdict{border:2.5px solid var(--edge);border-radius:14px;padding:10px 14px;margin:12px 0;font-weight:700}
+.verdict.pass{background:#c4e8d6}.verdict.fail{background:#fbd5e3}
+.plant{width:84px;height:84px}
+
+/* Toasts / veil */
+#toasts{position:fixed;right:14px;top:14px;display:flex;flex-direction:column;gap:8px;z-index:80;pointer-events:none;max-width:min(360px,calc(100vw - 28px))}
+.toast{background:var(--paper);color:var(--ink);border:2.5px solid var(--edge);box-shadow:0 3px 0 var(--edge);border-radius:14px;padding:8px 14px;font-weight:700;font-size:.92rem;animation:toastin .25s ease-out}
+.toast.success{background:#c4e8d6}.toast.warning{background:#fbd5e3}.toast.gold{background:#ffe6a8}
+#veil{position:fixed;inset:0;background:#160e1d;color:#fff;display:grid;place-items:center;z-index:90;opacity:0;pointer-events:none;transition:opacity .7s}
+#veil.on{opacity:1;pointer-events:auto}
+#veil div{text-align:center}
+#veil h2{font-size:2rem;margin:0 0 6px}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes toastin{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+.balance svg,.ph svg{width:100%;height:auto;display:block}
+.phbar.temp{background:linear-gradient(90deg,#6fb0e0 0%,#7fd0a8 30%,#f2d45c 55%,#f0964a 78%,#e0503f 100%)}
+.credits{margin-top:16px;text-align:center;color:var(--lilac-soft);font-size:.9rem;line-height:1.5}
+.credits b{color:#fff;font-weight:800}
+.social{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.social a{display:inline-flex;align-items:center;gap:6px;background:var(--paper);color:var(--ink);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px;box-shadow:0 3px 0 var(--edge);font-family:'Fredoka',sans-serif;font-weight:500;font-size:.95rem;text-decoration:none}
+.social a:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.sheet .social{justify-content:flex-start;margin:0 0 14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="hud">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true">🦜</div>
+      <div><h1>Botica da Arara Azul</h1><small>Manipulação farmacêutica na vila</small></div>
+    </div>
+    <div class="chips" aria-label="Status da botica">
+      <div class="chip" title="Moedas">🪙 <b id="h-money">150.00</b> G</div>
+      <div class="chip" title="Reputação">⭐ <b id="h-rep">100</b></div>
+      <div class="chip" title="Dia">📅 Dia <b id="h-day">1</b></div>
+      <div class="chip" id="h-season">🌸 Primavera</div>
+      <button class="iconbtn" id="btn-sound" title="Som" aria-label="Ligar ou desligar o som">🔊</button>
+      <button class="iconbtn" id="btn-menu" title="Menu" aria-label="Abrir menu">☰</button>
+    </div>
+  </header>
+  <div class="outbreak" id="outbreak" role="status"></div>
+  <main class="stage">
+    <div class="viewport">
+      <canvas id="world" width="800" height="520" aria-label="Botica: use as setas ou toque para andar"></canvas>
+      <div class="hint-idle" id="hint-idle">Setas / WASD ou toque para andar</div>
+      <div class="hint" id="hint"><div class="pill"><kbd>E</kbd><span id="hint-text"></span></div><button class="act" id="act-btn">Abrir</button></div>
+    </div>
+    <aside class="side">
+      <section class="card" aria-live="polite">
+        <h2>Pedidos de hoje <small id="t-count"></small></h2>
+        <div id="tickets"></div>
+      </section>
+      <section class="card legend">
+        <h2>Como funciona</h2>
+        <div>💬 Fale com o cliente no balcão</div>
+        <div>🧪 Prepare na bancada: pese, misture e rotule</div>
+        <div>🌱 Colha extratos na estufa</div>
+        <div>🏮 Acenda o lampião para fechar o dia</div>
+      </section>
+    </aside>
+  </main>
+  <footer class="credits">Jogo educativo criado pela <b>Profª. Drª. Anna Carolina Schneider Alves</b> para a disciplina de <b>Farmacotécnica</b>.
+    <div class="social"><a href="https://www.instagram.com/prof.annaalves/" target="_blank" rel="noopener noreferrer">📷 Instagram @prof.annaalves</a><a href="https://www.youtube.com/@boticadoconhecimento" target="_blank" rel="noopener noreferrer">▶️ YouTube Botica do Conhecimento</a></div>
+  </footer>
+</div>
+<div id="modal-root"></div>
+<div id="confirm-root"></div>
+<div id="toasts"></div>
+<div id="veil"><div><h2 id="veil-t"></h2><p id="veil-s"></p></div></div>
+<script>
+'use strict';
+/* ==========================================================================
+   UTILIDADES
+   ========================================================================== */
+const $ = (s, el = document) => el.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ==========================================================================
+   CONFIGURAÇÕES QUE VOCÊ PODE AJUSTAR
+   ========================================================================== */
+const CONFIG = {
+  tolerancePct: 5,          // tolerância de pesagem (±%)
+  repApproved: 5,           // reputação ao entregar um lote aprovado
+  repRejected: 10,          // reputação perdida ao reprovar um lote
+  repPerfectService: 2,     // bônus por escolher a receita certa de primeira
+  repMissedOrder: 2,        // reputação perdida por pedido não atendido ao fechar o dia
+  starBonus: [1.0, 1.1, 1.25], // multiplicador do honorário por estrelas (1, 2, 3)
+  seasonEveryDays: 4,
+  pestChance: 0.25,
+  pestChanceScreens: 0.10,
+  outbreakChance: 0.35
+};
+
+/* ==========================================================================
+   PERSONAGENS
+   ========================================================================== */
+const AVATAR_PALETTES = {
+  'Vovó Abigail': { skin: '#f3d3c1', hair: '#dcdcdc', shirt: '#9c68a6', accent: '#e09ab5', style: 'bun' },
+  'Fazendeiro Lucas': { skin: '#e5b88f', hair: '#795548', shirt: '#4caf50', accent: '#fbc02d', style: 'strawhat' },
+  'Dona Bento': { skin: '#f8d5c4', hair: '#9e9e9e', shirt: '#e91e63', accent: '#9c27b0', style: 'curly' },
+  'Botanista Penny': { skin: '#ffdbac', hair: '#ff9800', shirt: '#8bc34a', accent: '#009688', style: 'ponytail' },
+  'Seu Zé do Pomar': { skin: '#d7a17c', hair: '#424242', shirt: '#ff5722', accent: '#795548', style: 'hat' },
+  'Padeiro Mateo': { skin: '#f3c299', hair: '#f44336', shirt: '#ffffff', accent: '#d32f2f', style: 'chef' },
+  'Professora Lúcia': { skin: '#f5c6aa', hair: '#3f51b5', shirt: '#673ab7', accent: '#ff4081', style: 'long' },
+  'Pescador Tiago': { skin: '#c68b59', hair: '#212121', shirt: '#0288d1', accent: '#00bcd4', style: 'cap' },
+  'Costureira Clara': { skin: '#f1c27d', hair: '#ab47bc', shirt: '#f48fb1', accent: '#ce93d8', style: 'pigtails' },
+  'Lenhador Hugo': { skin: '#bf8a63', hair: '#5d4037', shirt: '#d32f2f', accent: '#388e3c', style: 'beanie' },
+  'Jardineira Rosa': { skin: '#f0c4a4', hair: '#c2453f', shirt: '#7cb97a', accent: '#f4a6b8', style: 'bun' },
+  'Sr. Anselmo': { skin: '#e3b48f', hair: '#e8e8e8', shirt: '#546e9e', accent: '#8d6e63', style: 'short' },
+  'Tia Nena': { skin: '#c98e63', hair: '#3b2a2a', shirt: '#f2b544', accent: '#e57373', style: 'curly' },
+  'Dona Cida': { skin: '#e6b990', hair: '#b0b0b0', shirt: '#6a9fb5', accent: '#a1887f', style: 'long' },
+  'Ceramista Iara': { skin: '#d9a679', hair: '#2b2b3b', shirt: '#b5651d', accent: '#f0c987', style: 'ponytail' },
+  'Carteiro Dudu': { skin: '#f0c9a8', hair: '#6d4c41', shirt: '#3f6fb5', accent: '#f9d949', style: 'cap' },
+  'Professor Teo': { skin: '#f2cdb1', hair: '#7a5230', shirt: '#7e57c2', accent: '#26a69a', style: 'short' },
+  'Marinheiro Beto': { skin: '#c88b60', hair: '#263238', shirt: '#ffffff', accent: '#1e5fa8', style: 'beanie' },
+  'default': { skin: '#ebd0be', hair: '#5a4360', shirt: '#8b6b93', accent: '#7ea8c4', style: 'short' }
+};
+const PLAYER_PAL = { skin: '#f4cdb0', hair: '#4a3552', shirt: '#8b6b93', accent: '#e09ab5', style: 'bob', coat: true };
+const palFor = name => AVATAR_PALETTES[name] || AVATAR_PALETTES['default'];
+
+function generateSVGAvatar(name) {
+  const p = palFor(name);
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="50" cy="50" r="48" fill="${p.accent}" opacity="0.2"/>
+    <path d="M 20 90 Q 50 65 80 90 L 85 100 L 15 100 Z" fill="${p.shirt}"/>
+    <rect x="42" y="52" width="16" height="15" fill="${p.skin}" rx="3"/>
+    <circle cx="50" cy="40" r="22" fill="${p.skin}"/>
+    <path d="M 28 38 Q 50 12 72 38 Q 68 22 50 20 Q 32 22 28 38 Z" fill="${p.hair}"/>
+    <circle cx="43" cy="38" r="2.5" fill="#333"/><circle cx="57" cy="38" r="2.5" fill="#333"/>
+    <path d="M 43 47 Q 50 53 57 47" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function generatePlantSVG(stage, stages, hasPest) {
+  const progress = stage / stages; let s = '';
+  if (stage === 0) {
+    s = `<ellipse cx="50" cy="70" rx="30" ry="10" fill="#795548"/><path d="M 50 70 Q 52 60 50 55" stroke="#4caf50" stroke-width="4" fill="none"/><circle cx="50" cy="53" r="4" fill="#8bc34a"/>`;
+  } else if (progress < 1) {
+    s = `<ellipse cx="50" cy="75" rx="35" ry="10" fill="#795548"/><path d="M 50 75 Q 48 50 50 35" stroke="#388e3c" stroke-width="5" fill="none"/><path d="M 50 50 Q 30 40 25 45 Q 35 55 50 52" fill="#4caf50"/><path d="M 50 42 Q 70 32 75 37 Q 65 47 50 44" fill="#4caf50"/>`;
+  } else {
+    s = `<ellipse cx="50" cy="75" rx="35" ry="10" fill="#795548"/><path d="M 50 75 Q 52 45 50 25" stroke="#2e7d32" stroke-width="6" fill="none"/><path d="M 50 55 Q 25 45 20 50 Q 30 62 50 57" fill="#4caf50"/><path d="M 50 45 Q 75 35 80 40 Q 70 52 50 47" fill="#4caf50"/><circle cx="50" cy="22" r="9" fill="#ffeb3b"/><circle cx="50" cy="22" r="5" fill="#e91e63"/><circle cx="38" cy="30" r="7" fill="#ffeb3b"/><circle cx="62" cy="30" r="7" fill="#ffeb3b"/>`;
+  }
+  return `<svg class="plant" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${s}${hasPest ? '<text x="62" y="32" font-size="22">🐛</text>' : ''}</svg>`;
+}
+
+/* ==========================================================================
+   CATÁLOGOS (suas fórmulas, com etapa de mistura e conservação)
+   ========================================================================== */
+const SEED_CATALOG = {
+  camomila: { id: 'camomila', name: 'Camomila', yieldQty: 50, cost: 12, stages: 3 },
+  guaco: { id: 'guaco', name: 'Guaco', yieldQty: 50, cost: 15, stages: 3 },
+  calendula: { id: 'calendula', name: 'Calêndula', yieldQty: 50, cost: 18, stages: 3 },
+  aloe_vera: { id: 'aloe_vera', name: 'Aloe Vera', yieldQty: 50, cost: 22, stages: 4 },
+  boldo: { id: 'boldo', name: 'Boldo', yieldQty: 50, cost: 20, stages: 3 },
+  lavanda: { id: 'lavanda', name: 'Lavanda', yieldQty: 50, cost: 25, stages: 4 },
+  citronela: { id: 'citronela', name: 'Citronela', yieldQty: 50, cost: 24, stages: 3 }
+};
+
+const FORMULATIONS = {
+  capsulas_vit_c: {
+    id: 'capsulas_vit_c', name: 'Cápsulas de Vitamina C + Zinco', patient: 'Vovó Abigail',
+    symptom: 'Fadiga e reforço imunológico para o inverno.', type: 'Sólida (Cápsulas)',
+    reward: 45, unlockCost: 0, reqRep: 0,
+    ingredients: [
+      { id: 'vitamina_c', name: 'Vitamina C (Ácido Ascórbico)', targetAmount: 0.5 },
+      { id: 'zinco', name: 'Sulfato de Zinco', targetAmount: 0.015 },
+      { id: 'amido', name: 'Amido de Milho (Excipiente)', targetAmount: 0.18 }
+    ],
+    pop: 'Usar diluição geométrica de pós antes do encapsulamento.',
+    mix: 'grind', mixTitle: 'Diluição geométrica no gral', geo: true,
+    storage: 'Local seco e fresco, ao abrigo da luz e da umidade'
+  },
+  pasta_dagua: {
+    id: 'pasta_dagua', name: "Pasta d'Água Clássica", patient: 'Fazendeiro Lucas',
+    symptom: 'Irritação cutânea por exposição solar na lavoura.', type: 'Semi-sólida (Pasta)',
+    reward: 60, unlockCost: 0, reqRep: 0,
+    ingredients: [
+      { id: 'oxido_zinco', name: 'Óxido de Zinco', targetAmount: 25 },
+      { id: 'talco', name: 'Talco Farmacêutico', targetAmount: 25 },
+      { id: 'glicerina', name: 'Glicerina Bi-destilada', targetAmount: 25 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 25 }
+    ],
+    pop: 'Levigar o óxido de zinco e o talco com a glicerina antes de juntar a água.',
+    mix: 'grind', mixTitle: 'Levigação no gral',
+    storage: 'Frasco bem fechado, em local fresco e seco'
+  },
+  xarope_guaco: {
+    id: 'xarope_guaco', name: 'Xarope Expectorante de Guaco', patient: 'Dona Bento',
+    symptom: 'Tosse persistente e respiração pesada.', type: 'Líquida (Xarope)',
+    reward: 50, unlockCost: 0, reqRep: 0,
+    ingredients: [
+      { id: 'guaco', name: 'Extrato Fluido de Guaco', targetAmount: 10 },
+      { id: 'xarope_base', name: 'Xarope Simples Base', targetAmount: 85 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 5 }
+    ],
+    pop: 'Homogeneizar o extrato vegetal na base xaroposa sob agitação moderada.',
+    mix: 'stir', mixTitle: 'Homogeneização sob agitação',
+    storage: 'Após aberto, conservar em geladeira e agitar antes de usar'
+  },
+  gel_camomila: {
+    id: 'gel_camomila', name: 'Gel Calmante de Camomila', patient: 'Botanista Penny',
+    symptom: 'Sensibilidade cutânea pós-colheita.', type: 'Semi-sólida (Gel)',
+    reward: 55, unlockCost: 40, reqRep: 10,
+    ingredients: [
+      { id: 'carbopol', name: 'Carbômero (Carbopol 940)', targetAmount: 1 },
+      { id: 'agua_purificada', name: 'Água Purificada', targetAmount: 95 },
+      { id: 'camomila', name: 'Extrato de Camomila', targetAmount: 3 },
+      { id: 'trietanolamina', name: 'Trietanolamina (Ajuste pH)', targetAmount: 1 }
+    ],
+    pop: 'Neutralizar o Carbopol com Trietanolamina para a formação do gel cristalino.',
+    mix: 'gel', mixTitle: 'Neutralização do Carbopol',
+    storage: 'Bem fechado, ao abrigo da luz e do calor'
+  },
+  pomada_calendula: {
+    id: 'pomada_calendula', name: 'Pomada Cicatrizante de Calêndula', patient: 'Seu Zé do Pomar',
+    symptom: 'Pequenos arranhões das videiras.', type: 'Semi-sólida (Pomada)',
+    reward: 65, unlockCost: 50, reqRep: 15,
+    ingredients: [
+      { id: 'calendula', name: 'Extrato de Calêndula', targetAmount: 5 },
+      { id: 'oxido_zinco', name: 'Óxido de Zinco', targetAmount: 10 },
+      { id: 'base_creme', name: 'Base Anidra / Vaselina q.s.p.', targetAmount: 85 }
+    ],
+    pop: 'Incorporação gradual do extrato em gral até obter textura lisa.',
+    mix: 'grind', mixTitle: 'Incorporação gradual no gral',
+    storage: 'Em local fresco, ao abrigo da luz'
+  }
+};
+
+const SHOP_ITEMS = [
+  { id: 'agua_purificada', name: 'Água Purificada (500 ml)', cost: 12, qty: 100 },
+  { id: 'xarope_base', name: 'Xarope Base Simples (500 ml)', cost: 18, qty: 100 },
+  { id: 'amido', name: 'Amido Farmacêutico (100 g)', cost: 10, qty: 50 },
+  { id: 'base_creme', name: 'Base Creme Neutra (250 g)', cost: 25, qty: 100 },
+  { id: 'oxido_zinco', name: 'Óxido de Zinco (100 g)', cost: 20, qty: 50 },
+  { id: 'glicerina', name: 'Glicerina Bi-destilada (200 ml)', cost: 15, qty: 50 },
+  { id: 'talco', name: 'Talco Farmacêutico (200 g)', cost: 12, qty: 50 },
+  { id: 'carbopol', name: 'Carbômero Carbopol (20 g)', cost: 22, qty: 10 },
+  { id: 'trietanolamina', name: 'Trietanolamina (50 ml)', cost: 18, qty: 20 },
+  { id: 'vitamina_c', name: 'Vitamina C Pura (50 g)', cost: 30, qty: 25 },
+  { id: 'zinco', name: 'Sulfato de Zinco (20 g)', cost: 25, qty: 10 },
+  { id: 'calda_fumo', name: '🛡️ Extrato Biológico Anti-Pragas (2 doses)', cost: 15, qty: 2 }
+];
+
+
+/* ==========================================================================
+   NOVAS SEMENTES, FÓRMULAS DIDÁTICAS, INSUMOS E EQUIPAMENTOS
+   ========================================================================== */
+Object.assign(SEED_CATALOG, {
+  hortela: { id: 'hortela', name: 'Hortelã-pimenta', yieldQty: 50, cost: 14, stages: 3 },
+  malva: { id: 'malva', name: 'Malva', yieldQty: 50, cost: 16, stages: 3 }
+});
+
+Object.assign(FORMULATIONS.capsulas_vit_c, { teach: 'Sólido · Cápsulas: diluição geométrica do componente em menor quantidade.', requires: ['encapsuladora'], geoHint: 'O componente em menor quantidade (e mais potente) entra primeiro; o restante entra aos poucos, sempre dobrando o volume.' });
+Object.assign(FORMULATIONS.pasta_dagua, { teach: 'Semissólido · Pasta: levigação de pós insolúveis com um líquido intermediário.', requires: [] });
+Object.assign(FORMULATIONS.xarope_guaco, { teach: 'Líquido · Xarope: incorporação de extrato vegetal em veículo viscoso.', requires: [] });
+Object.assign(FORMULATIONS.gel_camomila, { teach: 'Semissólido · Gel: neutralização de polímero (Carbopol) e controle do pH.', requires: ['phmetro'] });
+Object.assign(FORMULATIONS.pomada_calendula, { teach: 'Semissólido · Pomada: incorporação gradual de extrato em base anidra.', requires: [] });
+
+Object.assign(FORMULATIONS, {
+  /* ---------------- SÓLIDAS ---------------- */
+  capsulas_melatonina: {
+    id: 'capsulas_melatonina', name: 'Cápsulas de Melatonina 3 mg (30 un.)', patient: 'Professora Lúcia',
+    symptom: 'Dificuldade para pegar no sono depois das provas.', type: 'Sólida (Cápsulas)',
+    reward: 85, unlockCost: 90, reqRep: 110,
+    ingredients: [
+      { id: 'melatonina', name: 'Melatonina', targetAmount: 0.09 },
+      { id: 'celulose_mcc', name: 'Celulose Microcristalina (diluente)', targetAmount: 5.85 },
+      { id: 'estearato_mg', name: 'Estearato de Magnésio (lubrificante)', targetAmount: 0.06 }
+    ],
+    pop: 'Diluir a melatonina geometricamente na celulose microcristalina; adicionar o estearato de magnésio por último, com mistura breve; encapsular.',
+    mix: 'grind', mixTitle: 'Diluição geométrica no gral', geo: true, geoFirst: 'melatonina',
+    geoHint: 'O fármaco de baixa dose entra primeiro e é diluído aos poucos. O lubrificante entra por último, com mistura breve.',
+    requires: ['balanca_analitica', 'encapsuladora'],
+    storage: 'Local seco e fresco, ao abrigo da luz',
+    teach: 'Sólido · Cápsulas de dose pequena: pesagem em balança analítica e diluição geométrica.'
+  },
+  po_dermatologico: {
+    id: 'po_dermatologico', name: 'Pó Dermatológico de Óxido de Zinco', patient: 'Padeiro Mateo',
+    symptom: 'Assadura e suor excessivo no calor do forno.', type: 'Sólida (Pó composto)',
+    reward: 60, unlockCost: 60, reqRep: 105,
+    ingredients: [
+      { id: 'oxido_zinco', name: 'Óxido de Zinco', targetAmount: 10 },
+      { id: 'amido', name: 'Amido de Milho', targetAmount: 30 },
+      { id: 'talco', name: 'Talco Farmacêutico', targetAmount: 60 }
+    ],
+    pop: 'Tamisar os pós e misturar por diluição geométrica, começando pelo componente em menor quantidade.',
+    mix: 'grind', mixTitle: 'Tamisação e mistura de pós', geo: true, geoHint: 'Em pós, começa-se pelo componente em menor quantidade e incorporam-se os demais em porções crescentes.',
+    requires: ['tamis'],
+    storage: 'Frasco de boca larga, bem fechado, em local seco',
+    teach: 'Sólido · Pós compostos: tamisação para padronizar a granulometria e homogeneização.'
+  },
+  capsulas_camomila: {
+    id: 'capsulas_camomila', name: 'Cápsulas de Camomila 300 mg (30 un.)', patient: 'Costureira Clara',
+    symptom: 'Nervosismo leve e desconforto gástrico com o prazo das encomendas.', type: 'Sólida (Cápsulas de droga vegetal)',
+    reward: 65, unlockCost: 70, reqRep: 108,
+    ingredients: [
+      { id: 'camomila', name: 'Camomila (droga vegetal pulverizada)', targetAmount: 9 },
+      { id: 'celulose_mcc', name: 'Celulose Microcristalina (diluente)', targetAmount: 2 }
+    ],
+    pop: 'Pulverizar a droga vegetal, misturar com o diluente e encapsular, ajustando o volume ao tamanho da cápsula.',
+    mix: 'grind', mixTitle: 'Mistura da droga vegetal pulverizada',
+    requires: ['encapsuladora'],
+    storage: 'Frasco bem fechado, ao abrigo da luz e da umidade',
+    teach: 'Sólido · Cápsulas de derivados vegetais: densidade aparente e fluidez do pó.'
+  },
+  /* ---------------- SEMISSÓLIDAS ---------------- */
+  creme_ureia: {
+    id: 'creme_ureia', name: 'Creme Hidratante de Ureia 10%', patient: 'Lenhador Hugo',
+    symptom: 'Mãos ressecadas e rachadas pelo frio.', type: 'Semi-sólida (Creme)',
+    reward: 90, unlockCost: 110, reqRep: 115,
+    ingredients: [
+      { id: 'lanette', name: 'Base Autoemulsionante (Lanette N)', targetAmount: 15 },
+      { id: 'oleo_mineral', name: 'Óleo Mineral', targetAmount: 5 },
+      { id: 'glicerina', name: 'Glicerina Bi-destilada', targetAmount: 5 },
+      { id: 'ureia', name: 'Ureia', targetAmount: 10 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 65 }
+    ],
+    pop: 'Aquecer a fase oleosa e a fase aquosa separadamente a ~70 °C; verter a aquosa sobre a oleosa sob agitação até esfriar; incorporar a ureia dissolvida após o resfriamento.',
+    mix: 'heat', mixSteps: ['heat', 'stir'], mixTitles: { heat: 'Aquecimento das fases', stir: 'Emulsificação sob agitação' },
+    heatPhases: [{ name: 'Fase oleosa (Lanette + óleo mineral)', lo: 68, hi: 76 }, { name: 'Fase aquosa (água + glicerina)', lo: 68, hi: 76 }],
+    requires: ['banho_maria'],
+    storage: 'Pote bem fechado, em local fresco',
+    teach: 'Semissólido · Creme O/A: aquecimento controlado das fases e emulsificação.'
+  },
+  pomada_salicilico: {
+    id: 'pomada_salicilico', name: 'Pomada de Ácido Salicílico 5%', patient: 'Pescador Tiago',
+    symptom: 'Calosidades nos pés por causa das botas molhadas.', type: 'Semi-sólida (Pomada)',
+    reward: 80, unlockCost: 100, reqRep: 112,
+    ingredients: [
+      { id: 'acido_salicilico', name: 'Ácido Salicílico', targetAmount: 5 },
+      { id: 'oleo_mineral', name: 'Óleo Mineral (levigante)', targetAmount: 5 },
+      { id: 'lanolina', name: 'Lanolina Anidra', targetAmount: 20 },
+      { id: 'vaselina_solida', name: 'Vaselina Sólida q.s.p.', targetAmount: 70 }
+    ],
+    pop: 'Fundir a vaselina e a lanolina em banho-maria; levigar o ácido salicílico com o óleo mineral no gral e incorporar a base ainda morna, misturando até esfriar.',
+    mix: 'heat', mixSteps: ['heat', 'grind'], mixTitles: { heat: 'Fusão da base', grind: 'Levigação e incorporação' },
+    heatPhases: [{ name: 'Fusão da vaselina e da lanolina', lo: 60, hi: 70 }],
+    requires: ['banho_maria'],
+    storage: 'Pote bem fechado, em local fresco e ao abrigo da luz',
+    teach: 'Semissólido · Pomada: fusão de bases, levigação do fármaco e incorporação.'
+  },
+  gel_aloe: {
+    id: 'gel_aloe', name: 'Gel de Aloe Vera Pós-Sol', patient: 'Jardineira Rosa',
+    symptom: 'Pele vermelha e ardida depois de um dia de sol na horta.', type: 'Semi-sólida (Gel)',
+    reward: 80, unlockCost: 100, reqRep: 110,
+    ingredients: [
+      { id: 'carbopol', name: 'Carbômero (Carbopol 940)', targetAmount: 0.5 },
+      { id: 'glicerina', name: 'Glicerina Bi-destilada', targetAmount: 5 },
+      { id: 'aloe_vera', name: 'Gel de Aloe Vera', targetAmount: 5 },
+      { id: 'trietanolamina', name: 'Trietanolamina (ajuste do pH)', targetAmount: 0.5 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 89 }
+    ],
+    pop: 'Dispersar o Carbopol na água sem formar grumos; neutralizar com trietanolamina até a formação do gel; incorporar a glicerina e o aloe.',
+    mix: 'gel', mixTitle: 'Neutralização do Carbopol',
+    requires: ['phmetro'],
+    storage: 'Bem fechado; após aberto, conservar em geladeira',
+    teach: 'Semissólido · Gel hidrofílico com ativo vegetal: dispersão do polímero e controle do pH.'
+  },
+  /* ---------------- LÍQUIDAS ---------------- */
+  suspensao_antiacida: {
+    id: 'suspensao_antiacida', name: 'Suspensão Antiácida (Al(OH)₃ + Mg(OH)₂)', patient: 'Sr. Anselmo',
+    symptom: 'Azia depois das refeições fartas da festa da vila.', type: 'Líquida (Suspensão)',
+    reward: 85, unlockCost: 100, reqRep: 112,
+    ingredients: [
+      { id: 'hidroxido_aluminio', name: 'Hidróxido de Alumínio', targetAmount: 4 },
+      { id: 'hidroxido_magnesio', name: 'Hidróxido de Magnésio', targetAmount: 4 },
+      { id: 'cmc', name: 'Carboximetilcelulose Sódica (suspensor)', targetAmount: 0.5 },
+      { id: 'glicerina', name: 'Glicerina Bi-destilada (molhante)', targetAmount: 5 },
+      { id: 'xarope_base', name: 'Xarope Simples Base', targetAmount: 20 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 66.5 }
+    ],
+    pop: 'Molhar os pós com a glicerina (levigação) e dispersar no veículo já espessado com o agente suspensor, sob agitação. Rotular com "agite antes de usar".',
+    mix: 'grind', mixSteps: ['grind', 'stir'], mixTitles: { grind: 'Molhagem e levigação dos pós', stir: 'Dispersão no veículo sob agitação' },
+    requires: ['agitador'],
+    storage: 'Frasco bem fechado; agitar antes de usar',
+    teach: 'Líquido · Suspensão: molhagem do pó, agente suspensor e redispersibilidade.'
+  },
+  emulsao_ricino: {
+    id: 'emulsao_ricino', name: 'Emulsão Oral de Óleo de Rícino', patient: 'Tia Nena',
+    symptom: 'Intestino preso depois de dias de viagem.', type: 'Líquida (Emulsão)',
+    reward: 75, unlockCost: 90, reqRep: 110,
+    ingredients: [
+      { id: 'oleo_ricino', name: 'Óleo de Rícino', targetAmount: 40 },
+      { id: 'goma_arabica', name: 'Goma Arábica (emulsificante)', targetAmount: 10 },
+      { id: 'agua_purificada', name: 'Água Purificada (20 na primária, o resto na diluição)', targetAmount: 45 },
+      { id: 'xarope_base', name: 'Xarope Simples Base', targetAmount: 5 }
+    ],
+    pop: 'Método continental (goma seca), proporção 4:2:1: triturar a goma com o óleo, adicionar a água da emulsão primária de uma só vez, triturar até o "estalo" e diluir aos poucos com o restante do veículo.',
+    mix: 'grind', mixSteps: ['quiz', 'grind', 'stir'], mixTitles: { quiz: 'Emulsão primária', grind: 'Emulsão primária no gral (o "estalo")', stir: 'Diluição gradual da emulsão' },
+    quiz: { q: 'Qual a proporção óleo : água : goma da emulsão primária para óleos fixos, como o de rícino?', options: ['2 : 2 : 1', '3 : 2 : 1', '4 : 2 : 1'], correct: '4 : 2 : 1',
+      explain: 'Para óleos fixos usa-se 4:2:1. Óleos voláteis pedem proporções como 2:2:1 ou 3:2:1, e alguns textos indicam 3:2:1 também para óleo mineral.' },
+    requires: [],
+    storage: 'Frasco bem fechado, ao abrigo da luz; agitar antes de usar',
+    teach: 'Líquido · Emulsão O/A: método da goma seca, proporção 4:2:1 e diluição da emulsão primária.'
+  },
+  tintura_boldo: {
+    id: 'tintura_boldo', name: 'Tintura de Boldo 20%', patient: 'Dona Cida',
+    symptom: 'Digestão pesada depois do almoço de domingo.', type: 'Líquida (Tintura)',
+    reward: 80, unlockCost: 90, reqRep: 108,
+    ingredients: [
+      { id: 'boldo', name: 'Boldo (folhas secas moídas)', targetAmount: 20 },
+      { id: 'alcool_70', name: 'Álcool Etílico 70%', targetAmount: 80 }
+    ],
+    pop: 'Macerar a droga vegetal moída no álcool 70% em frasco âmbar, com agitação periódica; filtrar e completar o volume (relação 1:5).',
+    mix: 'stir', mixTitle: 'Maceração com agitação periódica',
+    requires: ['frasco_ambar'],
+    storage: 'Frasco âmbar bem fechado, ao abrigo da luz e do calor',
+    teach: 'Líquido · Tintura: extração hidroalcoólica por maceração e relação droga:solvente.'
+  },
+  colutorio_malva: {
+    id: 'colutorio_malva', name: 'Colutório de Malva e Hortelã (infuso)', patient: 'Ceramista Iara',
+    symptom: 'Garganta irritada pelo pó do forno de cerâmica.', type: 'Líquida (Infuso)',
+    reward: 60, unlockCost: 70, reqRep: 106,
+    ingredients: [
+      { id: 'malva', name: 'Malva (folhas secas)', targetAmount: 3 },
+      { id: 'hortela', name: 'Hortelã-pimenta (folhas secas)', targetAmount: 1 },
+      { id: 'glicerina', name: 'Glicerina Bi-destilada', targetAmount: 5 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 91 }
+    ],
+    pop: 'Preparar por infusão: verter a água quente sobre a droga vegetal, tampar e abafar por 10 a 15 minutos; coar e adicionar a glicerina. Uso externo, sem engolir.',
+    mix: 'heat', mixSteps: ['heat', 'stir'], mixTitles: { heat: 'Água para a infusão', stir: 'Abafar e coar' },
+    heatPhases: [{ name: 'Água quente para a infusão', lo: 85, hi: 95 }],
+    requires: ['banho_maria'],
+    storage: 'Preparar na hora; se guardar, em frasco limpo na geladeira',
+    teach: 'Líquido · Infuso: extração de droga vegetal com água quente.'
+  },
+  solucao_citronela: {
+    id: 'solucao_citronela', name: 'Solução Hidroalcoólica de Citronela', patient: 'Carteiro Dudu',
+    symptom: 'Pernilongos durante as entregas ao fim da tarde.', type: 'Líquida (Solução)',
+    reward: 70, unlockCost: 80, reqRep: 108,
+    ingredients: [
+      { id: 'citronela', name: 'Citronela (extrato)', targetAmount: 10 },
+      { id: 'alcool_70', name: 'Álcool Etílico 70%', targetAmount: 60 },
+      { id: 'glicerina', name: 'Glicerina Bi-destilada', targetAmount: 2 },
+      { id: 'agua_purificada', name: 'Água Purificada q.s.p.', targetAmount: 28 }
+    ],
+    pop: 'Extrair/dissolver no álcool 70%, filtrar, completar com a água e a glicerina e homogeneizar.',
+    mix: 'stir', mixTitle: 'Dissolução e homogeneização',
+    requires: ['frasco_ambar'],
+    storage: 'Frasco bem fechado, longe do calor e do fogo (contém álcool)',
+    teach: 'Líquido · Solução hidroalcoólica: escolha do solvente e dissolução dos componentes.'
+  }
+});
+
+SHOP_ITEMS.push(
+  { id: 'melatonina', name: 'Melatonina (5 g)', cost: 60, qty: 5 },
+  { id: 'celulose_mcc', name: 'Celulose Microcristalina (250 g)', cost: 25, qty: 100 },
+  { id: 'estearato_mg', name: 'Estearato de Magnésio (50 g)', cost: 15, qty: 20 },
+  { id: 'lanette', name: 'Base Autoemulsionante Lanette N (250 g)', cost: 28, qty: 100 },
+  { id: 'oleo_mineral', name: 'Óleo Mineral (200 ml)', cost: 14, qty: 100 },
+  { id: 'ureia', name: 'Ureia (100 g)', cost: 12, qty: 50 },
+  { id: 'acido_salicilico', name: 'Ácido Salicílico (50 g)', cost: 20, qty: 20 },
+  { id: 'lanolina', name: 'Lanolina Anidra (100 g)', cost: 22, qty: 50 },
+  { id: 'vaselina_solida', name: 'Vaselina Sólida (500 g)', cost: 24, qty: 200 },
+  { id: 'hidroxido_aluminio', name: 'Hidróxido de Alumínio (100 g)', cost: 18, qty: 50 },
+  { id: 'hidroxido_magnesio', name: 'Hidróxido de Magnésio (100 g)', cost: 18, qty: 50 },
+  { id: 'cmc', name: 'Carboximetilcelulose Sódica (50 g)', cost: 20, qty: 20 },
+  { id: 'goma_arabica', name: 'Goma Arábica (100 g)', cost: 20, qty: 50 },
+  { id: 'oleo_ricino', name: 'Óleo de Rícino (200 ml)', cost: 16, qty: 100 },
+  { id: 'alcool_70', name: 'Álcool Etílico 70% (1 L)', cost: 14, qty: 300 },
+  { id: 'aloe_vera', name: 'Gel de Aloe Vera (pronto, 50 g)', cost: 38, qty: 50 },
+  { id: 'boldo', name: 'Boldo, folhas secas (50 g)', cost: 34, qty: 50 },
+  { id: 'citronela', name: 'Citronela seca (50 g)', cost: 40, qty: 50 },
+  { id: 'hortela', name: 'Hortelã-pimenta seca (50 g)', cost: 24, qty: 50 },
+  { id: 'malva', name: 'Malva seca (50 g)', cost: 28, qty: 50 }
+);
+
+const STARTER_EQUIP = ['balanca_semi', 'gral', 'encapsuladora', 'proveta'];
+const EQUIPMENT = {
+  balanca_semi: { name: 'Balança semianalítica (0,01 g)', starter: true, desc: 'Pesagens de rotina.' },
+  gral: { name: 'Gral e pistilo de porcelana', starter: true, desc: 'Trituração, levigação e emulsão primária.' },
+  encapsuladora: { name: 'Encapsuladora manual (cápsulas nº 3)', starter: true, desc: 'Enchimento de cápsulas gelatinosas duras.' },
+  proveta: { name: 'Provetas e béqueres graduados', starter: true, desc: 'Medida de volumes e preparo de líquidos.' },
+  balanca_analitica: { name: 'Balança analítica (0,1 mg)', cost: 180, cat: 'bancada', desc: 'Obrigatória para doses muito pequenas. Deixa o despejo mais suave e as pitadas mais finas.', uses: 'Cápsulas de melatonina' },
+  tamis: { name: 'Tamis de 80 mesh', cost: 45, cat: 'bancada', desc: 'Padroniza a granulometria dos pós antes da mistura.', uses: 'Pó dermatológico' },
+  banho_maria: { name: 'Banho-maria com controle de temperatura', cost: 110, cat: 'bancada', desc: 'Aquece e funde bases, fases de emulsão e água de infusão.', uses: 'Creme de ureia, pomada salicílica, colutório' },
+  agitador: { name: 'Agitador mecânico de hélice', cost: 140, cat: 'bancada', desc: 'Dispersa suspensões e emulsões. Alarga a faixa de acerto na agitação.', uses: 'Suspensão antiácida' },
+  phmetro: { name: 'pHmetro de bancada', cost: 160, cat: 'bancada', desc: 'Mede o pH durante a neutralização de géis com Carbopol.', uses: 'Gel de camomila, gel de aloe' },
+  frasco_ambar: { name: 'Kit de frascos âmbar com tampa', cost: 30, cat: 'bancada', desc: 'Maceração e guarda de tinturas e soluções sensíveis à luz.', uses: 'Tintura de boldo, solução de citronela' },
+  irrigacao: { name: 'Irrigação por gotejamento', cost: 150, cat: 'estufa', desc: 'Rega automaticamente todos os canteiros plantados ao fechar o dia.' },
+  telas: { name: 'Telas anti-insetos', cost: 120, cat: 'estufa', desc: 'Reduz a chance diária de pragas de 25% para 10%.' }
+};
+const hasEq = id => G.equipment.indexOf(id) >= 0;
+
+const INGREDIENT_NAMES = {};
+Object.values(FORMULATIONS).forEach(f => f.ingredients.forEach(i => INGREDIENT_NAMES[i.id] = i.name));
+
+const SEASONS = ['🌸 Primavera', '☀️ Verão', '🍁 Outono', '❄️ Inverno'];
+const EPIDEMICS = [
+  { id: 'gripe', name: 'Surto de Gripe de Inverno', targetType: 'Líquida (Xarope)', bonus: 1.6, msg: '❄️ Surto de gripe! Xaropes valem +60%.' },
+  { id: 'alergia', name: 'Surto de Dermatite Solar', targetType: 'Semi-sólida (Pasta)', bonus: 1.5, msg: '☀️ Surto de alergias de pele! Pastas, géis e pomadas valem +50%.' },
+  { id: 'imunidade', name: 'Virose de Primavera', targetType: 'Sólida (Cápsulas)', bonus: 1.5, msg: '🌸 Virose sazonal! Cápsulas de reforço imunológico valem +50%.' }
+];
+const matchesOutbreak = form => !!(G.activeOutbreak && form.type.includes(G.activeOutbreak.targetType.split(' ')[0]));
+
+const MACAW_TIPS = [
+  'Lave as mãos e use touca e luvas antes de manipular!',
+  'Diluição geométrica: comece pelo componente em menor quantidade.',
+  'O Carbopol só forma gel depois de neutralizado por uma base, como a trietanolamina.',
+  'Pasta d’água: levigue os pós com a glicerina antes de juntar a água.',
+  'Todo lote precisa de rótulo e número de lote. Rastreabilidade!',
+  'Pesou demais? Não devolva ao frasco: contaminação cruzada é coisa séria.',
+  'Pragas na estufa? O extrato biológico salva a colheita.',
+  'Confira o rótulo duas vezes. Paciente certo, produto certo!',
+  'Squawk! Um lote com desvio acima de 5% não passa no controle de qualidade.'
+];
+
+/* ==========================================================================
+   ESTADO E SAVE
+   ========================================================================== */
+const STORAGE_KEY = 'botica_arara_azul_v7_cozy';
+const defaultState = () => ({
+  money: 150, reputation: 100, day: 1, seasonIndex: 0, activeOutbreak: null,
+  unlockedFormulas: ['capsulas_vit_c', 'pasta_dagua', 'xarope_guaco'],
+  inventory: {
+    vitamina_c: 50, zinco: 20, amido: 100, oxido_zinco: 100, talco: 100, glicerina: 100,
+    agua_purificada: 200, guaco: 50, xarope_base: 150, camomila: 50, calendula: 50,
+    carbopol: 20, trietanolamina: 20, base_creme: 100, calda_fumo: 2,
+    melatonina: 0, celulose_mcc: 0, estearato_mg: 0, lanette: 0, oleo_mineral: 0, ureia: 0, acido_salicilico: 0, lanolina: 0, vaselina_solida: 0,
+    hidroxido_aluminio: 0, hidroxido_magnesio: 0, cmc: 0, goma_arabica: 0, oleo_ricino: 0, alcool_70: 0,
+    aloe_vera: 0, boldo: 0, lavanda: 0, citronela: 0, hortela: 0, malva: 0
+  },
+  equipment: ['balanca_semi', 'gral', 'encapsuladora', 'proveta'],
+  garden: [
+    { id: 0, unlocked: true, seedKey: 'camomila', stage: 2, watered: true, hasPest: false },
+    { id: 1, unlocked: true, seedKey: 'guaco', stage: 1, watered: false, hasPest: false },
+    { id: 2, unlocked: true, seedKey: null, stage: 0, watered: false, hasPest: false },
+    { id: 3, unlocked: false, cost: 80, reqRep: 15, seedKey: null, stage: 0, watered: false, hasPest: false },
+    { id: 4, unlocked: false, cost: 120, reqRep: 120, seedKey: null, stage: 0, watered: false, hasPest: false },
+    { id: 5, unlocked: false, cost: 140, reqRep: 135, seedKey: null, stage: 0, watered: false, hasPest: false },
+    { id: 6, unlocked: false, cost: 170, reqRep: 150, seedKey: null, stage: 0, watered: false, hasPest: false },
+    { id: 7, unlocked: false, cost: 200, reqRep: 170, seedKey: null, stage: 0, watered: false, hasPest: false }
+  ],
+  batchLogs: [], orders: [], tutorialSeen: false
+});
+let G = defaultState();
+
+function saveGame() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(G)); } catch (e) { /* armazenamento indisponível */ } }
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const loaded = JSON.parse(raw);
+    const D = defaultState();
+    G = Object.assign(D, loaded);
+    G.inventory = Object.assign(defaultState().inventory, loaded.inventory || {});
+    if (!Array.isArray(G.equipment)) G.equipment = defaultState().equipment;
+    defaultState().equipment.forEach(id => { if (G.equipment.indexOf(id) < 0) G.equipment.push(id); });
+    const DG = defaultState().garden; while (G.garden.length < DG.length) G.garden.push(DG[G.garden.length]);
+    return true;
+  } catch (e) { return false; }
+}
+/* ==========================================================================
+   MUNDO: CANVAS, CENÁRIO, PERSONAGENS
+   ========================================================================== */
+const W = 800, H = 520;
+const cv = $('#world'), ctx = cv.getContext('2d');
+const RATIO = Math.min(window.devicePixelRatio || 1, 2);
+cv.width = W * RATIO; cv.height = H * RATIO;
+const bg = document.createElement('canvas'); bg.width = W * RATIO; bg.height = H * RATIO;
+
+const WALL_H = 170, COUNTER_TOP = 276;
+const WALK = { x0: 30, x1: 770, y0: 184, y1: 268 };
+const SLOTS = [120, 260, 400, 540, 680], SLOT_Y = 350, DOOR = { x: 400, y: 552 };
+const GARDEN_X = [634, 677, 720, 763, 634, 677, 720, 763], GARDEN_Y = [150, 150, 150, 150, 86, 86, 86, 86];
+const STATIONS = [
+  { id: 'shop', label: 'Abrir o armazém', x: 112, y: 200, r: 62, hit: [28, 54, 176, 118] },
+  { id: 'book', label: 'Ler o livro de fórmulas', x: 230, y: 200, r: 50, hit: [200, 96, 62, 76] },
+  { id: 'lab', label: 'Ir para a bancada', x: 400, y: 200, r: 78, hit: [266, 76, 264, 96] },
+  { id: 'bpm', label: 'Ver os relatórios BPM', x: 568, y: 200, r: 44, hit: [544, 54, 48, 62] },
+  { id: 'garden', label: 'Cuidar da estufa', x: 700, y: 200, r: 72, hit: [604, 32, 194, 142] },
+  { id: 'macaw', label: 'Conversar com a arara', x: 46, y: 262, r: 40, hit: [22, 208, 50, 70] },
+  { id: 'lamp', label: 'Acender o lampião e fechar o dia', x: 760, y: 262, r: 40, hit: [744, 240, 32, 48] }
+];
+
+/* ---------- desenho utilitário ---------- */
+function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function fillRR(c, x, y, w, h, r, fill, stroke, lw) { rr(c, x, y, w, h, r); if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw || 2; c.stroke(); } }
+function ell(c, x, y, rx, ry, fill, stroke, lw) { c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw || 2; c.stroke(); } }
+function circ(c, x, y, r, fill, stroke, lw) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw || 2; c.stroke(); } }
+function seeded(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+const INK = '#2a1a12';
+
+/* ---------- cenário estático ---------- */
+function jar(c, x, yb, w, h, col) {
+  fillRR(c, x, yb - h, w, h, 4, 'rgba(255,255,255,.6)', '#3a2b45', 1.6);
+  fillRR(c, x + 2, yb - h * 0.62, w - 4, h * 0.6 - 2, 3, col);
+  fillRR(c, x + 1, yb - h - 4, w - 2, 6, 2, '#c9a26a', '#3a2b45', 1.4);
+  fillRR(c, x + w * 0.2, yb - h * 0.52, w * 0.6, h * 0.22, 2, '#fffaf0');
+}
+function bottle(c, x, yb, col) {
+  fillRR(c, x + 4, yb - 40, 8, 10, 2, 'rgba(255,255,255,.7)', '#3a2b45', 1.4);
+  fillRR(c, x, yb - 32, 16, 32, 6, col, '#3a2b45', 1.6);
+  fillRR(c, x + 3, yb - 20, 10, 9, 2, '#fffaf0');
+  fillRR(c, x + 4, yb - 44, 8, 5, 2, '#c9a26a', '#3a2b45', 1.2);
+}
+function bigPlant(c, x, y, tone) {
+  c.beginPath(); c.moveTo(x - 20, y - 26); c.lineTo(x + 20, y - 26); c.lineTo(x + 15, y + 12); c.lineTo(x - 15, y + 12); c.closePath();
+  c.fillStyle = tone; c.fill(); c.strokeStyle = INK; c.lineWidth = 2.5; c.stroke();
+  fillRR(c, x - 23, y - 32, 46, 9, 4, tone, INK, 2.2);
+  const leaves = [[-26, -58, -.7], [-10, -74, -.25], [8, -78, .2], [26, -56, .7], [0, -50, 0], [-18, -46, -.4], [18, -46, .4]];
+  leaves.forEach(([dx, dy, a], i) => {
+    c.save(); c.translate(x + dx * .4, y - 30); c.rotate(a);
+    ell(c, 0, dy * .55, 12, 22, i % 2 ? '#5aa871' : '#48965f', '#2f6b45', 1.6); c.restore();
+  });
+}
+function buildBackground() {
+  const c = bg.getContext('2d'); c.setTransform(RATIO, 0, 0, RATIO, 0, 0);
+  const R = seeded(11); let g;
+  // parede
+  g = c.createLinearGradient(0, 0, 0, WALL_H); g.addColorStop(0, '#bfa5cc'); g.addColorStop(1, '#a486b3');
+  c.fillStyle = g; c.fillRect(0, 0, W, WALL_H);
+  c.fillStyle = 'rgba(255,255,255,.07)'; for (let x = 0; x < W; x += 44) c.fillRect(x, 0, 22, 132);
+  for (let y = 34; y < 120; y += 34) for (let x = (y % 68 ? 32 : 10); x < W; x += 44) ell(c, x, y, 3.4, 1.8, 'rgba(255,255,255,.16)');
+  c.fillStyle = '#6d5480'; c.fillRect(0, 132, W, 40);
+  for (let x = 8; x < W; x += 54) fillRR(c, x, 138, 44, 26, 5, '#7f6597');
+  c.fillStyle = '#8e74a5'; c.fillRect(0, 130, W, 4);
+  c.fillStyle = '#4c3a5a'; c.fillRect(0, 166, W, 6);
+  // piso
+  const planks = (y0, y1, base) => {
+    c.fillStyle = base; c.fillRect(0, y0, W, y1 - y0);
+    for (let y = y0; y < y1; y += 22) {
+      c.fillStyle = 'rgba(60,30,20,.13)'; c.fillRect(0, y, W, 1.6);
+      let x = -R() * 90; while (x < W) { c.fillRect(x, y, 1.6, 22); x += 70 + R() * 90; }
+    }
+    for (let i = 0; i < 50; i++) { c.fillStyle = 'rgba(255,240,220,' + (.03 + R() * .05) + ')'; c.fillRect(R() * W, y0 + R() * (y1 - y0), 30 + R() * 60, 6); }
+  };
+  planks(172, 324, '#bb8e68'); planks(324, H, '#d9b891');
+  g = c.createLinearGradient(0, 172, 0, 215); g.addColorStop(0, 'rgba(40,20,50,.32)'); g.addColorStop(1, 'rgba(40,20,50,0)');
+  c.fillStyle = g; c.fillRect(0, 172, W, 43);
+  // tapete
+  ell(c, 400, 434, 238, 66, '#8d6f9b'); ell(c, 400, 434, 226, 58, '#a58bb0');
+  c.strokeStyle = '#eadaf0'; c.lineWidth = 2; c.setLineDash([9, 7]); c.beginPath(); c.ellipse(400, 434, 208, 48, 0, 0, Math.PI * 2); c.stroke(); c.setLineDash([]);
+  for (let i = -5; i <= 5; i++) { const x = 400 + i * 34; c.fillStyle = 'rgba(255,255,255,.22)'; c.beginPath(); c.moveTo(x, 418); c.lineTo(x + 9, 434); c.lineTo(x, 450); c.lineTo(x - 9, 434); c.closePath(); c.fill(); }
+
+  // estante do armazém
+  fillRR(c, 28, 54, 174, 116, 8, '#6f4a31', INK, 3); fillRR(c, 35, 61, 160, 102, 5, '#553622');
+  [98, 132, 166].forEach(y => { c.fillStyle = '#8a5c3b'; c.fillRect(30, y, 170, 7); c.fillStyle = '#3a2416'; c.fillRect(30, y + 7, 170, 2); });
+  ['#e7a3c0', '#9fd0b8', '#f1cf7b', '#a9c7e2', '#c9a5df'].forEach((col, i) => jar(c, 42 + i * 30, 98, 22, 30, col));
+  ['#d98aa7', '#79b295', '#eab85f', '#8ab6d3', '#b58ac9'].forEach((col, i) => bottle(c, 44 + i * 30, 132, col));
+  for (let i = 0; i < 3; i++) {
+    fillRR(c, 44 + i * 50, 146, 42, 20, 4, '#b98a55', INK, 1.6);
+    for (let k = 0; k < 6; k++) ell(c, 50 + i * 50 + k * 6, 146, 4, 6, ['#79b295', '#9bc27a', '#c9a5df'][i]);
+  }
+  // atril com o livro
+  c.fillStyle = '#6f4a31'; c.fillRect(224, 140, 8, 28); fillRR(c, 212, 164, 32, 6, 3, '#553622', INK, 1.5);
+  c.beginPath(); c.moveTo(206, 116); c.lineTo(252, 116); c.lineTo(258, 142); c.lineTo(200, 142); c.closePath();
+  c.fillStyle = '#8a5c3b'; c.fill(); c.strokeStyle = INK; c.lineWidth = 2; c.stroke();
+  fillRR(c, 207, 104, 44, 30, 3, '#f6efe0', INK, 2); c.fillStyle = '#d9cdb4'; c.fillRect(228, 104, 2, 30);
+  for (let i = 0; i < 4; i++) { c.fillStyle = '#b9a98a'; c.fillRect(211, 110 + i * 6, 14, 1.6); c.fillRect(233, 110 + i * 6, 14, 1.6); }
+  fillRR(c, 244, 130, 3, 10, 1, '#e79ab8');
+  // bancada do laboratório
+  fillRR(c, 274, 138, 244, 32, 4, '#7b5236', INK, 2.5);
+  for (let i = 0; i < 3; i++) { fillRR(c, 282 + i * 80, 143, 72, 22, 3, '#94663f', INK, 1.6); circ(c, 318 + i * 80, 154, 2.6, '#e6c27a'); }
+  fillRR(c, 266, 118, 260, 22, 5, '#e0b47e', INK, 2.5); c.fillStyle = 'rgba(255,255,255,.28)'; c.fillRect(272, 121, 248, 3);
+  //  balança analítica
+  fillRR(c, 296, 106, 50, 12, 3, '#dcd8e2', '#3a2b45', 1.8); fillRR(c, 300, 86, 42, 22, 4, 'rgba(200,225,240,.5)', '#3a2b45', 1.8);
+  fillRR(c, 310, 100, 22, 4, 1.5, '#f4f1f7', '#3a2b45', 1); fillRR(c, 304, 90, 14, 7, 1.5, '#1f3d32'); c.fillStyle = '#8be3b5'; c.fillRect(306, 92, 9, 2);
+  //  gral e pistilo
+  ell(c, 392, 118, 22, 5, 'rgba(0,0,0,.16)');
+  c.beginPath(); c.moveTo(371, 98); c.quadraticCurveTo(371, 119, 392, 119); c.quadraticCurveTo(413, 119, 413, 98); c.closePath();
+  c.fillStyle = '#f3efe8'; c.fill(); c.strokeStyle = '#3a2b45'; c.lineWidth = 2; c.stroke(); ell(c, 392, 98, 21, 5, '#e3dccf', '#3a2b45', 1.6);
+  c.save(); c.translate(402, 98); c.rotate(.55); fillRR(c, -3, -30, 7, 34, 3, '#f3efe8', '#3a2b45', 1.6); c.restore();
+  //  béquer e erlenmeyer
+  fillRR(c, 440, 92, 28, 28, 3, 'rgba(210,232,245,.55)', '#3a2b45', 1.8); fillRR(c, 442, 104, 24, 14, 2, 'rgba(126,168,196,.8)');
+  for (let i = 0; i < 3; i++) { c.fillStyle = '#3a2b45'; c.fillRect(440, 97 + i * 6, 6, 1.4); }
+  c.beginPath(); c.moveTo(490, 88); c.lineTo(500, 88); c.lineTo(500, 98); c.lineTo(512, 118); c.lineTo(478, 118); c.lineTo(490, 98); c.closePath();
+  c.fillStyle = 'rgba(210,232,245,.55)'; c.fill(); c.strokeStyle = '#3a2b45'; c.lineWidth = 1.8; c.stroke();
+  c.beginPath(); c.moveTo(488, 106); c.lineTo(502, 106); c.lineTo(510, 117); c.lineTo(480, 117); c.closePath(); c.fillStyle = 'rgba(231,154,184,.85)'; c.fill();
+  //  ervas penduradas
+  c.strokeStyle = '#7b5236'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(376, 14); c.lineTo(420, 14); c.stroke();
+  [[382, '#9b6fd6'], [398, '#79b295'], [414, '#eab85f']].forEach(([x, col]) => {
+    c.strokeStyle = '#7b5236'; c.beginPath(); c.moveTo(x, 14); c.lineTo(x, 34); c.stroke();
+    for (let k = 0; k < 5; k++) ell(c, x + (k - 2) * 2.4, 46 + Math.abs(k - 2) * 1.6, 2.8, 12, col);
+  });
+  // prancheta BPM
+  fillRR(c, 546, 58, 44, 56, 5, '#c69c66', INK, 2); fillRR(c, 552, 68, 32, 40, 2, '#fffaf0');
+  for (let i = 0; i < 4; i++) { c.fillStyle = '#b9a98a'; c.fillRect(562, 74 + i * 9, 18, 1.8); c.strokeStyle = '#2f7d59'; c.lineWidth = 1.8; c.beginPath(); c.moveTo(555, 75 + i * 9); c.lineTo(558, 78 + i * 9); c.lineTo(561, 72 + i * 9); c.stroke(); }
+  fillRR(c, 558, 53, 20, 10, 3, '#b8b8c4', INK, 1.6);
+  // estufa (alcova de vidro)
+  g = c.createLinearGradient(0, 34, 0, 168); g.addColorStop(0, '#d3ede1'); g.addColorStop(1, '#a3d1be');
+  fillRR(c, 606, 34, 190, 134, 10, g, '#4f8a6f', 6);
+  c.strokeStyle = '#4f8a6f'; c.lineWidth = 3;
+  [653, 701, 748].forEach(x => { c.beginPath(); c.moveTo(x, 38); c.lineTo(x, 166); c.stroke(); });
+  fillRR(c, 612, 164, 182, 8, 3, '#8b5e3c', INK, 2);
+  // mesa lateral de equipamentos
+  fillRR(c, 526, 142, 80, 8, 3, '#a06e45', INK, 2); c.fillStyle = '#6f4a31'; c.fillRect(530, 150, 6, 20); c.fillRect(596, 150, 6, 20);
+  // balcão
+  fillRR(c, -4, 296, W + 8, 28, 0, '#6d5480'); c.fillStyle = '#d6a94e'; c.fillRect(0, 296, W, 3);
+  for (let x = 10; x < W; x += 62) fillRR(c, x, 304, 52, 16, 4, '#82679a', '#4c3a5a', 1.5);
+  fillRR(c, -6, COUNTER_TOP, W + 12, 22, 6, '#e8caa5', INK, 2.5); c.fillStyle = 'rgba(255,255,255,.4)'; c.fillRect(0, 279, W, 3);
+  g = c.createLinearGradient(0, 324, 0, 348); g.addColorStop(0, 'rgba(40,20,50,.3)'); g.addColorStop(1, 'rgba(40,20,50,0)'); c.fillStyle = g; c.fillRect(0, 324, W, 24);
+  // itens do balcão
+  c.beginPath(); c.arc(300, 288, 10, Math.PI, 0); c.closePath(); c.fillStyle = '#e2b04a'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.8; c.stroke();
+  fillRR(c, 289, 287, 22, 4, 2, '#c48e2a', INK, 1.4); circ(c, 300, 277, 2.4, '#c48e2a');
+  fillRR(c, 462, 279, 20, 11, 3, '#e79ab8', INK, 1.8); for (let k = 0; k < 5; k++) ell(c, 472 + (k - 2) * 4, 275, 3, 7, k % 2 ? '#5aa871' : '#79b295');
+  fillRR(c, 540, 288, 46, 5, 3, '#c69c66', INK, 1.5); fillRR(c, 546, 272, 15, 17, 2, '#fffaf0', INK, 1.5); fillRR(c, 565, 275, 15, 14, 2, '#f6d9e6', INK, 1.5);
+  // poleiro da arara e lampião
+  c.fillStyle = '#8a5c3b'; c.fillRect(42, 258, 5, 28); fillRR(c, 26, 284, 38, 6, 3, '#8a5c3b', INK, 1.5); fillRR(c, 28, 256, 34, 5, 2.5, '#a06e45', INK, 1.5);
+  fillRR(c, 752, 284, 26, 6, 3, '#5b3f66', INK, 1.5); fillRR(c, 756, 246, 18, 6, 3, '#3a2b45', INK, 1.5); circ(c, 765, 243, 3, '#3a2b45');
+  // porta e tapete de entrada
+  c.fillStyle = '#2a1e33'; c.fillRect(336, 512, 128, 8);
+  fillRR(c, 350, 486, 100, 28, 9, '#7d5d8a', INK, 2.2); c.strokeStyle = '#c9b0d4'; c.lineWidth = 2; c.setLineDash([6, 5]); rr(c, 358, 492, 84, 16, 5); c.stroke(); c.setLineDash([]);
+  // decoração
+  bigPlant(c, 40, 484, '#8b6b93'); bigPlant(c, 762, 486, '#c98aa8');
+  fillRR(c, 138, 470, 78, 26, 8, '#8a5c3b', INK, 2); fillRR(c, 132, 462, 90, 12, 6, '#a06e45', INK, 2);
+  fillRR(c, 584, 470, 78, 26, 8, '#8a5c3b', INK, 2); fillRR(c, 578, 462, 90, 12, 6, '#a06e45', INK, 2);
+  fillRR(c, 148, 452, 58, 12, 6, '#c9a5df', INK, 1.8); fillRR(c, 594, 452, 58, 12, 6, '#e79ab8', INK, 1.8);
+}
+
+/* ---------- personagens ---------- */
+function drawHair(c, p, dir, hx) {
+  const h = p.hair, st = p.style, back = dir === 'up', front = dir === 'down', f = dir === 'left' ? -1 : 1;
+  if (back) circ(c, hx, -39, 12.8, h);
+  else {
+    c.fillStyle = h; c.beginPath(); c.arc(hx, -39, 12.8, Math.PI, 2 * Math.PI); c.closePath(); c.fill();
+    if (front) { c.beginPath(); c.ellipse(hx, -43, 11.6, 3.4, 0, 0, Math.PI); c.fill(); } else ell(c, hx - f * 6, -37, 6.5, 9.5, h);
+  }
+  switch (st) {
+    case 'bun': circ(c, hx, -53, 6.2, h); circ(c, hx, -53, 2.2, p.accent); break;
+    case 'bob': if (front || back) { fillRR(c, hx - 14.5, -43, 5.5, 17, 3, h); fillRR(c, hx + 9, -43, 5.5, 17, 3, h); } else fillRR(c, hx - f * 9 - 3.5, -43, 7, 18, 3, h); break;
+    case 'curly': [-2, -1, 0, 1, 2].forEach(i => circ(c, hx + i * 5.6, -50 + Math.abs(i) * 2.2, 5.6, h)); break;
+    case 'ponytail': if (back) ell(c, hx, -27, 4.6, 10, h); else if (front) ell(c, hx + 13.5, -33, 3.8, 9, h); else ell(c, hx - f * 13, -33, 4, 9, h); circ(c, hx + (front ? 12.5 : back ? 0 : -f * 12), front ? -41 : back ? -36 : -41, 2, p.accent); break;
+    case 'long': if (back) fillRR(c, hx - 13, -40, 26, 26, 8, h); else if (front) { fillRR(c, hx - 14.5, -43, 6, 27, 3, h); fillRR(c, hx + 8.5, -43, 6, 27, 3, h); } else fillRR(c, hx - f * 11 - 4, -42, 8, 26, 4, h); break;
+    case 'pigtails': if (front || back) { circ(c, hx - 14.5, -33, 5.2, h); circ(c, hx + 14.5, -33, 5.2, h); circ(c, hx - 12.5, -39, 2, p.accent); circ(c, hx + 12.5, -39, 2, p.accent); } else { circ(c, hx - f * 12, -33, 5.2, h); circ(c, hx - f * 11, -38, 2, p.accent); } break;
+    case 'strawhat': ell(c, hx, -48, 19, 5.2, '#e2bf62', INK, 1.2); fillRR(c, hx - 10, -61, 20, 14, 6, '#efd07a', INK, 1.2); c.fillStyle = '#b6553d'; c.fillRect(hx - 9.5, -52, 19, 3.4); break;
+    case 'hat': ell(c, hx, -48, 17, 4.6, '#6a4b31', INK, 1.2); fillRR(c, hx - 9.5, -60, 19, 13, 5, '#7d5b3d', INK, 1.2); c.fillStyle = '#3a2418'; c.fillRect(hx - 9, -52, 18, 3); break;
+    case 'chef': fillRR(c, hx - 11, -50, 22, 7, 3, '#fff', '#cdbbd6', 1.2); circ(c, hx - 6.5, -58, 7, '#fff', '#cdbbd6', 1.2); circ(c, hx + 6.5, -58, 7, '#fff', '#cdbbd6', 1.2); circ(c, hx, -63, 8, '#fff', '#cdbbd6', 1.2); fillRR(c, hx - 10, -52, 20, 7, 3, '#fff'); break;
+    case 'cap': c.fillStyle = p.accent; c.beginPath(); c.arc(hx, -41, 13, Math.PI, 2 * Math.PI); c.closePath(); c.fill(); c.strokeStyle = INK; c.lineWidth = 1.2; c.stroke();
+      if (front) fillRR(c, hx - 11, -43, 22, 4.5, 2, p.accent, INK, 1.2); else if (!back) fillRR(c, f > 0 ? hx + 3 : hx - 17, -44, 14, 4.5, 2, p.accent, INK, 1.2); break;
+    case 'beanie': c.fillStyle = p.accent; c.beginPath(); c.arc(hx, -41, 13.4, Math.PI, 2 * Math.PI); c.closePath(); c.fill(); c.strokeStyle = INK; c.lineWidth = 1.2; c.stroke();
+      fillRR(c, hx - 13.4, -44, 26.8, 5.5, 2.5, '#fff', INK, 1.2); circ(c, hx, -55, 4.2, '#fff', INK, 1.2); break;
+  }
+}
+function drawPerson(c, x, y, p, o) {
+  const t = o.t || 0, mv = o.moving ? 1 : 0, dir = o.dir || 'down';
+  const sw = Math.sin(t * 10) * 4.5 * mv, bob = mv ? Math.abs(Math.sin(t * 10)) * 2.4 : Math.sin(t * 2.2) * 0.7 + 0.7;
+  const side = dir === 'left' || dir === 'right', f = dir === 'left' ? -1 : 1, back = dir === 'up', front = dir === 'down';
+  c.save(); c.translate(Math.round(x), Math.round(y));
+  ell(c, 0, 0, 14, 5, 'rgba(30,15,40,.26)');
+  const legC = p.coat ? '#5b4a68' : (p.pants || '#4a3b52');
+  if (side) { fillRR(c, -3.5 - sw * .5, -13, 7, 13, 3, legC); fillRR(c, -3.5 + sw * .5, -13, 7, 13, 3, legC); }
+  else { fillRR(c, -9, -13 - Math.max(0, sw) * .5, 8, 13, 3, legC); fillRR(c, 1, -13 - Math.max(0, -sw) * .5, 8, 13, 3, legC); }
+  c.translate(0, -bob);
+  const armC = p.coat ? '#fdfaff' : p.shirt, armSw = Math.sin(t * 10) * 4 * mv;
+  if (!side) {
+    fillRR(c, -16.5, -32 + armSw * .4, 6, 15, 3, armC, p.coat ? '#cdbbd6' : null, 1.2); fillRR(c, 10.5, -32 - armSw * .4, 6, 15, 3, armC, p.coat ? '#cdbbd6' : null, 1.2);
+    circ(c, -13.5, -16 + armSw * .4, 3.2, p.skin); circ(c, 13.5, -16 - armSw * .4, 3.2, p.skin);
+  }
+  if (p.coat) {
+    fillRR(c, -12, -33, 24, 26, 7, '#fdfaff', '#cdbbd6', 1.4);
+    if (front) { fillRR(c, -3.5, -32, 7, 19, 2, p.shirt); c.strokeStyle = '#cdbbd6'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(0, -13); c.lineTo(0, -8); c.stroke(); fillRR(c, 4, -24, 6, 6, 1.5, '#efe4f4', '#cdbbd6', 1); circ(c, -7.5, -21, 1.6, p.accent); }
+  } else fillRR(c, -11.5, -33, 23, 22, 8, p.shirt, 'rgba(0,0,0,.18)', 1.2);
+  if (side) { fillRR(c, -3 + armSw * f * .5, -32, 7, 15, 3, armC, p.coat ? '#cdbbd6' : null, 1.2); circ(c, 0.5 + armSw * f * .5, -16, 3.2, p.skin); }
+  const hx = side ? f * 1.5 : 0;
+  circ(c, hx, -39, 12, p.skin);
+  drawHair(c, p, dir, hx);
+  if (front) {
+    circ(c, -4.6, -37, 1.9, '#2c2035'); circ(c, 4.6, -37, 1.9, '#2c2035');
+    circ(c, -8, -33.5, 2.4, 'rgba(231,154,184,.6)'); circ(c, 8, -33.5, 2.4, 'rgba(231,154,184,.6)');
+    c.strokeStyle = '#8a4a5a'; c.lineWidth = 1.5; c.beginPath(); c.arc(0, -34.6, 2.8, .15 * Math.PI, .85 * Math.PI); c.stroke();
+  } else if (side) {
+    circ(c, hx + f * 5, -37, 1.9, '#2c2035'); circ(c, hx + f * 8, -33.5, 2.3, 'rgba(231,154,184,.6)');
+    c.strokeStyle = '#8a4a5a'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(hx + f * 3.5, -33.4); c.lineTo(hx + f * 6, -33.6); c.stroke();
+  }
+  if ((p.style === 'bun' || p.style === 'long') && !back) {
+    c.strokeStyle = '#5b3f66'; c.lineWidth = 1.3;
+    if (front) { c.beginPath(); c.arc(-4.6, -37, 3.6, 0, 6.3); c.stroke(); c.beginPath(); c.arc(4.6, -37, 3.6, 0, 6.3); c.stroke(); c.beginPath(); c.moveTo(-1, -37); c.lineTo(1, -37); c.stroke(); }
+    else { c.beginPath(); c.arc(hx + f * 5, -37, 3.6, 0, 6.3); c.stroke(); }
+  }
+  c.restore();
+}
+function drawBubble(c, x, y, icon, t) {
+  c.save(); c.translate(x, y + Math.sin(t * 3) * 2.2);
+  fillRR(c, -17, -26, 34, 27, 11, '#fff', '#1f1528', 2.4);
+  c.beginPath(); c.moveTo(-4, .5); c.lineTo(0, 7); c.lineTo(4, .5); c.fillStyle = '#fff'; c.fill();
+  c.strokeStyle = '#1f1528'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(-5, 0); c.lineTo(0, 7); c.lineTo(5, 0); c.stroke();
+  c.fillStyle = '#fff'; c.fillRect(-4, -2, 8, 3);
+  c.font = '17px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#2c2035';
+  c.fillText(icon, 0, -12);
+  c.restore();
+}
+function drawMacaw(c, x, y, t, squawk) {
+  c.save(); c.translate(x, y);
+  const tilt = Math.sin(t * 1.3) * .06, bob = Math.sin(t * 2.1) * .8;
+  c.translate(0, bob);
+  // cauda
+  c.save(); c.rotate(.2);
+  fillRR(c, -14, -26, 7, 32, 4, '#1f5fb8', INK, 1.4); fillRR(c, -8, -24, 7, 34, 4, '#38b6c9', INK, 1.4); c.restore();
+  ell(c, 0, -22, 11, 17, '#3d82d6', INK, 1.8);
+  ell(c, 3, -19, 7, 12, '#f2c94c');
+  ell(c, -5, -21, 6.5, 13, '#2c5fb5', INK, 1.4);
+  c.save(); c.translate(1, -44); c.rotate(tilt);
+  circ(c, 0, 0, 9.5, '#3d82d6', INK, 1.8);
+  ell(c, 4, 1, 6.4, 5.4, '#fff', '#cfd8e8', 1);
+  circ(c, 3.4, -.5, 1.9, '#1f1528');
+  c.beginPath(); c.moveTo(7, -3); c.quadraticCurveTo(17, -2, 14, 6 + (squawk ? 3 : 0)); c.quadraticCurveTo(10, 3, 7, 3); c.closePath(); c.fillStyle = '#2b2233'; c.fill();
+  if (squawk) { c.strokeStyle = '#e79ab8'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(9, 3); c.lineTo(13, 4.5); c.stroke(); }
+  c.restore();
+  c.strokeStyle = '#8a7a6a'; c.lineWidth = 2.4; c.beginPath(); c.moveTo(-3, 0); c.lineTo(-3, 4); c.moveTo(4, 0); c.lineTo(4, 4); c.stroke();
+  c.restore();
+}
+
+/* ---------- plantas da estufa ---------- */
+const SEED_LOOK = {
+  camomila: { kind: 'flower', leaf: '#5fae6b', petal: '#ffffff', center: '#f4c430' },
+  calendula: { kind: 'flower', leaf: '#5fae6b', petal: '#f59e2e', center: '#b8560f' },
+  guaco: { kind: 'vine', leaf: '#3f9d6a' },
+  aloe_vera: { kind: 'rosette', leaf: '#6fc79a' },
+  boldo: { kind: 'leafy', leaf: '#8fb3a3' },
+  lavanda: { kind: 'spike', leaf: '#6aa56b', petal: '#9b6fd6' },
+  citronela: { kind: 'grass', leaf: '#8cc152' },
+  hortela: { kind: 'leafy', leaf: '#4fb37a' },
+  malva: { kind: 'flower', leaf: '#5fae6b', petal: '#e79ad0', center: '#8b3f7a' }
+};
+function drawPlantShape(c, seed, p, t, sway) {
+  const S = SEED_LOOK[seed] || SEED_LOOK.camomila, h = 10 + 50 * p;
+  c.lineCap = 'round';
+  if (S.kind === 'rosette') {
+    const n = 7, L = 10 + 26 * p;
+    for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (i - (n - 1) / 2) * .46, tx = Math.cos(a) * L * .95 + sway, ty = Math.sin(a) * L * 1.15;
+      c.fillStyle = i % 2 ? S.leaf : '#57b085'; c.beginPath(); c.moveTo(-3.5, 0); c.quadraticCurveTo(tx * .4 - 5, ty * .55, tx, ty); c.quadraticCurveTo(tx * .4 + 5, ty * .55, 3.5, 0); c.closePath(); c.fill(); }
+    return;
+  }
+  if (S.kind === 'grass') {
+    c.strokeStyle = S.leaf; c.lineWidth = 2.8;
+    for (let i = 0; i < 8; i++) { const hh = h * (.6 + ((i * 37) % 5) / 12); c.beginPath(); c.moveTo((i - 3.5) * 2.6, 0); c.quadraticCurveTo((i - 3.5) * 3.4, -hh * .6, (i - 3.5) * 6 + sway * (1 + i * .1), -hh); c.stroke(); }
+    return;
+  }
+  if (S.kind === 'spike') {
+    for (let i = 0; i < 5; i++) {
+      const x0 = (i - 2) * 4.2, tx = x0 * 1.7 + sway, ty = -h * (.72 + (i % 3) * .1);
+      c.strokeStyle = S.leaf; c.lineWidth = 2; c.beginPath(); c.moveTo(x0, 0); c.quadraticCurveTo(x0 * 1.2, ty * .5, tx, ty); c.stroke();
+      if (p >= .6) for (let k = 0; k < 4; k++) ell(c, tx + (k % 2 ? 1 : -1) * .8, ty - 2 - k * 4.4, 2.6, 3.6, S.petal);
+    }
+    return;
+  }
+  // caule
+  c.strokeStyle = '#3d8b55'; c.lineWidth = 3.6; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(sway * .3, -h * .5, sway, -h); c.stroke();
+  const leafAt = (fr, side, sz) => { const lx = sway * fr * fr + side * 2, ly = -h * fr; c.save(); c.translate(lx, ly); c.rotate(side * .9); ell(c, side * sz, 0, sz, sz * .48, S.leaf, '#2f7d4a', 1); c.restore(); };
+  const sz = S.kind === 'leafy' ? 11 : S.kind === 'vine' ? 8.5 : 7.2 + 3 * p;
+  leafAt(.3, -1, sz); leafAt(.42, 1, sz); leafAt(.62, -1, sz * .9); leafAt(.74, 1, sz * .9);
+  if (S.kind === 'vine' && p >= 1) for (let k = 0; k < 3; k++) circ(c, sway + (k - 1) * 6, -h - 3 + (k % 2) * 4, 3, '#c58ad1');
+  if (S.kind === 'flower') {
+    if (p >= 1) { for (let k = 0; k < 9; k++) { const a = k / 9 * Math.PI * 2; ell(c, sway + Math.cos(a) * 7, -h + Math.sin(a) * 7, 4.4, 2.4, S.petal, 'rgba(0,0,0,.15)', .8); } circ(c, sway, -h, 4.2, S.center); }
+    else if (p > .6) circ(c, sway, -h, 4, '#a5d68a', '#3d8b55', 1);
+  }
+}
+function drawGardenPlants(c, t) {
+  const twoRows = !!(G.garden[4] && G.garden[4].unlocked);
+  if (twoRows) fillRR(c, 612, 102, 182, 7, 3, '#8b5e3c', INK, 2);
+  G.garden.forEach((bed, i) => {
+    const x = GARDEN_X[i], y = GARDEN_Y[i]; if (x == null) return;
+    const upper = i >= 4; if (upper && !twoRows) return;
+    const sc = upper ? .55 : (twoRows ? .62 : 1);
+    c.beginPath(); c.moveTo(x - 14, y); c.lineTo(x + 14, y); c.lineTo(x + 11, y + 16); c.lineTo(x - 11, y + 16); c.closePath();
+    c.fillStyle = bed.unlocked ? '#d98aa7' : '#7d6a86'; c.fill(); c.strokeStyle = INK; c.lineWidth = 2; c.stroke();
+    fillRR(c, x - 16, y - 4, 32, 6, 3, bed.unlocked ? '#e79ab8' : '#8f7c98', INK, 1.8);
+    ell(c, x, y - 1, 12, 3, '#4a3020');
+    if (!bed.unlocked) { c.font = '15px "Segoe UI Emoji","Apple Color Emoji",sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('🔒', x, y - 18); return; }
+    if (!bed.seedKey) return;
+    const seed = SEED_CATALOG[bed.seedKey], p = bed.stage / seed.stages;
+    c.save(); c.translate(x, y - 2); c.scale(sc, sc);
+    drawPlantShape(c, bed.seedKey, p, t, REDUCED ? 0 : Math.sin(t * 1.5 + x * .08) * 1.8 * p);
+    c.restore();
+    c.font = '13px "Segoe UI Emoji","Apple Color Emoji",sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    const top = y - 6 - 52 * sc;
+    if (bed.hasPest) c.fillText('🐛', x + 14, y - 16 - Math.sin(t * 4 + i) * 2);
+    if (bed.watered) c.fillText('💧', x - 17, y - 8);
+    if (bed.stage >= seed.stages && !bed.hasPest) { c.globalAlpha = .55 + .45 * Math.sin(t * 4 + i); c.fillText('✨', x + 13, top); c.globalAlpha = 1; }
+  });
+  // irrigação por gotejamento
+  if (hasEq('irrigacao')) {
+    c.strokeStyle = '#3a2b45'; c.lineWidth = 3; c.beginPath(); c.moveTo(612, 40); c.lineTo(792, 40); c.stroke();
+    G.garden.forEach((bed, i) => {
+      if (i >= 4 && !twoRows) return; if (!bed.unlocked || !bed.seedKey) return;
+      const x = GARDEN_X[i], y0 = 44, span = GARDEN_Y[i] - 14 - y0, yy = y0 + ((t * 26 + i * 17) % span);
+      circ(c, x + 20, 42, 2, '#3a2b45'); ell(c, x + 20, yy, 1.5, 2.4, 'rgba(120,180,230,.85)');
+    });
+  }
+  // telas anti-insetos
+  if (hasEq('telas')) {
+    c.save(); rr(c, 608, 36, 186, 130, 8); c.clip(); c.strokeStyle = 'rgba(60,110,90,.16)'; c.lineWidth = 1;
+    for (let k = 0; k < 190; k += 7) { c.beginPath(); c.moveTo(608 + k, 36); c.lineTo(608 + k, 166); c.stroke(); }
+    for (let k = 0; k < 130; k += 7) { c.beginPath(); c.moveTo(608, 36 + k); c.lineTo(794, 36 + k); c.stroke(); }
+    c.restore();
+  }
+  // reflexos do vidro
+  c.save(); c.globalAlpha = .16; c.fillStyle = '#fff';
+  [[622, 60], [690, 44]].forEach(([x, w]) => { c.beginPath(); c.moveTo(x, 38); c.lineTo(x + w * .5, 38); c.lineTo(x + w * .5 - 46, 160); c.lineTo(x - 46, 160); c.closePath(); c.fill(); });
+  c.restore();
+}
+
+/* ---------- equipamentos na bancada ---------- */
+function drawEquipment(c, t) {
+  // encapsuladora (bancada, à esquerda)
+  if (hasEq('encapsuladora')) { fillRR(c, 269, 108, 24, 10, 3, '#8ab6d3', '#3a2b45', 1.6); for (let k = 0; k < 3; k++) fillRR(c, 272 + k * 6.5, 102, 5, 8, 2.5, k % 2 ? '#f5b7ce' : '#fffaf0', '#3a2b45', 1); }
+  // tamis
+  if (hasEq('tamis')) { ell(c, 359, 114, 11, 4.5, '#c9a26a', '#3a2b45', 1.6); ell(c, 359, 111, 10, 3.6, '#efe3d0', '#3a2b45', 1.2); c.strokeStyle = '#3a2b45'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(369, 112); c.lineTo(378, 106); c.stroke(); }
+  // frasco âmbar
+  if (hasEq('frasco_ambar')) { fillRR(c, 419, 100, 15, 18, 4, '#b9762f', '#3a2b45', 1.6); fillRR(c, 423, 95, 7, 6, 2, '#5b3f66', '#3a2b45', 1.2); fillRR(c, 421, 106, 11, 6, 1.5, '#fffaf0'); }
+  // balança analítica: display azul
+  if (hasEq('balanca_analitica')) { fillRR(c, 304, 90, 14, 7, 1.5, '#12364a'); c.fillStyle = '#7fe0ff'; c.fillRect(306, 92, 9, 2); fillRR(c, 296, 106, 50, 4, 1, '#8ab6d3'); }
+  // mesa lateral: agitador, banho-maria, pHmetro
+  if (hasEq('agitador')) {
+    fillRR(c, 534, 136, 20, 6, 2, '#5b3f66', '#3a2b45', 1.4); c.fillStyle = '#c9c4d2'; c.fillRect(543, 116, 3, 22); fillRR(c, 538, 112, 14, 9, 2, '#e79ab8', '#3a2b45', 1.4);
+    fillRR(c, 536, 128, 18, 10, 2, 'rgba(210,232,245,.6)', '#3a2b45', 1.2); const a = t * 9; c.strokeStyle = '#3a2b45'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(544 - Math.cos(a) * 6, 135); c.lineTo(544 + Math.cos(a) * 6, 135); c.stroke();
+  }
+  if (hasEq('banho_maria')) {
+    fillRR(c, 562, 128, 28, 14, 3, '#c9c4d2', '#3a2b45', 1.6); ell(c, 576, 129, 12, 3, '#8ab6d3', '#3a2b45', 1); circ(c, 583, 138, 1.6, '#e57373');
+    for (let k = 0; k < 3; k++) { c.globalAlpha = .45 + .35 * Math.sin(t * 2 + k * 2); ell(c, 569 + k * 7, 122 - ((t * 8 + k * 5) % 9), 2.4, 3.4, '#fff'); } c.globalAlpha = 1;
+  }
+  if (hasEq('phmetro')) {
+    fillRR(c, 592, 136, 12, 6, 2, '#5b3f66', '#3a2b45', 1.2); c.fillStyle = '#c9c4d2'; c.fillRect(597, 118, 2.5, 20); c.fillRect(592, 118, 8, 2.5);
+    fillRR(c, 590, 126, 6, 10, 2, '#12364a', '#3a2b45', 1); c.fillStyle = '#7fe0ff'; c.fillRect(591.5, 129, 3, 1.6); c.strokeStyle = '#3a2b45'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(593, 136); c.lineTo(593, 141); c.stroke();
+  }
+}
+
+/* ---------- janelas, luzes, clima ---------- */
+const vis = { clock: 0, night: 0 };
+const windowFx = Array.from({ length: 16 }, () => ({ x: Math.random() * 60, y: Math.random() * 70, s: rand(.6, 1.6), p: Math.random() * 6.3 }));
+const SKY = [['#bfe4f5', '#e6f5df'], ['#7fc6ee', '#dff2fb'], ['#f0c98f', '#f8e6c8'], ['#c5d6e6', '#eef3f8']];
+const HILL = ['#8fcf94', '#6cbf7a', '#d99b52', '#f4f7fb'];
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mixHex(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return '#' + A.map((v, i) => Math.round(lerp(v, B[i], clamp(t, 0, 1))).toString(16).padStart(2, '0')).join(''); }
+function drawWindows(c, t) {
+  [300, 430].forEach((wx, wi) => {
+    const wy = 18, ww = 60, wh = 54, s = G.seasonIndex;
+    c.save(); rr(c, wx, wy, ww, wh, 5); c.clip();
+    const dusk = smooth(.55, 1, vis.clock), nt = vis.night;
+    const top = mixHex(mixHex(SKY[s][0], '#e8916b', dusk), '#1e2450', nt), bot = mixHex(mixHex(SKY[s][1], '#f3c98b', dusk), '#3a3a7a', nt);
+    const g = c.createLinearGradient(0, wy, 0, wy + wh); g.addColorStop(0, top); g.addColorStop(1, bot); c.fillStyle = g; c.fillRect(wx, wy, ww, wh);
+    const ck = clamp(vis.clock, 0, 1), sx = wx + lerp(12, 48, ck), sy = wy + wh * .7 - Math.sin(ck * Math.PI) * wh * .5;
+    if (nt < .6) circ(c, sx, sy, 7, 'rgba(255,241,168,' + (1 - nt * 1.4) + ')');
+    if (nt > .3) { c.globalAlpha = nt; circ(c, wx + 44, wy + 14, 5.5, '#f6f0d8'); circ(c, wx + 46.5, wy + 12.5, 4.8, mixHex('#1e2450', '#3a3a7a', .3)); c.globalAlpha = 1; }
+    const hillC = mixHex(HILL[s], '#20304a', nt * .8);
+    ell(c, wx + 14, wy + wh - 2, 46, 18, hillC); ell(c, wx + 58, wy + wh + 2, 40, 16, hillC);
+    circ(c, wx + 48, wy + wh - 20, 7, mixHex(s === 3 ? '#e8eff5' : s === 2 ? '#d1743a' : '#4f9a5e', '#20304a', nt * .8)); c.fillStyle = '#5b3f66'; c.fillRect(wx + 47, wy + wh - 14, 3, 9);
+    if (!REDUCED) windowFx.forEach((f, i) => {
+      const px = wx + ((f.x + Math.sin(t * .8 + f.p) * (s === 3 ? 4 : 9) + t * (s === 2 ? 5 : 0)) % 60 + 60) % 60, py = wy + ((f.y + t * 9 * f.s + wi * 17) % wh);
+      if (s === 0) ell(c, px, py, 2.4, 1.4, '#f5b7ce'); else if (s === 1) { c.globalAlpha = .4 + .6 * Math.abs(Math.sin(t * 2 + f.p)); circ(c, px, wy + (f.y % wh) * .9, 1.3, '#fff8c8'); c.globalAlpha = 1; }
+      else if (s === 2) ell(c, px, py, 3, 1.7, i % 2 ? '#d1743a' : '#e0a040'); else circ(c, px, py, 1.5 * f.s, '#fff');
+    });
+    c.restore();
+    fillRR(c, wx - 3, wy - 3, ww + 6, wh + 6, 7, null, '#6d5480', 5);
+    c.strokeStyle = '#6d5480'; c.lineWidth = 3; c.beginPath(); c.moveTo(wx + ww / 2, wy); c.lineTo(wx + ww / 2, wy + wh); c.moveTo(wx, wy + wh / 2 - 3); c.lineTo(wx + ww, wy + wh / 2 - 3); c.stroke();
+    fillRR(c, wx - 6, wy + wh + 2, ww + 12, 6, 3, '#8e74a5', INK, 1.5);
+  });
+}
+const BULBS = ['#f5b7ce', '#f8dc8a', '#a9dcc4', '#a9c7e2'];
+function stringY(x) { return 12 + 9 * Math.abs(Math.sin(x / W * Math.PI * 5)); }
+function drawStringLights(c, t) {
+  c.strokeStyle = '#3a2b45'; c.lineWidth = 1.6; c.beginPath();
+  for (let x = 0; x <= W; x += 8) { const y = stringY(x); x ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
+  const glow = .35 + .65 * (smooth(.5, 1, vis.clock) + vis.night * .6);
+  for (let i = 0, x = 24; x < W; x += 40, i++) {
+    const y = stringY(x) + 4, a = REDUCED ? 1 : .7 + .3 * Math.sin(t * 2 + i * 1.7);
+    c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 0, x, y, 16); g.addColorStop(0, 'rgba(255,225,150,' + (.42 * glow * a) + ')'); g.addColorStop(1, 'rgba(255,225,150,0)'); c.fillStyle = g; c.fillRect(x - 16, y - 16, 32, 32); c.restore();
+    circ(c, x, y, 3.2, BULBS[i % 4], '#3a2b45', 1);
+  }
+}
+function drawLamp(c, t) {
+  const glow = clamp(smooth(.45, 1, vis.clock) * .8 + vis.night, .25, 1);
+  fillRR(c, 756, 250, 18, 28, 5, 'rgb(' + Math.round(lerp(250, 255, glow)) + ',' + Math.round(lerp(226, 214, glow)) + ',' + Math.round(lerp(150, 110, glow)) + ')', '#3a2b45', 2);
+  c.strokeStyle = '#3a2b45'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(765, 250); c.lineTo(765, 278); c.stroke();
+  c.save(); c.globalCompositeOperation = 'lighter'; const r = 46 + Math.sin(t * 3) * 1.5, g = c.createRadialGradient(765, 264, 0, 765, 264, r);
+  g.addColorStop(0, 'rgba(255,205,110,' + (.5 * glow) + ')'); g.addColorStop(1, 'rgba(255,205,110,0)'); c.fillStyle = g; c.fillRect(765 - r, 264 - r, r * 2, r * 2); c.restore();
+}
+function tintFor(clock, night) {
+  const K = [[0, [255, 205, 140, .10]], [.45, [255, 255, 255, 0]], [.8, [255, 150, 90, .15]], [1, [110, 70, 150, .26]]];
+  let a = K[0], b = K[K.length - 1];
+  for (let i = 0; i < K.length - 1; i++) if (clock >= K[i][0] && clock <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; break; }
+  const u = a[0] === b[0] ? 0 : clamp((clock - a[0]) / (b[0] - a[0]), 0, 1);
+  const col = a[1].map((v, i) => lerp(v, b[1][i], u)), nightCol = [20, 22, 78, .52];
+  return col.map((v, i) => lerp(v, nightCol[i], night));
+}
+function drawLighting(c) {
+  const tt = tintFor(clamp(vis.clock, 0, 1), vis.night);
+  c.fillStyle = 'rgba(' + Math.round(tt[0]) + ',' + Math.round(tt[1]) + ',' + Math.round(tt[2]) + ',' + tt[3] + ')'; c.fillRect(0, 0, W, H);
+  const sun = (1 - smooth(.5, .95, vis.clock)) * (1 - vis.night) * .17;
+  if (sun > .01) {
+    c.save(); c.globalCompositeOperation = 'lighter';
+    [330, 460].forEach((wx, i) => {
+      const g = c.createLinearGradient(0, 176, 0, 300); g.addColorStop(0, 'rgba(255,236,190,' + sun + ')'); g.addColorStop(1, 'rgba(255,236,190,0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(wx - 26, 176); c.lineTo(wx + 26, 176); c.lineTo(wx + 70 - i * 20, 300); c.lineTo(wx + 8 - i * 20, 300); c.closePath(); c.fill();
+    });
+    c.restore();
+  }
+}
+
+/* ---------- entidades ---------- */
+const player = { x: 400, y: 226, dir: 'down', moving: false, t: 0, target: null };
+let customers = [], floaters = [];
+const macaw = { squawk: 0 };
+let worldTime = 0;
+/* ==========================================================================
+   SOM (sintetizado, sem arquivos)
+   ========================================================================== */
+let audioCtx = null, muted = false;
+function tone(freq, start, dur, type, vol) {
+  const a = audioCtx, o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'sine'; o.frequency.setValueAtTime(freq, a.currentTime + start);
+  g.gain.setValueAtTime(0.0001, a.currentTime + start); g.gain.exponentialRampToValueAtTime(vol || .08, a.currentTime + start + .015);
+  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + start + dur);
+  o.connect(g); g.connect(a.destination); o.start(a.currentTime + start); o.stop(a.currentTime + start + dur + .05);
+}
+function sfx(kind) {
+  if (muted) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const S = {
+      bell: [[1046, 0, .35], [1568, .08, .4]], coin: [[988, 0, .1], [1319, .09, .22]], good: [[523, 0, .14], [659, .1, .14], [784, .2, .3]],
+      bad: [[262, 0, .18, 'triangle'], [196, .14, .3, 'triangle']], tap: [[440, 0, .05, 'triangle', .05]], tick: [[880, 0, .03, 'square', .02]],
+      squawk: [[720, 0, .08, 'sawtooth', .05], [560, .07, .12, 'sawtooth', .05], [820, .16, .1, 'sawtooth', .04]], water: [[300, 0, .12, 'sine', .05], [420, .06, .14, 'sine', .04]]
+    }[kind] || [];
+    S.forEach(n => tone(n[0], n[1], n[2], n[3], n[4]));
+  } catch (e) { /* áudio indisponível */ }
+}
+
+/* ==========================================================================
+   PEDIDOS E CLIENTES
+   ========================================================================== */
+let dayStart = 0, closing = false;
+const allDone = () => G.orders.length > 0 && G.orders.every(o => o.state === 'done');
+
+function newDayOrders() {
+  const n = 3 + (G.reputation >= 150 ? 1 : 0) + (G.reputation >= 220 ? 1 : 0);
+  const unlocked = G.unlockedFormulas.slice();
+  const pool = shuffle(unlocked);
+  if (G.activeOutbreak) pool.sort((a, b) => (matchesOutbreak(FORMULATIONS[b]) ? 1 : 0) - (matchesOutbreak(FORMULATIONS[a]) ? 1 : 0));
+  const used = new Set(), orders = [];
+  for (let i = 0; i < n; i++) {
+    const fid = pool[i % pool.length], form = FORMULATIONS[fid];
+    let who = form.patient;
+    if (used.has(who)) { const extras = Object.keys(AVATAR_PALETTES).filter(k => k !== 'default' && !used.has(k)); who = extras.length ? pick(extras) : who; }
+    used.add(who);
+    orders.push({ id: 'o' + G.day + '_' + i + '_' + Math.floor(Math.random() * 1e4), formulaId: fid, who, state: 'incoming', firstTry: true, reward: 0, stars: 0, delay: 1.5 + i * 5.5 + rand(0, 2) });
+  }
+  G.orders = orders;
+  dayStart = worldTime;
+}
+
+function freeSlot() {
+  const busy = new Set(customers.filter(c => !c.leaving).map(c => c.slot));
+  for (let i = 0; i < SLOTS.length; i++) if (!busy.has(i)) return i;
+  return 0;
+}
+function spawnCustomer(o, instant) {
+  const slot = freeSlot(), sx = SLOTS[slot];
+  const cu = { order: o, slot, x: DOOR.x + rand(-10, 10), y: DOOR.y, dir: 'up', moving: true, t: rand(0, 10), pal: palFor(o.who), leaving: false, arrived: false, gone: false,
+    path: [{ x: 400, y: 478 }, { x: sx, y: 436 }, { x: sx, y: SLOT_Y }] };
+  if (instant) { cu.x = sx; cu.y = SLOT_Y; cu.path = []; cu.moving = false; cu.dir = 'down'; }
+  customers.push(cu); o.spawned = true;
+}
+function sendAway(cu) { cu.leaving = true; cu.arrived = false; cu.path = [{ x: 400, y: 478 }, { x: 400, y: 580 }]; }
+function onArrive(cu) {
+  if (cu.order.state === 'incoming') cu.order.state = 'waiting';
+  sfx('bell'); renderTickets(); saveGame();
+}
+function addFloater(x, y, text, color) { floaters.push({ x, y, t: 0, text, color: color || '#fff' }); }
+
+/* ==========================================================================
+   INTERAÇÃO
+   ========================================================================== */
+function interactables() {
+  const list = STATIONS.map(s => Object.assign({ kind: 'station' }, s));
+  customers.forEach(cu => {
+    if (!cu.arrived || cu.leaving) return;
+    const st = cu.order.state, nm = cu.order.who;
+    const label = st === 'ready' ? 'Entregar o pedido: ' + nm : st === 'taken' ? nm + ' aguarda o preparo' : 'Atender ' + nm;
+    list.push({ id: 'customer', kind: 'customer', cust: cu, label, x: cu.x, y: 262, r: 58, hit: [cu.x - 26, cu.y - 66, 52, 74] });
+  });
+  return list;
+}
+function nearestInteractable() {
+  let best = null, bd = 1e9;
+  for (const it of interactables()) { const d = Math.hypot(player.x - it.x, player.y - it.y); if (d < it.r && d < bd) { bd = d; best = it; } }
+  return best;
+}
+function doInteract(it) {
+  if (!it) return;
+  sfx('tap');
+  switch (it.id) {
+    case 'shop': openShop(); break;
+    case 'book': openBook(); break;
+    case 'lab': openBench(); break;
+    case 'bpm': openBPM(); break;
+    case 'garden': openGarden(); break;
+    case 'macaw': macaw.squawk = 1.1; sfx('squawk'); toast('🦜 ' + pick(MACAW_TIPS), 'gold'); for (let i = 0; i < 3; i++) addFloater(46 + rand(-14, 14), 205 - i * 8, '💜'); break;
+    case 'lamp': askEndDay(); break;
+    case 'customer': serveCustomer(it.cust); break;
+  }
+}
+function tryInteract() { doInteract(nearestInteractable()); }
+
+const keys = {};
+addEventListener('keydown', e => {
+  if (modalIsOpen()) return;
+  const k = e.key.toLowerCase();
+  if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
+  keys[k] = true;
+  if ((k === 'e' || k === ' ' || k === 'enter') && !e.repeat) tryInteract();
+});
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+cv.addEventListener('pointerdown', e => {
+  if (modalIsOpen()) return;
+  const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+  let hit = null;
+  for (const it of interactables()) { const [hx, hy, hw, hh] = it.hit; if (x >= hx && x <= hx + hw && y >= hy && y <= hy + hh) { hit = it; break; } }
+  if (hit) player.target = { x: hit.x, y: hit.y, it: hit };
+  else player.target = { x: clamp(x, WALK.x0, WALK.x1), y: clamp(y, WALK.y0, WALK.y1) };
+});
+
+/* ==========================================================================
+   LOOP
+   ========================================================================== */
+function updatePlayer(dt, paused) {
+  let dx = 0, dy = 0;
+  if (!paused) {
+    if (keys['arrowleft'] || keys['a']) dx -= 1; if (keys['arrowright'] || keys['d']) dx += 1;
+    if (keys['arrowup'] || keys['w']) dy -= 1; if (keys['arrowdown'] || keys['s']) dy += 1;
+    if (dx || dy) { player.target = null; const l = Math.hypot(dx, dy); dx /= l; dy /= l; }
+    else if (player.target) {
+      const tx = player.target.x - player.x, ty = player.target.y - player.y, d = Math.hypot(tx, ty);
+      if (d < 4) { const it = player.target.it; player.target = null; if (it) doInteract(it); } else { dx = tx / d; dy = ty / d; }
+    }
+  }
+  if (dx || dy) {
+    player.x = clamp(player.x + dx * 132 * dt, WALK.x0, WALK.x1); player.y = clamp(player.y + dy * 132 * dt, WALK.y0, WALK.y1);
+    player.moving = true; player.t += dt;
+    player.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down');
+  } else { player.moving = false; player.t += dt * .3; }
+}
+function updateCustomers(dt) {
+  customers.forEach(cu => {
+    cu.t += dt;
+    if (cu.path.length) {
+      const p = cu.path[0], dx = p.x - cu.x, dy = p.y - cu.y, d = Math.hypot(dx, dy);
+      if (d < 3) cu.path.shift();
+      else { cu.x += dx / d * 80 * dt; cu.y += dy / d * 80 * dt; cu.moving = true; cu.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down'); }
+    } else {
+      cu.moving = false; cu.dir = 'down';
+      if (cu.leaving) cu.gone = true;
+      else if (!cu.arrived) { cu.arrived = true; onArrive(cu); }
+    }
+  });
+  customers = customers.filter(c => !c.gone);
+}
+function updateFx(dt) {
+  floaters.forEach(f => { f.t += dt; f.y -= 22 * dt; }); floaters = floaters.filter(f => f.t < 1.6);
+  if (macaw.squawk > 0) macaw.squawk -= dt;
+}
+let lastHintKey = '', idleHintUntil = 12;
+function updateHint(near) {
+  const key = near ? near.id + (near.cust ? near.cust.order.id + near.cust.order.state : '') : '';
+  if (key === lastHintKey) return; lastHintKey = key;
+  const h = $('#hint');
+  if (!near) { h.classList.remove('on'); return; }
+  $('#hint-text').textContent = near.label; h.classList.add('on');
+}
+function drawFloaters(c) {
+  c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+  floaters.forEach(f => { c.globalAlpha = clamp(1.6 - f.t, 0, 1); c.font = '700 17px Fredoka, sans-serif'; c.lineWidth = 4; c.strokeStyle = '#1f1528'; c.strokeText(f.text, f.x, f.y); c.fillStyle = f.color; c.fillText(f.text, f.x, f.y); });
+  c.restore();
+}
+function drawRing(c, it, t) {
+  c.save(); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 2.4; c.setLineDash([7, 6]); c.lineDashOffset = -t * 14;
+  const x = it.kind === 'customer' ? it.cust.x : it.x, y = it.kind === 'customer' ? it.cust.y + 2 : it.y + 2;
+  c.beginPath(); c.ellipse(x, y, 24 + Math.sin(t * 4) * 1.5, 9, 0, 0, Math.PI * 2); c.stroke(); c.restore();
+}
+function render(near) {
+  const c = ctx; c.setTransform(RATIO, 0, 0, RATIO, 0, 0);
+  c.drawImage(bg, 0, 0, W, H);
+  drawWindows(c, worldTime); drawStringLights(c, worldTime); drawEquipment(c, worldTime); drawGardenPlants(c, worldTime); drawLamp(c, worldTime);
+  if (near) drawRing(c, near, worldTime);
+  const ents = [{ y: player.y, f: () => drawPerson(c, player.x, player.y, PLAYER_PAL, player) }, { y: 262, f: () => drawMacaw(c, 46, 258, worldTime, macaw.squawk > 0) }];
+  customers.forEach(cu => ents.push({ y: cu.y, f: () => drawPerson(c, cu.x, cu.y, cu.pal, cu) }));
+  ents.sort((a, b) => a.y - b.y).forEach(e => e.f());
+  customers.forEach(cu => {
+    if (!cu.arrived || cu.leaving) return;
+    const st = cu.order.state; drawBubble(c, cu.x, cu.y - 72, st === 'ready' ? '✅' : st === 'taken' ? '🧪' : '💬', worldTime + cu.t);
+  });
+  drawFloaters(c);
+  drawLighting(c);
+}
+let lastFrame = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - lastFrame) / 1000); lastFrame = now; worldTime += dt;
+  const paused = modalIsOpen() || closing;
+  updatePlayer(dt, paused); updateCustomers(dt); updateFx(dt);
+  G.orders.forEach(o => { if (o.state === 'incoming' && !o.spawned && worldTime - dayStart >= o.delay && !closing) spawnCustomer(o, false); });
+  const total = G.orders.length, done = G.orders.filter(o => o.state === 'done').length;
+  const target = closing ? 1 : (total ? done / total : 0);
+  vis.clock += (target - vis.clock) * Math.min(1, dt * 1.5); vis.night += ((closing ? 1 : 0) - vis.night) * Math.min(1, dt * 2);
+  const near = paused ? null : nearestInteractable();
+  updateHint(near);
+  if (worldTime > idleHintUntil) { const hi = $('#hint-idle'); if (hi) hi.remove(); }
+  render(near);
+  requestAnimationFrame(frame);
+}
+/* ==========================================================================
+   INTERFACE: MODAIS, HUD, PEDIDOS, ARMAZÉM, LIVRO, BPM, ESTUFA
+   ========================================================================== */
+const modalRoot = $('#modal-root'), confirmRoot = $('#confirm-root');
+let modalClosable = true, modalGuard = null;
+const fmt3 = n => n.toFixed(3);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function modalIsOpen() { return modalRoot.childElementCount > 0 || confirmRoot.childElementCount > 0 || $('#veil').classList.contains('on'); }
+function openModal(title, html, opts) {
+  opts = opts || {}; modalClosable = opts.closable !== false; modalGuard = opts.guard || null;
+  modalRoot.innerHTML = '<div class="scrim"><div class="sheet' + (opts.wide ? ' wide' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><div class="sheet-head"><h2>' + esc(title) + '</h2>' + (modalClosable ? '<button class="x" aria-label="Fechar">✕</button>' : '') + '</div><div class="sheet-body"></div></div></div>';
+  const body = $('.sheet-body', modalRoot); body.innerHTML = html || '';
+  const x = $('.x', modalRoot); if (x) x.onclick = requestClose;
+  $('.scrim', modalRoot).addEventListener('pointerdown', e => { if (e.target.classList.contains('scrim')) requestClose(); });
+  for (const k in keys) keys[k] = false; player.target = null;
+  return body;
+}
+function requestClose() { if (!modalClosable) return; if (modalGuard) { modalGuard(); return; } closeModal(); }
+function closeModal() { modalRoot.innerHTML = ''; modalGuard = null; }
+function askConfirm(msg, yes, onYes, opts) {
+  opts = opts || {};
+  confirmRoot.innerHTML = '<div class="scrim top"><div class="sheet" role="alertdialog"><div class="sheet-body"><p style="margin-top:0">' + msg + '</p><div class="row"><button class="btn ghost" data-n>' + (opts.no || 'Voltar') + '</button><button class="btn" data-y>' + yes + '</button></div></div></div></div>';
+  $('[data-n]', confirmRoot).onclick = () => { confirmRoot.innerHTML = ''; };
+  $('[data-y]', confirmRoot).onclick = () => { confirmRoot.innerHTML = ''; onYes(); };
+  $('[data-y]', confirmRoot).focus();
+}
+addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (confirmRoot.childElementCount) { confirmRoot.innerHTML = ''; return; }
+  if (modalRoot.childElementCount) requestClose();
+});
+function toast(msg, type) {
+  const t = document.createElement('div'); t.className = 'toast ' + (type || ''); t.textContent = msg; $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), 4200);
+}
+
+/* ---------- HUD e pedidos ---------- */
+function updateHUD() {
+  $('#h-money').textContent = G.money.toFixed(2); $('#h-rep').textContent = G.reputation; $('#h-day').textContent = G.day; $('#h-season').textContent = SEASONS[G.seasonIndex];
+  const ob = $('#outbreak');
+  if (G.activeOutbreak) { ob.classList.add('on'); ob.textContent = '📢 Alerta epidêmico: ' + G.activeOutbreak.msg; } else ob.classList.remove('on');
+}
+const STATE_PILL = { incoming: ['i', 'Chegando…'], waiting: ['w', 'Aguarda atendimento'], taken: ['t', 'Preparar na bancada'], ready: ['r', 'Pronto: entregar'], done: ['d', 'Entregue'] };
+function renderTickets() {
+  const arrived = G.orders.filter(o => o.state !== 'incoming'), incoming = G.orders.length - arrived.length;
+  $('#t-count').textContent = G.orders.filter(o => o.state === 'done').length + ' de ' + G.orders.length + ' entregues';
+  let html = arrived.map(o => {
+    const f = FORMULATIONS[o.formulaId], pill = STATE_PILL[o.state];
+    const detail = o.state === 'waiting' ? 'Quer ser atendido' : esc(f.name) + (o.state === 'done' && o.stars ? ' · ' + '★'.repeat(o.stars) : '') + (matchesOutbreak(f) && o.state !== 'done' ? ' · 🔥 procura alta' : '');
+    return '<div class="ticket"><div class="av">' + generateSVGAvatar(o.who) + '</div><div class="tx"><div class="nm">' + esc(o.who) + '</div><div class="st">' + detail + '</div><span class="pill-s ' + pill[0] + '">' + pill[1] + '</span></div></div>';
+  }).join('');
+  if (incoming) html += '<div class="empty">+' + incoming + ' a caminho da botica…</div>';
+  if (!html) html = '<div class="empty">Os primeiros moradores já estão chegando…</div>';
+  $('#tickets').innerHTML = html;
+}
+
+/* ---------- atendimento ---------- */
+const GREETINGS = ['Bom dia! Vim buscar uma ajudinha.', 'Olá, tudo bem? Preciso de uma receita sua.', 'Que cheirinho bom de ervas aqui!', 'Oi! Me indicaram a botica da Arara Azul.'];
+function serveCustomer(cu) {
+  const o = cu.order;
+  if (o.state === 'waiting') return openConsult(cu);
+  if (o.state === 'taken') { toast(o.who + ' aguarda o preparo. Vá até a bancada 🧪'); return; }
+  if (o.state === 'ready') return deliverOrder(cu);
+}
+function openConsult(cu) {
+  const o = cu.order, form = FORMULATIONS[o.formulaId];
+  const others = shuffle(G.unlockedFormulas.filter(id => id !== o.formulaId)).slice(0, 2), opts = shuffle([o.formulaId].concat(others));
+  let wrong = 0;
+  const body = openModal('Atendimento no balcão',
+    '<div class="talk"><div class="portrait">' + generateSVGAvatar(o.who) + '</div><div class="bubble-t"><b>' + esc(o.who) + '</b><p style="margin:.3rem 0 0">' + pick(GREETINGS) + '<br><i>Queixa: ' + esc(form.symptom) + '</i></p></div></div>' +
+    '<p class="muted" style="margin:16px 0 0">Qual fórmula combina com a queixa?</p><div class="opts">' +
+    opts.map(id => { const f = FORMULATIONS[id], r = f.reward * (matchesOutbreak(f) ? G.activeOutbreak.bonus : 1); return '<button class="opt" data-id="' + id + '"><b>' + esc(f.name) + '</b><small>' + esc(f.type) + ' · honorários 🪙 ' + r.toFixed(2) + '</small></button>'; }).join('') +
+    '</div><div class="feedback" id="fb"></div>');
+  const fb = $('#fb', body);
+  body.querySelectorAll('.opt').forEach(btn => btn.onclick = () => {
+    const id = btn.dataset.id;
+    if (id === o.formulaId) {
+      btn.classList.add('right'); o.firstTry = wrong === 0; o.state = 'taken'; sfx('good');
+      fb.style.color = '#2f7d59'; fb.textContent = 'Perfeito! Receita anotada. Agora é com a bancada.';
+      renderTickets(); saveGame(); body.querySelectorAll('.opt').forEach(b => b.disabled = true); const sheet = $('.sheet', modalRoot); setTimeout(() => { if ($('.sheet', modalRoot) === sheet) closeModal(); }, 900);
+    } else {
+      wrong++; o.firstTry = false; btn.disabled = true; btn.classList.add('shake'); sfx('bad'); setTimeout(() => btn.classList.remove('shake'), 400);
+      fb.textContent = wrong === 1 ? 'Hmm, essa fórmula não combina com a queixa. O livro de fórmulas ajuda.' : 'Dica: procure uma forma farmacêutica do tipo ' + form.type + '.';
+    }
+  });
+}
+function deliverOrder(cu) {
+  const o = cu.order, rep = CONFIG.repApproved + (o.firstTry ? CONFIG.repPerfectService : 0);
+  G.money += o.reward; G.reputation += rep; o.state = 'done';
+  addFloater(cu.x, cu.y - 92, '+' + o.reward.toFixed(2) + ' G', '#ffd772'); addFloater(cu.x - 14, cu.y - 70, '💜'); addFloater(cu.x + 16, cu.y - 78, '💜');
+  sfx('coin'); toast(o.who + ' agradeceu! +' + o.reward.toFixed(2) + ' G e +' + rep + ' ⭐', 'success');
+  sendAway(cu); updateHUD(); renderTickets(); saveGame();
+  if (allDone()) setTimeout(() => toast('Todos os pedidos de hoje foram entregues. Acenda o lampião para fechar o dia 🏮', 'gold'), 900);
+}
+
+/* ---------- bancada ---------- */
+const missingIngredients = form => form.ingredients.filter(i => (G.inventory[i.id] || 0) < i.targetAmount * 1.1);
+const missingEquipment = form => (form.requires || []).filter(id => !hasEq(id));
+function openBench() {
+  const taken = G.orders.filter(o => o.state === 'taken');
+  if (!taken.length) { openModal('Bancada do laboratório', '<p>Nenhum pedido em preparo agora.</p><p class="muted">Atenda um cliente no balcão (o balão 💬) para receber a receita e voltar aqui.</p><button class="btn" id="ok">Entendi</button>').querySelector('#ok').onclick = closeModal; return; }
+  const body = openModal('Bancada do laboratório', '<p class="muted">Escolha o pedido que vai manipular.</p><div id="bench-list" style="display:grid;gap:10px;margin-top:10px"></div>');
+  const list = $('#bench-list', body);
+  taken.forEach(o => {
+    const f = FORMULATIONS[o.formulaId], miss = missingIngredients(f), meq = missingEquipment(f), card = document.createElement('div'); card.className = 'tile';
+    const blocked = miss.length || meq.length;
+    card.innerHTML = '<div class="row" style="align-items:center"><div class="ticket" style="border:0;padding:0;flex:1"><div class="av">' + generateSVGAvatar(o.who) + '</div><div class="tx"><div class="nm">' + esc(f.name) + '</div><div class="st">Para ' + esc(o.who) + ' · ' + esc(f.type) + '</div></div></div><button class="btn sage" ' + (blocked ? 'disabled' : '') + '>Preparar</button></div>' +
+      '<div class="muted">' + f.ingredients.map(i => { const ok = (G.inventory[i.id] || 0) >= i.targetAmount * 1.1; return (ok ? '✓ ' : '✗ ') + esc(i.name); }).join(' · ') + '</div>' +
+      ((f.requires || []).length ? '<div class="muted">Equipamento: ' + f.requires.map(id => (hasEq(id) ? '✓ ' : '✗ ') + esc(EQUIPMENT[id].name)).join(' · ') + '</div>' : '') +
+      (meq.length ? '<div class="bad">Falta equipamento. Veja a aba Equipamentos no armazém.</div>' : '') + (miss.length ? '<div class="bad">Faltam insumos. Compre no armazém ou colha na estufa.</div>' : '');
+    $('button', card).onclick = () => startLab(o); list.appendChild(card);
+  });
+}
+
+/* ---------- armazém ---------- */
+function openShop(tab) {
+  let cur = tab || 'insumos';
+  const body = openModal('Armazém', '<div class="steps" id="shop-tabs" role="tablist"></div><p class="muted">Saldo: <b id="shop-money"></b></p><div class="grid" id="shop-grid" style="margin-top:10px"></div>', { wide: true });
+  const draw = () => {
+    $('#shop-money', body).textContent = '🪙 ' + G.money.toFixed(2) + ' G';
+    $('#shop-tabs', body).innerHTML = [['insumos', 'Insumos'], ['bancada', 'Equipamentos de bancada'], ['estufa', 'Estufa']].map(t => '<button class="step ' + (cur === t[0] ? 'on' : '') + '" data-t="' + t[0] + '" role="tab" style="cursor:pointer">' + t[1] + '</button>').join('');
+    body.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { cur = b.dataset.t; draw(); });
+    const grid = $('#shop-grid', body);
+    if (cur === 'insumos') {
+      grid.innerHTML = SHOP_ITEMS.map(it => { const st = G.inventory[it.id] || 0; return '<div class="tile"><h3>' + esc(it.name) + '</h3><div class="muted">Em estoque: <b>' + (Number.isInteger(st) ? st : st.toFixed(3)) + '</b></div><div class="row"><span>🪙 ' + it.cost.toFixed(2) + ' G <small class="muted">(+' + it.qty + ')</small></span><button class="btn sm" data-id="' + it.id + '">Comprar</button></div></div>'; }).join('');
+      body.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => {
+        const it = SHOP_ITEMS.find(x => x.id === b.dataset.id);
+        if (G.money < it.cost) { toast('Saldo insuficiente.', 'warning'); sfx('bad'); return; }
+        G.money -= it.cost; G.inventory[it.id] = (G.inventory[it.id] || 0) + it.qty; sfx('coin'); updateHUD(); saveGame(); draw();
+      });
+    } else {
+      const items = Object.entries(EQUIPMENT).filter(([id, e]) => cur === 'bancada' ? (e.cat === 'bancada' || e.starter) : e.cat === 'estufa');
+      grid.innerHTML = items.map(([id, e]) => {
+        const own = hasEq(id);
+        return '<div class="tile"><h3>' + esc(e.name) + '</h3><div class="muted">' + esc(e.desc) + '</div>' + (e.uses ? '<div><span class="tag g">Usado em: ' + esc(e.uses) + '</span></div>' : '') +
+          '<div class="row">' + (own ? '<span class="ok">✓ ' + (e.starter ? 'Já na bancada' : 'Adquirido') + '</span>' : '<span>🪙 ' + e.cost.toFixed(2) + ' G</span><button class="btn sm" data-eq="' + id + '">Comprar</button>') + '</div></div>';
+      }).join('');
+      body.querySelectorAll('button[data-eq]').forEach(b => b.onclick = () => {
+        const id = b.dataset.eq, e = EQUIPMENT[id];
+        if (G.money < e.cost) { toast('Saldo insuficiente.', 'warning'); sfx('bad'); return; }
+        G.money -= e.cost; G.equipment.push(id); sfx('good'); toast(e.name + ' instalado! 🔧', 'gold'); updateHUD(); saveGame(); draw();
+      });
+    }
+  };
+  draw();
+}
+
+/* ---------- livro de fórmulas ---------- */
+function openBook() {
+  let filt = 'todas';
+  const FILTERS = [['todas', 'Todas'], ['Sólida', 'Sólidas'], ['Semi-sólida', 'Semissólidas'], ['Líquida', 'Líquidas']];
+  const body = openModal('Livro de fórmulas', '<div class="steps" id="book-tabs"></div><div class="grid" id="book-grid"></div><p class="muted" style="margin-top:14px">Fórmulas didáticas para a prática de Farmacotécnica, inspiradas na Farmacopeia Brasileira, no Formulário Nacional, no Formulário de Fitoterápicos e em textos clássicos de farmácia magistral (Ansel, Allen). Confira concentrações e monografias antes de usar fora do jogo.</p>', { wide: true });
+  const draw = () => {
+    $('#book-tabs', body).innerHTML = FILTERS.map(f => '<button class="step ' + (filt === f[0] ? 'on' : '') + '" data-f="' + f[0] + '" style="cursor:pointer">' + f[1] + '</button>').join('');
+    body.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filt = b.dataset.f; draw(); });
+    $('#book-grid', body).innerHTML = Object.values(FORMULATIONS).filter(f => filt === 'todas' || f.type.indexOf(filt) === 0).map(f => {
+      const known = G.unlockedFormulas.includes(f.id), can = G.money >= f.unlockCost && G.reputation >= f.reqRep, req = f.requires || [];
+      return '<div class="tile"><h3>' + esc(f.name) + '</h3><div class="row"><span class="tag">' + esc(f.type) + '</span><span class="tag h">🪙 ' + f.reward.toFixed(2) + '</span></div>' +
+        (f.teach ? '<div><span class="tag g">' + esc(f.teach) + '</span></div>' : '') +
+        '<div class="muted"><b>Indicação:</b> ' + esc(f.symptom) + '</div>' +
+        '<div class="muted">' + f.ingredients.map(i => esc(i.name) + ' <b>' + i.targetAmount + ' g</b>').join('<br>') + '</div>' +
+        '<div class="muted"><b>POP:</b> ' + esc(f.pop) + '</div>' +
+        (req.length ? '<div class="muted"><b>Equipamento:</b> ' + req.map(id => (hasEq(id) ? '✓ ' : '✗ ') + esc(EQUIPMENT[id].name)).join(' · ') + '</div>' : '') +
+        (known ? '<span class="ok">✓ Aprendida</span>' : '<div class="muted">Custa 🪙 ' + f.unlockCost.toFixed(2) + ' · exige ⭐ ' + f.reqRep + '</div><button class="btn sm" data-id="' + f.id + '" ' + (can ? '' : 'disabled') + '>Aprender fórmula</button>') + '</div>';
+    }).join('');
+    body.querySelectorAll('button[data-id]').forEach(b => b.onclick = () => {
+      const f = FORMULATIONS[b.dataset.id]; G.money -= f.unlockCost; G.unlockedFormulas.push(f.id);
+      sfx('good'); toast('Fórmula aprendida: ' + f.name + ' 📜', 'gold'); updateHUD(); saveGame(); draw();
+    });
+  };
+  draw();
+}
+
+/* ---------- BPM ---------- */
+function openBPM() {
+  const logs = G.batchLogs, ap = logs.filter(l => l.status === 'APROVADO').length, rep = logs.length - ap;
+  openModal('Relatórios de Boas Práticas de Manipulação',
+    '<div class="row" style="margin-bottom:12px"><div class="tile"><h3>Lotes</h3><b>' + logs.length + '</b></div><div class="tile"><h3>Aprovados</h3><b class="ok">' + ap + '</b></div><div class="tile"><h3>Reprovados</h3><b class="bad">' + rep + '</b></div></div>' +
+    (logs.length ? '<table><thead><tr><th>Lote</th><th>Dia</th><th>Produto</th><th>Paciente</th><th>Desvio máx.</th><th>Status</th></tr></thead><tbody>' +
+      logs.slice(0, 14).map(l => '<tr><td>' + esc(l.id) + '</td><td>' + l.day + '</td><td>' + esc(l.formName) + '</td><td>' + esc(l.patient) + '</td><td>' + l.maxDev + '%</td><td class="' + (l.status === 'APROVADO' ? 'ok' : 'bad') + '">' + l.status + (l.stars ? ' ' + '★'.repeat(l.stars) : '') + '</td></tr>').join('') + '</tbody></table>'
+      : '<p class="muted">Nenhum lote registrado ainda. Cada preparo passa pelo controle de qualidade e entra aqui.</p>'), { wide: true });
+}
+
+/* ---------- estufa ---------- */
+function openGarden() {
+  const body = openModal('Estufa', '<p class="muted">Anti-pragas: <b id="g-spray"></b> · Irrigação: <b id="g-drip"></b> · Telas: <b id="g-net"></b>. Melhorias no armazém, aba Estufa.</p><div class="grid" id="g-grid" style="margin-top:10px"></div>', { wide: true });
+  const draw = () => {
+    $('#g-spray', body).textContent = G.inventory.calda_fumo || 0;
+    $('#g-drip', body).textContent = hasEq('irrigacao') ? 'instalada ✓' : 'não';
+    $('#g-net', body).textContent = hasEq('telas') ? 'instaladas ✓' : 'não';
+    const grid = $('#g-grid', body); grid.innerHTML = '';
+    G.garden.forEach(bed => {
+      const t = document.createElement('div'); t.className = 'tile';
+      if (!bed.unlocked) {
+        const can = G.money >= bed.cost && G.reputation >= bed.reqRep;
+        t.innerHTML = '<h3>🔒 Canteiro ' + (bed.id + 1) + (bed.id >= 4 ? ' · prateleira superior' : '') + '</h3><div class="muted">Custa 🪙 ' + bed.cost.toFixed(2) + ' · exige ⭐ ' + bed.reqRep + '</div><button class="btn sm" ' + (can ? '' : 'disabled') + '>Desbloquear</button>';
+        $('button', t).onclick = () => { G.money -= bed.cost; bed.unlocked = true; sfx('good'); toast('Novo canteiro desbloqueado! 🌱', 'gold'); updateHUD(); saveGame(); draw(); };
+      } else if (!bed.seedKey) {
+        t.innerHTML = '<h3>Canteiro ' + (bed.id + 1) + ' · vazio</h3><select aria-label="Semente">' + Object.values(SEED_CATALOG).map(s => '<option value="' + s.id + '">' + s.name + ' (🪙 ' + s.cost + ')</option>').join('') + '</select><button class="btn sm sage">Plantar</button>';
+        $('button', t).onclick = () => { const s = SEED_CATALOG[$('select', t).value]; if (G.money < s.cost) { toast('Saldo insuficiente para as sementes.', 'warning'); return; } G.money -= s.cost; Object.assign(bed, { seedKey: s.id, stage: 0, watered: false, hasPest: false }); sfx('tap'); updateHUD(); saveGame(); draw(); };
+      } else {
+        const s = SEED_CATALOG[bed.seedKey], ready = bed.stage >= s.stages;
+        t.innerHTML = '<div class="row" style="align-items:center"><div style="flex:none;width:84px">' + generatePlantSVG(bed.stage, s.stages, bed.hasPest) + '</div><div><h3>' + s.name + '</h3><div class="muted">Estágio ' + bed.stage + '/' + s.stages + (bed.watered ? ' · 💧 regada' : (hasEq('irrigacao') ? ' · rega automática' : ' · com sede')) + (bed.hasPest ? ' · 🐛 com pragas' : '') + '</div></div></div>' +
+          '<div class="row"><button class="btn sm sky" data-a="w" ' + (bed.watered || ready ? 'disabled' : '') + '>Regar</button>' + (bed.hasPest ? '<button class="btn sm blush" data-a="p">Tratar praga</button>' : '') + '<button class="btn sm sage" data-a="h" ' + (ready ? '' : 'disabled') + '>Colher</button></div>';
+        t.querySelectorAll('button').forEach(b => b.onclick = () => {
+          const a = b.dataset.a;
+          if (a === 'w') { bed.watered = true; sfx('water'); }
+          if (a === 'p') { if ((G.inventory.calda_fumo || 0) > 0) { G.inventory.calda_fumo--; bed.hasPest = false; toast('Praga eliminada! 🛡️', 'success'); } else { toast('Sem extrato anti-pragas. Compre no armazém.', 'warning'); return; } }
+          if (a === 'h') { const y = bed.hasPest ? Math.floor(s.yieldQty * .5) : s.yieldQty; G.inventory[bed.seedKey] = (G.inventory[bed.seedKey] || 0) + y; toast(bed.hasPest ? 'Colheita reduzida pelas pragas: +' + y + ' g' : 'Colheita excelente de ' + s.name + '! +' + y + ' g 🌾', bed.hasPest ? 'warning' : 'success'); sfx('good'); Object.assign(bed, { seedKey: null, stage: 0, watered: false, hasPest: false }); }
+          saveGame(); draw();
+        });
+      }
+      grid.appendChild(t);
+    });
+  };
+  draw();
+}
+
+/* ---------- menu, ajuda, novo jogo ---------- */
+function openHelp() {
+  openModal('Como jogar',
+    '<p><b>Andar:</b> setas ou WASD, ou toque/clique no lugar para onde quer ir.<br><b>Interagir:</b> tecla <kbd>E</kbd>, espaço ou o botão que aparece na tela.</p>' +
+    '<p>1. Os moradores chegam ao balcão com uma queixa (💬). Escolha a fórmula certa.<br>2. Na bancada, pese cada insumo, faça a mistura e rotule o lote.<br>3. O controle de qualidade aprova só desvios de até ±' + CONFIG.tolerancePct + '%. Lote aprovado (✅) é entregue no balcão.<br>4. Compre insumos no armazém, colha extratos na estufa e aprenda novas fórmulas no livro.<br>5. Terminou? Acenda o lampião 🏮 para fechar o dia.</p>' +
+    '<p class="muted">Dica: a arara no balcão conhece as boas práticas. Clique nela.</p><button class="btn big" id="ok">Vamos manipular</button>').querySelector('#ok').onclick = closeModal;
+}
+function openMenu() {
+  const body = openModal('Menu', '<div class="opts"><button class="opt" id="m-save"><b>💾 Salvar agora</b><small>O jogo também salva sozinho a cada passo.</small></button><button class="opt" id="m-help"><b>❓ Como jogar</b></button><button class="opt" id="m-about"><b>ℹ️ Sobre o jogo</b><small>Autoria e objetivo de aprendizagem.</small></button><button class="opt" id="m-reset"><b>🔄 Recomeçar a botica</b><small>Apaga o progresso atual.</small></button></div>');
+  $('#m-save', body).onclick = () => { saveGame(); toast('Jogo salvo! 💾', 'success'); closeModal(); };
+  $('#m-help', body).onclick = openHelp;
+  $('#m-about', body).onclick = openAbout;
+  $('#m-reset', body).onclick = () => askConfirm('Recomeçar a Botica? Todo o progresso será apagado.', 'Recomeçar', () => { G = defaultState(); G.tutorialSeen = true; customers = []; floaters = []; run = null; labStop(); worldTime = 0; vis.clock = 0; newDayOrders(); saveGame(); updateHUD(); renderTickets(); closeModal(); toast('Uma nova botica abriu na Vila da Arara Azul 🦜', 'gold'); });
+}
+function openAbout() {
+  openModal('Sobre o jogo',
+    '<p><b>Botica da Vila da Arara Azul</b> é um jogo educativo criado pela <b>Profª. Drª. Anna Carolina Schneider Alves</b> para a disciplina de <b>Farmacotécnica</b>.</p>' +
+    '<p>O objetivo é praticar, de forma lúdica, o preparo de formas farmacêuticas <b>sólidas</b>, <b>semissólidas</b> e <b>líquidas</b>: pesagem, mistura, rotulagem e controle de qualidade, com equipamentos e insumos como na bancada real.</p>' +
+    '<div class="social"><a href="https://www.instagram.com/prof.annaalves/" target="_blank" rel="noopener noreferrer">📷 Instagram @prof.annaalves</a><a href="https://www.youtube.com/@boticadoconhecimento" target="_blank" rel="noopener noreferrer">▶️ YouTube Botica do Conhecimento</a></div>' +
+    '<p class="muted">Base técnica: Farmacopeia Brasileira, Formulário Nacional, Formulário de Fitoterápicos da Farmacopeia Brasileira e textos clássicos de farmácia magistral (Ansel, Allen). As fórmulas são didáticas: confira concentrações e monografias antes de usar fora do jogo.</p><button class="btn big" id="ok">Voltar ao jogo</button>').querySelector('#ok').onclick = closeModal;
+}
+function showWelcome() {
+  openModal('Bem-vinda à Botica da Arara Azul',
+    '<p>A vila inteira confia na sua botica de manipulação. Atenda os moradores, prepare cada fórmula com cuidado e mantenha a reputação em alta.</p><p class="muted">Setas ou toque para andar · <kbd>E</kbd> para interagir</p><p class="muted">Jogo educativo criado pela Profª. Drª. Anna Carolina Schneider Alves para a disciplina de Farmacotécnica.</p><button class="btn big" id="ok">Abrir a botica</button>').querySelector('#ok').onclick = () => { G.tutorialSeen = true; saveGame(); closeModal(); };
+}
+
+/* ---------- fim do dia ---------- */
+function askEndDay() {
+  const pending = G.orders.filter(o => o.state !== 'done').length;
+  askConfirm(pending ? 'Ainda há ' + pending + ' pedido(s) sem entrega. Quem não for atendido vai embora e a reputação cai (−' + CONFIG.repMissedOrder + ' ⭐ cada). Fechar mesmo assim?' : 'Todos os pedidos foram entregues. Fechar a botica e passar para o próximo dia?', 'Fechar o dia', endDay, { no: 'Ainda não' });
+}
+function advanceDay() {
+  const msgs = []; G.day++;
+  if (G.day % CONFIG.seasonEveryDays === 1) { G.seasonIndex = (G.seasonIndex + 1) % SEASONS.length; msgs.push(['Mudança de estação! Bem-vinda, ' + SEASONS[G.seasonIndex] + '!', 'gold']); }
+  G.garden.forEach(bed => {
+    if (bed.unlocked && bed.seedKey) {
+      const s = SEED_CATALOG[bed.seedKey];
+      if (hasEq('irrigacao')) bed.watered = true;
+      if (bed.watered && bed.stage < s.stages && !bed.hasPest) bed.stage++;
+      bed.watered = false;
+      if (!bed.hasPest && Math.random() < (hasEq('telas') ? CONFIG.pestChanceScreens : CONFIG.pestChance)) { bed.hasPest = true; msgs.push(['🐛 Pragas atacaram o canteiro de ' + s.name + '!', 'warning']); }
+    }
+  });
+  if (Math.random() < CONFIG.outbreakChance) { G.activeOutbreak = pick(EPIDEMICS); msgs.push([G.activeOutbreak.msg, 'warning']); } else G.activeOutbreak = null;
+  newDayOrders(); saveGame(); updateHUD(); renderTickets();
+  return msgs;
+}
+function endDay() {
+  closing = true; const veil = $('#veil'); $('#veil-t').textContent = 'Boa noite, vila…'; $('#veil-s').textContent = ''; veil.classList.add('on');
+  setTimeout(() => {
+    const missed = G.orders.filter(o => o.state !== 'done').length;
+    if (missed) G.reputation = Math.max(0, G.reputation - missed * CONFIG.repMissedOrder);
+    customers = []; floaters = []; vis.clock = 0;
+    const msgs = advanceDay();
+    if (missed) msgs.unshift([missed + ' pedido(s) ficaram sem atendimento: −' + (missed * CONFIG.repMissedOrder) + ' ⭐', 'warning']);
+    $('#veil-t').textContent = 'Dia ' + G.day; $('#veil-s').textContent = SEASONS[G.seasonIndex] + (G.activeOutbreak ? ' · ' + G.activeOutbreak.name : '');
+    setTimeout(() => { closing = false; veil.classList.remove('on'); msgs.forEach((m, i) => setTimeout(() => toast(m[0], m[1]), 700 + i * 500)); }, 1500);
+  }, 900);
+}
+/* ==========================================================================
+   LABORATÓRIO: PESAGEM → MISTURA → ROTULAGEM → QUALIDADE
+   ========================================================================== */
+let run = null, labCleanup = null;
+function labStop() { if (labCleanup) { const f = labCleanup; labCleanup = null; f(); } }
+function stepsBar(active) {
+  return '<div class="steps">' + ['Pesagem', 'Mistura', 'Rótulo', 'Qualidade'].map((n, i) => '<span class="step ' + (i < active ? 'done' : i === active ? 'on' : '') + '">' + n + '</span>').join('') + '</div>';
+}
+function startLab(order) {
+  const form = FORMULATIONS[order.formulaId], miss = missingIngredients(form), meq = missingEquipment(form);
+  if (meq.length) { toast('Falta equipamento: ' + meq.map(id => EQUIPMENT[id].name).join(', ') + '. Veja o armazém.', 'warning'); return; }
+  if (miss.length) { toast('Faltam insumos: ' + miss.map(i => i.name).join(', '), 'warning'); return; }
+  run = { order, form, idx: 0, weighed: form.ingredients.map(() => 0), mix: 1, label: 1, labelErrors: 0, lot: 'LOT-' + String(G.batchLogs.length + 1).padStart(3, '0') };
+  run.body = openModal(form.name, '', { guard: () => askConfirm('Sair agora? O que já foi pesado será perdido.', 'Sair e descartar', () => { labStop(); run = null; closeModal(); }, { no: 'Continuar' }) });
+  labWeigh();
+}
+function loopWhile(fn) {
+  let alive = true, last = performance.now();
+  const step = now => { if (!alive) return; const dt = Math.min(.05, (now - last) / 1000); last = now; fn(dt); requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+  return () => { alive = false; };
+}
+function holdButton(btn, onDown, onUp, key) {
+  const down = e => { e.preventDefault(); onDown(); };
+  btn.addEventListener('pointerdown', e => { down(e); try { btn.setPointerCapture(e.pointerId); } catch (x) { /* ok */ } });
+  ['pointerup', 'pointercancel'].forEach(ev => btn.addEventListener(ev, onUp));
+  const kd = e => { if (e.key === key && !e.repeat) { e.preventDefault(); onDown(); } }, ku = e => { if (e.key === key) { e.preventDefault(); onUp(); } };
+  addEventListener('keydown', kd); addEventListener('keyup', ku);
+  return () => { removeEventListener('keydown', kd); removeEventListener('keyup', ku); };
+}
+
+/* ---------- 1. pesagem ---------- */
+function labWeigh() {
+  labStop();
+  const { form, idx, body } = run, ing = form.ingredients[idx], target = ing.targetAmount, tol = CONFIG.tolerancePct / 100, range = target * 1.4;
+  const fine = hasEq('balanca_analitica'), dp = fine ? 4 : 3, fm = n => n.toFixed(dp);
+  let stock = G.inventory[ing.id] || 0, mass = 0, hold = 0, pouring = false, tick = 0;
+  body.innerHTML = '<div class="lab">' + stepsBar(0) + '<div class="muted">Ingrediente ' + (idx + 1) + ' de ' + form.ingredients.length + (fine ? ' · balança analítica' : '') + '</div><h3>' + esc(ing.name) + '</h3>' +
+    '<div class="muted">Alvo <b>' + fm(target) + ' g</b> · tolerância ±' + CONFIG.tolerancePct + '% (' + fm(target * (1 - tol)) + ' a ' + fm(target * (1 + tol)) + ' g)</div>' +
+    '<div class="balance"><svg viewBox="0 0 150 120" aria-hidden="true"><rect x="14" y="98" width="122" height="14" rx="6" fill="#dcd8e2" stroke="#1f1528" stroke-width="3"/><rect x="66" y="80" width="18" height="20" fill="#c9c4d2" stroke="#1f1528" stroke-width="3"/><ellipse cx="75" cy="78" rx="52" ry="9" fill="#f4f1f7" stroke="#1f1528" stroke-width="3"/><g id="heap" transform="translate(75 74) scale(0.1)"><path d="M -34 0 Q -20 -6 -12 -26 Q 0 -44 12 -26 Q 20 -6 34 0 Z" fill="#fffdf6" stroke="#1f1528" stroke-width="3"/></g></svg>' +
+    '<div><div class="readout" id="rd">' + fm(0) + ' g</div><div class="gauge"><div class="zone" style="left:' + ((1 - tol) / 1.4 * 100) + '%;width:' + (2 * tol / 1.4 * 100) + '%"></div><div class="fill" id="gf"></div></div><div class="gauge-l"><span>0</span><span>faixa verde = aprovado</span></div></div></div>' +
+    '<button class="btn big pourbtn" id="pour">Segure para despejar</button>' +
+    '<div class="row" style="margin-top:8px"><button class="btn ghost" id="pinch">Pitada</button><button class="btn ghost" id="redo">Descartar e repesar</button><button class="btn sage" id="ok">Confirmar</button></div>' +
+    '<p class="muted">Segure o botão (ou a barra de espaço): quanto mais tempo, mais rápido cai o pó. Solte antes de passar do alvo e ajuste com pitadas.</p></div>';
+  const rd = $('#rd', body), gf = $('#gf', body), heap = $('#heap', body);
+  const upd = () => {
+    rd.textContent = fm(mass) + ' g'; gf.style.width = clamp(mass / range * 100, 0, 100) + '%'; gf.classList.toggle('over', mass > target * (1 + tol));
+    heap.setAttribute('transform', 'translate(75 74) scale(' + (0.1 + Math.pow(clamp(mass / target, 0, 1.5), .7) * .95).toFixed(3) + ')');
+  };
+  const stopLoop = loopWhile(dt => {
+    if (pouring) { hold += dt; tick += dt; const add = Math.min(target * (.05 + Math.min(hold, 2.2) * .55) * (fine ? .7 : 1) * dt, Math.max(0, stock - mass)); if (add > 0) { mass += add; if (tick > .09) { tick = 0; sfx('tick'); } } } else hold = 0;
+    upd();
+  });
+  const stopKey = holdButton($('#pour', body), () => { pouring = true; }, () => { pouring = false; }, ' ');
+  labCleanup = () => { stopLoop(); stopKey(); };
+  $('#pinch', body).onclick = () => { mass = Math.min(stock, mass + target * rand(.006, .014) * (fine ? .5 : 1)); sfx('tick'); upd(); };
+  $('#redo', body).onclick = () => {
+    if (mass > 0) { G.inventory[ing.id] = Math.max(0, stock - mass); stock = G.inventory[ing.id]; toast('Descartado: ' + fm(mass) + ' g de ' + ing.name, 'warning'); mass = 0; saveGame(); }
+    if (stock < target * (1 - tol)) toast('Sobrou pouco insumo para atingir o alvo. Compre mais no armazém.', 'warning');
+  };
+  $('#ok', body).onclick = () => {
+    if (mass <= 0) { toast('Pese o insumo antes de confirmar.', 'warning'); return; }
+    const dev = Math.abs((mass - target) / target) * 100;
+    G.inventory[ing.id] = Math.max(0, stock - mass); run.weighed[idx] = mass; saveGame();
+    if (dev <= CONFIG.tolerancePct) { sfx('good'); toast(ing.name + ': ' + fm(mass) + ' g (desvio ' + dev.toFixed(1) + '%)', 'success'); }
+    else { sfx('bad'); toast(ing.name + ' fora da faixa (' + dev.toFixed(1) + '%). O lote pode ser reprovado.', 'warning'); }
+    labStop(); run.idx++;
+    if (run.idx < form.ingredients.length) labWeigh(); else labMix();
+  };
+}
+
+/* ---------- 2. mistura (etapas encadeadas) ---------- */
+const stepTitle = k => (run.form.mixTitles && run.form.mixTitles[k]) || run.form.mixTitle || 'Mistura';
+function getQuiz(f) {
+  if (f.quiz) return f.quiz;
+  const first = f.ingredients.find(i => i.id === f.geoFirst) || f.ingredients.slice().sort((a, b) => a.targetAmount - b.targetAmount)[0];
+  return { q: 'Qual componente entra primeiro no gral?', options: f.ingredients.map(i => i.name), correct: first.name, explain: f.geoHint || 'Comece pelo componente em menor quantidade e vá dobrando o volume.' };
+}
+function labMix() {
+  labStop(); const f = run.form, plan = (f.mixSteps || [f.mix]).slice();
+  if (f.geo && plan[0] === 'grind') plan.unshift('quiz');
+  run.plan = plan; run.total = plan.filter(k => k !== 'quiz').length; run.pos = 0; run.wt = 1 / Math.max(1, run.total);
+  nextMix();
+}
+function nextMix() {
+  labStop(); const k = run.plan.shift(); if (!k) return labLabel();
+  if (k !== 'quiz') run.pos++;
+  ({ quiz: mixQuiz, grind: mixGrind, stir: mixStir, gel: mixGel, heat: mixHeat })[k]();
+}
+function mixHead(k) {
+  return '<div class="lab">' + stepsBar(1) + (run.total > 1 ? '<div class="muted">Passo ' + run.pos + ' de ' + run.total + '</div>' : '') + '<h3>' + esc(stepTitle(k)) + '</h3><p>' + esc(run.form.pop) + '</p>';
+}
+function mixDone(score, msg) {
+  run.mix = clamp(run.mix - .6 * (1 - score) * run.wt, 0, 1); sfx(score > .6 ? 'good' : 'bad');
+  run.body.querySelector('.lab').insertAdjacentHTML('beforeend', '<p class="' + (score > .6 ? 'ok' : 'bad') + '" style="margin-top:10px">' + msg + '</p>');
+  setTimeout(() => { if (run) nextMix(); }, 1100);
+}
+function mixQuiz() {
+  const { form, body } = run, q = getQuiz(form);
+  body.innerHTML = '<div class="lab">' + stepsBar(1) + '<h3>' + esc(stepTitle('quiz')) + '</h3><p>' + esc(form.pop) + '</p><p><b>' + esc(q.q) + '</b></p><div class="opts">' +
+    shuffle(q.options).map(o => '<button class="opt"><b>' + esc(o) + '</b></button>').join('') + '</div><div class="feedback" id="fb"></div></div>';
+  body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    body.querySelectorAll('.opt').forEach(x => { x.disabled = true; if (x.textContent === q.correct) x.classList.add('right'); });
+    const fb = $('#fb', body);
+    if (b.textContent === q.correct) { sfx('good'); fb.style.color = '#2f7d59'; fb.textContent = 'Isso! ' + q.explain; }
+    else { sfx('bad'); run.mix = clamp(run.mix - .35, 0, 1); fb.textContent = 'Quase. ' + q.explain; }
+    fb.insertAdjacentHTML('afterend', '<button class="btn big" id="go" style="margin-top:10px">Continuar</button>'); $('#go', body).onclick = nextMix;
+  });
+}
+function mixGrind() {
+  const { form, body } = run;
+  body.innerHTML = mixHead('grind') + '<div class="mixwrap"><canvas id="gral" width="320" height="320"></canvas></div><div class="bar"><div id="gp"></div></div>' +
+    '<p class="muted">Gire o pistilo em círculos sem sair do gral (mouse ou dedo).</p><button class="btn ghost" id="auto">Misturar por toques (mais lento)</button></div>';
+  const cvs = $('#gral', body), c = cvs.getContext('2d'), gp = $('#gp', body), cols = ['#fbfbf8', '#f0d9a0', '#dcc0ea', '#b8dccb', '#f2b5cb'], final = '#efe3f2';
+  const ps = Array.from({ length: 170 }, () => ({ a: Math.random() * 6.283, r: Math.sqrt(Math.random()) * 100, s0: rand(3.4, 7.4), col: pick(cols) }));
+  let prog = 0, prevA = null, good = 0, bad = 0, swirl = 0, px = 190, py = 130, dragging = false, used = false, over = false;
+  const finish = () => {
+    if (over) return; over = true; labStop();
+    let score = clamp((good / (good + bad + 1e-6) - .35) / .55, 0, 1); if (used) score = Math.min(score, .6);
+    mixDone(score, score > .6 ? 'Mistura homogênea. Textura lisa e uniforme!' : 'Mistura um pouco irregular, mas dá para seguir.');
+  };
+  const pos = e => { const r = cvs.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 320, (e.clientY - r.top) / r.height * 320]; };
+  const move = e => {
+    const [x, y] = pos(e); px = x; py = y; if (!dragging || over) return;
+    const dx = x - 160, dy = y - 160, r = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+    if (prevA != null) { let d = a - prevA; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; if (Math.abs(d) < 1.4) { if (r > 30 && r < 116) { good += Math.abs(d); prog = Math.min(1, prog + Math.abs(d) / (2 * Math.PI * 6)); swirl += d * .5; } else bad += Math.abs(d); } }
+    prevA = a; if (prog >= 1) finish();
+  };
+  cvs.addEventListener('pointerdown', e => { dragging = true; prevA = null; cvs.setPointerCapture(e.pointerId); move(e); });
+  cvs.addEventListener('pointermove', move);
+  ['pointerup', 'pointercancel'].forEach(ev => cvs.addEventListener(ev, () => { dragging = false; prevA = null; }));
+  $('#auto', body).onclick = () => { used = true; prog = Math.min(1, prog + .05); good += .3; sfx('tick'); if (prog >= 1) finish(); };
+  const stop = loopWhile(dt => {
+    ps.forEach(p => { p.a += swirl * dt * (1.4 - p.r / 140) * 6; });
+    swirl *= Math.pow(.02, dt);
+    c.clearRect(0, 0, 320, 320);
+    circ(c, 160, 160, 156, '#e6dfec', '#1f1528', 4);
+    const g = c.createRadialGradient(150, 150, 20, 160, 160, 130); g.addColorStop(0, '#faf7fc'); g.addColorStop(1, '#ddd3e4'); circ(c, 160, 160, 128, g, '#b9a8c4', 3);
+    ps.forEach(p => { circ(c, 160 + Math.cos(p.a) * p.r, 160 + Math.sin(p.a) * p.r, lerp(p.s0, 1.9, prog), mixHex(p.col, final, prog)); });
+    const qx = clamp(px, 40, 280), qy = clamp(py, 40, 280);
+    c.strokeStyle = '#1f1528'; c.lineWidth = 15; c.lineCap = 'round'; c.beginPath(); c.moveTo(qx, qy); c.lineTo(qx + 44, qy - 84); c.stroke();
+    c.strokeStyle = '#f3efe8'; c.lineWidth = 9; c.beginPath(); c.moveTo(qx, qy); c.lineTo(qx + 44, qy - 84); c.stroke();
+    circ(c, qx, qy, 15, '#f3efe8', '#1f1528', 3.5);
+    gp.style.width = (prog * 100) + '%';
+  });
+  labCleanup = stop;
+}
+/* medidor genérico: gel (pH) e aquecimento (°C) */
+function mixMeter(cfg) {
+  const { body } = run, span = cfg.max - cfg.min, heat = cfg.kind === 'heat';
+  body.innerHTML = cfg.head + '<div class="ph"><svg viewBox="0 0 150 170" aria-hidden="true"><path d="M 34 44 L 34 138 Q 34 154 50 154 L 100 154 Q 116 154 116 138 L 116 44" fill="rgba(210,232,245,.5)" stroke="#1f1528" stroke-width="4" stroke-linecap="round"/>' +
+    '<g id="liqg"><rect id="liq" x="38" y="72" width="74" height="78" rx="12" fill="#cfe6f5" opacity=".55"/></g><rect x="26" y="40" width="98" height="8" rx="4" fill="#dcd8e2" stroke="#1f1528" stroke-width="3"/>' +
+    (heat ? '<g id="steam" opacity="0"><ellipse cx="60" cy="30" rx="4" ry="7" fill="#fff"/><ellipse cx="78" cy="22" rx="4" ry="8" fill="#fff"/><ellipse cx="96" cy="30" rx="4" ry="7" fill="#fff"/></g>' : '<circle id="drop" cx="75" cy="10" r="5" fill="#79b295" opacity="0" stroke="#1f1528" stroke-width="2"/>') + '</svg>' +
+    '<div><div class="readout" id="phv"></div><div class="phbar' + (heat ? ' temp' : '') + '"><div class="win" style="left:' + ((cfg.lo - cfg.min) / span * 100) + '%;width:' + ((cfg.hi - cfg.lo) / span * 100) + '%"></div><div class="pt" id="ppt"></div></div><div class="phlab"><span>' + cfg.min + '</span><span>faixa ideal: ' + cfg.lo + ' a ' + cfg.hi + '</span><span>' + cfg.max + '</span></div><div class="muted" id="phs" style="margin-top:6px"></div></div></div>' +
+    '<button class="btn big pourbtn" id="drip" style="margin-top:12px">' + cfg.holdText + '</button><button class="btn sage big" id="stop" style="margin-top:8px">' + cfg.stopText + '</button></div>';
+  let v = cfg.start, hold = 0, pouring = false, t = 0, over = false;
+  const liq = $('#liq', body), liqg = $('#liqg', body), drop = $('#drop', body), steam = $('#steam', body), phv = $('#phv', body), ppt = $('#ppt', body), phs = $('#phs', body);
+  const stopLoop = loopWhile(dt => {
+    t += dt;
+    if (pouring && !over) { hold += dt; v = Math.min(cfg.max, v + cfg.rate(hold) * dt); if (drop) { drop.setAttribute('opacity', '1'); drop.setAttribute('cy', 8 + (t * 240) % 56); } }
+    else { hold = 0; if (drop) drop.setAttribute('opacity', '0'); if (heat && !over) v = Math.max(cfg.start, v - 1.0 * dt); }
+    if (heat) {
+      const k = clamp((v - 25) / 75, 0, 1); liq.setAttribute('fill', mixHex('#cfe6f5', '#f4b78a', k)); liq.setAttribute('opacity', (.55 + k * .3).toFixed(2));
+      steam.setAttribute('opacity', v > 60 ? (.35 + .3 * Math.sin(t * 5)).toFixed(2) : '0');
+    } else {
+      const k = smooth(5.2, 6.6, v); liq.setAttribute('fill', mixHex('#cfe6f5', '#8fc0dc', k)); liq.setAttribute('opacity', (.5 + k * .4).toFixed(2));
+      liqg.setAttribute('transform', 'rotate(' + (Math.sin(t * 3) * k * 1.6).toFixed(2) + ' 75 150)');
+    }
+    phv.textContent = cfg.fmt(v); ppt.style.left = ((v - cfg.min) / span * 100) + '%'; phs.textContent = cfg.status(v);
+  });
+  phv.textContent = cfg.fmt(v); ppt.style.left = ((v - cfg.min) / span * 100) + '%'; phs.textContent = cfg.status(v);
+  const stopKey = holdButton($('#drip', body), () => { pouring = true; }, () => { pouring = false; }, ' ');
+  labCleanup = () => { stopLoop(); stopKey(); };
+  $('#stop', body).onclick = () => {
+    if (over) return; over = true; labStop();
+    const d = v < cfg.lo ? cfg.lo - v : v > cfg.hi ? v - cfg.hi : 0, score = clamp(1 - d / cfg.tolSpan, 0, 1);
+    cfg.done(score, d === 0, v);
+  };
+}
+function mixGel() {
+  const LO = 6, HI = 7;
+  mixMeter({ kind: 'gel', head: mixHead('gel'), start: 3.1, min: 3, max: 9, lo: LO, hi: HI, tolSpan: 1.4,
+    rate: h => .3 + Math.min(h, 2) * .42, fmt: v => 'pH ' + v.toFixed(1), holdText: 'Segure para pingar trietanolamina', stopText: 'Parar aqui e confirmar',
+    status: v => v < 5.5 ? 'Ainda líquido. Continue neutralizando.' : v < LO ? 'Espessando…' : v <= HI ? 'Gel cristalino formado! Pare por aqui.' : 'Passou do ponto: pH alto demais.',
+    done: (score, ok, v) => mixDone(score, ok ? 'pH ' + v.toFixed(1) + ': gel perfeito e transparente!' : 'pH ' + v.toFixed(1) + ': fora da faixa ideal, viscosidade comprometida.') });
+}
+function mixHeat() {
+  const phases = run.form.heatPhases || [{ name: 'Aquecimento', lo: 65, hi: 75 }]; let i = 0, sum = 0;
+  const go = () => {
+    const ph = phases[i];
+    mixMeter({ kind: 'heat', head: mixHead('heat') + '<p><b>' + esc(ph.name) + '</b>' + (phases.length > 1 ? ' <span class="muted">(fase ' + (i + 1) + ' de ' + phases.length + ')</span>' : '') + '</p>', start: 25, min: 20, max: 100, lo: ph.lo, hi: ph.hi, tolSpan: 12,
+      rate: h => 6 + Math.min(h, 2.5) * 9, fmt: v => v.toFixed(0) + ' °C', holdText: 'Segure para aquecer', stopText: 'Retirar do banho-maria',
+      status: v => v < ph.lo - 12 ? 'Aquecendo…' : v < ph.lo ? 'Quase lá.' : v <= ph.hi ? 'Na faixa! Retire do banho.' : 'Passou do ponto: pode degradar os componentes.',
+      done: (score, ok, v) => {
+        sum += score; i++;
+        const m = ok ? ph.name + ': ' + v.toFixed(0) + ' °C, dentro da faixa.' : ph.name + ': ' + v.toFixed(0) + ' °C, fora da faixa ideal.';
+        if (i < phases.length) { sfx(ok ? 'good' : 'bad'); run.body.querySelector('.lab').insertAdjacentHTML('beforeend', '<p class="' + (ok ? 'ok' : 'bad') + '" style="margin-top:10px">' + m + '</p>'); setTimeout(() => { if (run) go(); }, 1000); }
+        else mixDone(sum / phases.length, m);
+      } });
+  };
+  go();
+}
+function mixStir() {
+  const { form, body } = run, N = 6, wide = hasEq('agitador'), zl = wide ? [36, 28, 43, 14] : [39, 22, 44, 12], th = wide ? [.07, .14] : [.06, .11];
+  body.innerHTML = mixHead('stir') + '<div style="display:grid;place-items:center"><svg viewBox="0 0 160 150" width="180" aria-hidden="true"><path d="M 30 30 L 34 118 Q 36 132 52 132 L 108 132 Q 124 132 126 118 L 130 30" fill="rgba(210,232,245,.5)" stroke="#1f1528" stroke-width="4" stroke-linecap="round"/>' +
+    '<path d="M 36 62 L 38 116 Q 40 128 54 128 L 106 128 Q 120 128 122 116 L 124 62 Z" fill="#d99a4e" opacity=".85"/><g id="spoon"><line x1="80" y1="20" x2="80" y2="112" stroke="#f3efe8" stroke-width="7" stroke-linecap="round"/><line x1="80" y1="20" x2="80" y2="112" stroke="#1f1528" stroke-width="1.6" opacity=".4"/><ellipse cx="80" cy="112" rx="10" ry="6" fill="#f3efe8" stroke="#1f1528" stroke-width="2.5"/></g></svg></div>' +
+    '<div class="timing"><div class="zone" style="left:' + zl[0] + '%;width:' + zl[1] + '%"></div><div class="zone in" style="left:' + zl[2] + '%;width:' + zl[3] + '%"></div><div class="mk" id="mk"></div></div><div class="dots" id="dots">' + '<i></i>'.repeat(N) + '</div>' +
+    '<button class="btn big pourbtn" id="stirb">Mexer!</button><p class="muted">Aperte quando o marcador estiver na faixa verde (ou dourada, para o movimento perfeito). Espaço também funciona.' + (wide ? ' O agitador mecânico alargou a faixa.' : '') + '</p></div>';
+  let phase = 0, n = 0, total = 0, over = false, spin = 0, spinV = 0;
+  const mk = $('#mk', body), spoon = $('#spoon', body), dots = body.querySelectorAll('#dots i');
+  const stopLoop = loopWhile(dt => {
+    phase += dt * (2.2 + n * .35); const pos = .5 + .5 * Math.sin(phase); mk.style.left = (pos * 100) + '%';
+    spin += spinV * dt; spinV *= Math.pow(.05, dt); spoon.setAttribute('transform', 'rotate(' + (Math.sin(spin) * 14).toFixed(1) + ' 80 20)');
+  });
+  const press = () => {
+    if (over) return; const d = Math.abs(.5 + .5 * Math.sin(phase) - .5);
+    let cls = 'm', v = 0; if (d <= th[0]) { cls = 'g'; v = 1; } else if (d <= th[1]) { cls = 'o'; v = .6; }
+    dots[n].className = cls; total += v; n++; spinV = 14; sfx(v ? 'tap' : 'bad');
+    if (n >= N) { over = true; labStop(); const score = total / N; mixDone(score, score > .6 ? 'Mistura homogênea e sem grumos.' : 'Alguns grumos ficaram, mas o lote segue.'); }
+  };
+  $('#stirb', body).addEventListener('pointerdown', e => { e.preventDefault(); press(); });
+  const kd = e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); press(); } };
+  addEventListener('keydown', kd);
+  labCleanup = () => { stopLoop(); removeEventListener('keydown', kd); };
+}
+
+/* ---------- 3. rótulo ---------- */
+function labLabel() {
+  labStop();
+  const { form, order, body } = run, others = k => shuffle(k).slice(0, 2);
+  const names = Object.keys(AVATAR_PALETTES).filter(k => k !== 'default' && k !== order.who);
+  const fields = [
+    { k: 'Paciente', val: order.who, opts: shuffle([order.who].concat(others(names))) },
+    { k: 'Produto', val: form.name, opts: shuffle([form.name].concat(others(Object.values(FORMULATIONS).filter(f => f.id !== form.id).map(f => f.name)))) },
+    { k: 'Conservação', val: form.storage, opts: shuffle([form.storage].concat(others(Array.from(new Set(Object.values(FORMULATIONS).map(f => f.storage))).filter(x => x !== form.storage)))) }
+  ];
+  let fi = 0; run.labelErrors = 0;
+  const draw = () => {
+    const filled = fields.slice(0, fi).map(f => '<div><span>' + f.k + ':</span> <b>' + esc(f.val) + '</b></div>').join('');
+    body.innerHTML = '<div class="lab">' + stepsBar(2) + '<h3>Envase e rotulagem</h3><p class="muted">Rótulo errado é risco para o paciente. Confira cada campo antes de colar.</p><div class="label-card"><div><span>Lote:</span> <b>' + run.lot + '</b></div>' + filled + '</div>' +
+      (fi < fields.length ? '<p><b>' + fields[fi].k + ': qual é o correto?</b></p><div class="opts">' + fields[fi].opts.map(o => '<button class="opt">' + esc(o) + '</button>').join('') + '</div><div class="feedback" id="fb"></div>' : '<button class="btn big sage" id="qc">Enviar ao controle de qualidade</button>') + '</div>';
+    if (fi >= fields.length) { $('#qc', body).onclick = labQC; return; }
+    body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+      if (b.textContent === fields[fi].val) { sfx('tap'); fi++; draw(); }
+      else { run.labelErrors++; run.label = clamp(1 - run.labelErrors * .34, 0, 1); sfx('bad'); b.disabled = true; b.classList.add('shake'); $('#fb', body).textContent = 'Opção errada. Leia com atenção e tente de novo.'; }
+    });
+  };
+  draw();
+}
+
+/* ---------- 4. controle de qualidade ---------- */
+function labQC() {
+  labStop();
+  const { form, order, body } = run, tol = CONFIG.tolerancePct;
+  const rows = form.ingredients.map((ing, i) => { const w = run.weighed[i], dev = Math.abs((w - ing.targetAmount) / ing.targetAmount) * 100; return { ing, w, dev, ok: dev <= tol }; });
+  const okWeigh = rows.every(r => r.ok), maxDev = Math.max.apply(null, rows.map(r => r.dev)), mixOK = run.mix >= .3, approved = okWeigh && mixOK;
+  const weighQ = clamp(1 - (rows.reduce((a, r) => a + r.dev, 0) / rows.length) / tol, 0, 1), q = .5 * weighQ + .3 * run.mix + .2 * run.label;
+  const stars = approved ? (q >= .8 ? 3 : q >= .55 ? 2 : 1) : 0;
+  const reward = form.reward * (matchesOutbreak(form) ? G.activeOutbreak.bonus : 1) * (stars ? CONFIG.starBonus[stars - 1] : 1);
+  body.innerHTML = '<div class="lab">' + stepsBar(4) + '<h3>Controle de qualidade</h3><table><thead><tr><th>Insumo</th><th>Alvo</th><th>Pesado</th><th>Desvio</th></tr></thead><tbody>' +
+    rows.map(r => '<tr><td>' + esc(r.ing.name) + '</td><td>' + r.ing.targetAmount + ' g</td><td>' + r.w.toFixed(3) + ' g</td><td class="' + (r.ok ? 'ok' : 'bad') + '">' + r.dev.toFixed(1) + '% ' + (r.ok ? '✓' : '✗') + '</td></tr>').join('') + '</tbody></table>' +
+    '<div class="verdict ' + (approved ? 'pass' : 'fail') + '">' + (approved ? 'Lote ' + run.lot + ' APROVADO: todos os insumos dentro de ±' + tol + '%.' : 'Lote ' + run.lot + ' REPROVADO: ' + (!okWeigh ? 'há insumo fora da tolerância de ±' + tol + '%.' : 'mistura heterogênea.')) + '</div>' +
+    (approved ? '<div style="text-align:center"><div class="stars" aria-label="' + stars + ' de 3 estrelas">' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</div><div class="muted">Honorários previstos: 🪙 ' + reward.toFixed(2) + ' G</div></div>' : '<p class="muted">O lote será descartado (−' + CONFIG.repRejected + ' ⭐). O cliente continua esperando, e você pode refazer se tiver insumos.</p>') +
+    '<button class="btn big ' + (approved ? 'sage' : 'blush') + '" id="fin" style="margin-top:12px">' + (approved ? 'Guardar para entrega' : 'Descartar lote') + '</button></div>';
+  sfx(approved ? 'good' : 'bad');
+  $('#fin', body).onclick = () => finishLab(approved, maxDev, stars, reward);
+}
+function finishLab(approved, maxDev, stars, reward) {
+  const { form, order } = run;
+  G.batchLogs.unshift({ id: run.lot, day: G.day, formName: form.name, patient: order.who, status: approved ? 'APROVADO' : 'REPROVADO', maxDev: +maxDev.toFixed(1), stars });
+  if (approved) { order.state = 'ready'; order.reward = reward; order.stars = stars; toast('Lote ' + run.lot + ' aprovado! Entregue no balcão ✅', 'success'); }
+  else { G.reputation = Math.max(0, G.reputation - CONFIG.repRejected); toast('Lote ' + run.lot + ' descartado. −' + CONFIG.repRejected + ' ⭐', 'warning'); }
+  run = null; closeModal(); updateHUD(); renderTickets(); saveGame();
+}
+/* ==========================================================================
+   INICIALIZAÇÃO
+   ========================================================================== */
+function bootGame() {
+  const had = loadGame();
+  buildBackground();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { /* fontes só afetam textos do canvas, redesenhados a cada quadro */ });
+  if (!G.orders || !G.orders.length) newDayOrders();
+  else {
+    dayStart = 0; let i = 0;
+    G.orders.forEach(o => {
+      o.spawned = false;
+      if (['waiting', 'taken', 'ready'].includes(o.state)) spawnCustomer(o, true);
+      else if (o.state === 'incoming') o.delay = 1.2 + (i++) * 4;
+    });
+    customers.forEach(cu => { cu.arrived = true; });
+  }
+  updateHUD(); renderTickets();
+  $('#btn-menu').onclick = openMenu;
+  $('#btn-sound').onclick = e => { muted = !muted; e.currentTarget.textContent = muted ? '🔇' : '🔊'; if (!muted) sfx('tap'); };
+  $('#act-btn').onclick = tryInteract;
+  if (!G.tutorialSeen) showWelcome();
+  requestAnimationFrame(frame);
+}
+bootGame();
+</script>
+</body>
+</html>
